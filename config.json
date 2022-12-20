@@ -1,6 +1,7 @@
 {
   "isBatchTokenFile": false,
   "incenseMode": false,
+  "reactAfterCatchMode" false,
   "lowIVLog": "10.00",
   "highIVLog": "85.00",
   "tokens": [
