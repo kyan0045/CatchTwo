@@ -319,7 +319,7 @@ async function Login(token, Client, guildId) {
           )
         }
 
-        const caught = 'Name: ' + name + '|| Level: ' + level + '|| IV: ' + iv + '|| Number: ' + number
+        const caught = 'Name: ' + name + ' || Level: ' + level + ' || IV: ' + iv + ' || Number: ' + number
         // console.log(caught)
 
         const contents = fs1.readFileSync('./messages/catches.txt', 'utf-8');
