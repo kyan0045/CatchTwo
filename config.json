@@ -1,0 +1,13 @@
+{
+  "isBatchTokenFile": false,
+  "incenseMode": false,
+  "lowIVLog": "10.00",
+  "highIVLog": "85.00",
+  "tokens": [
+    { 
+      "token": "TOKEN"
+    }
+  ],
+  "specificGuild": "GUILD IT SHOULD CATCH IN",
+  "logWebhook": "WEBHOOK TO LOG HIGH/LOW IVS"
+}
