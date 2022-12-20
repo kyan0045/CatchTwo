@@ -5,8 +5,14 @@
   "lowIVLog": "10.00",
   "highIVLog": "85.00",
   "tokens": [
-    { 
-      "token": "TOKEN"
+  "tokens": [
+    {
+      "token": "",
+      "guildId": ""
+    },
+    {
+      "token": "",
+      "guildId": ""
     }
   ],
   "specificGuild": "GUILD IT SHOULD CATCH IN",
