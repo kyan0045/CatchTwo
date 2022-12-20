@@ -204,7 +204,7 @@ async function Login(token) {
           await sleep(1000)
           message.channel.send('<@716390085896962058> c ' + pokemon[0].toLowerCase())
           await sleep(8000)
-          if (config.reactAfterCatchMode) {
+          if (config.reactAfterCatch) {
           const caughtMessages = fs.readFileSync(__dirname + '/messages/caughtMessages.txt', 'utf-8').split('\n')
           const caughtMessage = caughtMessages[Math.floor(Math.random() * caughtMessages.length)]
           message.channel.send(caughtMessage)
