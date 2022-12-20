@@ -39,7 +39,6 @@ axios
           )
         );
 
-
         log.send(
           new MessageBuilder()
             .setTitle("New Version")
@@ -79,7 +78,7 @@ function sleep(timeInMs) {
 }
 
 app.get('/', function(req, res) {
-  res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNTS!`)
+  res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNT!`)
 });
 
 /* app.get("/", async (req, res) => {
@@ -142,9 +141,6 @@ async function Login(token) {
       let spamMessage = hi[Math.floor(Math.random() * hi.length)]
       spamChannel.send(spamMessage)
       channelCount = channelCount + spam.length
-      date.locale(nl);
-      const now = new Date();
-      console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Message Sent`)
       messageCount = messageCount + 1
       intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
       intervalsAfter = intervals / 1000
@@ -152,7 +148,6 @@ async function Login(token) {
       setInterval(async () => {
         intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
         intervalsAfter = intervals / 1000
-        console.log(chalk.red(client.user.username) + `: Interval` + `: ` + intervalsAfter + `s`)
         clearInterval(interval)
       }, 15000)
 
@@ -166,8 +161,6 @@ async function Login(token) {
           let spamMessage = hi[Math.floor(Math.random() * hi.length)]
           spamChannel.send(spamMessage)
           messageCount = messageCount + 1
-          const now = new Date();
-          console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Message Sent`)
 
 
           await sleep(intervals)
@@ -205,11 +198,10 @@ async function Login(token) {
           message.channel.send('<@716390085896962058> c ' + pokemon[0].toLowerCase())
           await sleep(8000)
           if (config.reactAfterCatch) {
-          const caughtMessages = fs.readFileSync(__dirname + '/messages/caughtMessages.txt', 'utf-8').split('\n')
-          const caughtMessage = caughtMessages[Math.floor(Math.random() * caughtMessages.length)]
-          message.channel.send(caughtMessage)
+            const caughtMessages = fs.readFileSync(__dirname + '/messages/caughtMessages.txt', 'utf-8').split('\n')
+            const caughtMessage = caughtMessages[Math.floor(Math.random() * caughtMessages.length)]
+            message.channel.send(caughtMessage)
           }
-          
         } else {
           await sleep(3000)
           message.channel.send('idk bro')
@@ -219,6 +211,9 @@ async function Login(token) {
         const words = str.split(" ");
         level = words[6]
         name = words[7].substring(0, words[7].length - 1);
+        const now = new Date();
+        console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Caught a level ` + level + ' ' + name)
+
         await sleep(3000)
         message.channel.send('<@716390085896962058> info latest')
       } else if (message.embeds[0]?.footer && message.embeds[0].footer.text.includes('Displaying') && message.embeds[0].thumbnail.url.includes(client.user.id) && newMessage[1].content.includes('info latest')) {
@@ -226,9 +221,6 @@ async function Login(token) {
         const words = str.split(" ");
         iv = words[28]
         IV = iv.substring(0, iv.length - 2);
-
-
-
 
         const footerStr = message.embeds[0]?.footer.text
         const footerWords = footerStr.split(" ");
@@ -243,6 +235,7 @@ async function Login(token) {
         if (IV < config.lowIVLog) {
           log.send(
             new MessageBuilder()
+              .setText('@everyone')
               .setTitle("Low IV Caught")
               .setURL("https://github.com/kyan27a/CatchTwo")
               .setDescription(
@@ -251,12 +244,13 @@ async function Login(token) {
                 "\n**IV: **" + iv +
                 "\n**Number: **" + number
               )
-              .setColor("#2e3236")
+              .setColor("#E74C3C")
           );
 
         } else if (IV > config.highIVLog) {
           log.send(
             new MessageBuilder()
+              .setText('@everyone')
               .setTitle("High IV Caught")
               .setURL("https://github.com/kyan27a/CatchTwo")
               .setDescription(
@@ -265,8 +259,21 @@ async function Login(token) {
                 "\n**IV: **" + iv +
                 "\n**Number: **" + number
               )
-              .setColor("#2e3236")
+              .setColor("#E74C3C")
           );
+        } else {
+                    log.send(
+            new MessageBuilder()
+              .setTitle("Pokemon Caught")
+              .setURL("https://github.com/kyan27a/CatchTwo")
+              .setDescription(
+                "**Pokemon: **" + latestName +
+                "\n**Level: **" + latestLevel +
+                "\n**IV: **" + iv +
+                "\n**Number: **" + number
+              )
+              .setColor("#2e3236")
+                      )
         }
 
         const caught = 'Name: ' + name + '|| Level: ' + level + '|| IV: ' + iv + '|| Number: ' + number
@@ -282,55 +289,55 @@ async function Login(token) {
           if (err) throw err;
         });
       }
-  }
-
-
-  if (message.channel.name && message.content) {
-    if (!message.content.includes('\n') && message.author.id !== client.user.id && !message.author.bot) {
-      fs1.readFile('./messages/messages.txt', function(res, req) {
-        //fs1.writeFile('./messages/j4jmessages.txt', message.content + `\r\n`, function(err, result) {
-        //if(err) console.log('error', err);      })
-        //})
-        const contents = fs1.readFileSync('./messages/messages.txt', 'utf-8');
-
-        if (contents.includes(message.content)) {
-          return;
-        }
-
-        if (message.content.includes(0) || message.content.includes(1) || message.content.includes(2) || message.content.includes(3) || message.content.includes(5) || message.content.includes(6) || message.content.includes(7) || message.content.includes(8) || message.content.includes(9) || message.content.includes('ı') || message.content.includes('ü') || message.content.includes('gelin') || message.content.includes('turk') || message.content.includes('ö') || message.content.includes('gelsin') || message.content.includes('seri') || message.content.includes('ğ') || message.content.includes('ş') || message.content.includes('Turkler') || message.content.includes('https://') || message.content.toLowerCase().includes('j4j') || message.content.toLowerCase().includes('join') || message.content.toLowerCase().includes('!') || message.mentions) {
-          return;
-        }
-
-        if (client.user.username !== accountCheck) {
-          return;
-        }
-
-        fs1.appendFile('./messages/messages.txt', message.content + "\n", (err) => {
-          if (err) throw err;
-        });
-
-      })
     }
-  }
-})
-
-client.on(`rateLimit`, async (message) => {
-  let rateLimitPauses = [
-    `900000`,
-    `1000000`,
-    `1100000`,
-    `1200000`
-  ];
-
-  let rateLimitPause = rateLimitPauses[Math.floor(Math.random() * rateLimitPauses.length)]
-
-  await sleep(rateLimitPause)
-})
 
 
+    if (message.channel.name && message.content) {
+      if (!message.content.includes('\n') && message.author.id !== client.user.id && !message.author.bot) {
+        fs1.readFile('./messages/messages.txt', function(res, req) {
+          //fs1.writeFile('./messages/j4jmessages.txt', message.content + `\r\n`, function(err, result) {
+          //if(err) console.log('error', err);      })
+          //})
+          const contents = fs1.readFileSync('./messages/messages.txt', 'utf-8');
+
+          if (contents.includes(message.content)) {
+            return;
+          }
+
+          if (message.content.includes(0) || message.content.includes(1) || message.content.includes(2) || message.content.includes(3) || message.content.includes(5) || message.content.includes(6) || message.content.includes(7) || message.content.includes(8) || message.content.includes(9) || message.content.includes('ı') || message.content.includes('ü') || message.content.includes('gelin') || message.content.includes('turk') || message.content.includes('ö') || message.content.includes('gelsin') || message.content.includes('seri') || message.content.includes('ğ') || message.content.includes('ş') || message.content.includes('Turkler') || message.content.includes('https://') || message.content.toLowerCase().includes('j4j') || message.content.toLowerCase().includes('join') || message.content.toLowerCase().includes('!') || message.mentions) {
+            return;
+          }
+
+          if (client.user.username !== accountCheck) {
+            return;
+          }
+
+          fs1.appendFile('./messages/messages.txt', message.content + "\n", (err) => {
+            if (err) throw err;
+          });
+
+        })
+      }
+    }
+  })
+
+  client.on(`rateLimit`, async (message) => {
+    let rateLimitPauses = [
+      `900000`,
+      `1000000`,
+      `1100000`,
+      `1200000`
+    ];
+
+    let rateLimitPause = rateLimitPauses[Math.floor(Math.random() * rateLimitPauses.length)]
+
+    await sleep(rateLimitPause)
+  })
 
 
-client.login(token, bot = false);
+
+
+  client.login(token, bot = false);
 }
 
 start();
