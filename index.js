@@ -32,12 +32,13 @@ axios
           chalk.bold.bgRed(
             "There is a new version available: " +
             v +
-            "           \nPlease update. " +
+            "\nPlease update.                       " +
             chalk.underline(
               "https://github.com/kyan27a/catchtwo"
-            )
+            ) + '  '
           )
         );
+
 
         log.send(
           new MessageBuilder()
