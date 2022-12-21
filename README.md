@@ -28,14 +28,14 @@ Simple and free pokétwo selfbot</br>
 
 <h2 align="left">FEATURES</h2>
 
-* [x] Supports Multiple Instances. </br>
-* [x] Spams Random Messages. </br>
-* [x] Stores & Logs Catches. </br>
-* [x] Alerts on Low or High IV. </br>
+* [x] Supports Multiple Instances </br>
+* [x] Spams Random Messages </br>
+* [x] Stores & Logs Catches </br>
+* [x] Alerts on Low or High IV </br>
 * [ ] Say & ClickButton Commands </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
-* [ ] Alerts On Legendary, Mythical, Ultra Beast and Shiny Catch. </br>
+* [ ] Alerts On Legendary, Mythical, Ultra Beast and Shiny Catch </br>
 
 <h2 align="left">CONFIGURATIONS</h2>
 
