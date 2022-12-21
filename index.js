@@ -322,13 +322,13 @@ async function Login(token, Client, guildId) {
         const caught = 'Name: ' + name + ' || Level: ' + level + ' || IV: ' + iv + ' || Number: ' + number
         // console.log(caught)
 
-        const contents = fs1.readFileSync('./messages/catches.txt', 'utf-8');
+        const contents = fs1.readFileSync('./catches.txt', 'utf-8');
 
         if (contents.includes(caught)) {
           return;
         }
 
-        fs1.appendFile('./messages/catches.txt', caught + "\n", (err) => {
+        fs1.appendFile('./catches.txt', caught + "\n", (err) => {
           if (err) throw err;
         });
       }
