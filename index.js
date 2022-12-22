@@ -20,7 +20,7 @@ const config = process.env.JSON
 const log = new Webhook(config.logWebhook);
 
 axios
-  .get("https://raw.githubusercontent.com/kyan27a/catchtwo/main/index.js")
+  .get("https://raw.githubusercontent.com/kyan0045/catchtwo/main/index.js")
   .then(function(response) {
     var d = response.data;
     let v = d.match(/Version ([0-9]*\.?)+/)[0]?.replace("Version ", "");
@@ -33,7 +33,7 @@ axios
             v +
             "\nPlease update.                       " +
             chalk.underline(
-              "https://github.com/kyan27a/catchtwo"
+              "https://github.com/kyan0045/catchtwo"
             ) + '  '
           )
         );
@@ -41,14 +41,14 @@ axios
         log.send(
           new MessageBuilder()
             .setTitle("New Version")
-            .setURL("https://github.com/kyan27a/catchtwo")
+            .setURL("https://github.com/kyan0045/catchtwo")
             .setDescription(
               "Current version:** " +
               version +
               "**\nNew version: **" +
               v +
               "**\nPlease update: " +
-              "https://github.com/kyan27a/catchtwo"
+              "https://github.com/kyan0045/catchtwo"
             )
             .setColor("#E74C3C")
         );
@@ -169,7 +169,7 @@ async function Login(token, Client, guildId) {
             const now = new Date();
             console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
             setTimeout(async function() {
-              Login(channel);
+              Login(token, Client, guildId);
             }, sleeptime);
           }
         }, intervals);
@@ -202,7 +202,7 @@ async function Login(token, Client, guildId) {
           let spamChannel = client.channels.cache.get(spamShit)
           const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
           let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-          spamChannel.send(spamMessage)
+          await spamChannel.send(spamMessage)
           messageCount = messageCount + 1
 
 
@@ -235,7 +235,7 @@ async function Login(token, Client, guildId) {
         const pokemon = await solveHint(message)
         if (pokemon) {
           await sleep(1000)
-          message.channel.send('<@716390085896962058> c ' + pokemon[0].toLowerCase())
+          await message.channel.send('<@716390085896962058> c ' + pokemon[0].toLowerCase())
           await sleep(8000)
           if (config.reactAfterCatch) {
             const caughtMessages = fs.readFileSync(__dirname + '/messages/caughtMessages.txt', 'utf-8').split('\n')
@@ -251,6 +251,7 @@ async function Login(token, Client, guildId) {
         const words = str.split(" ");
         level = words[6]
         name = words[7].substring(0, words[7].length - 1);
+        link = message.url
         const now = new Date();
         console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Caught a level ` + level + ' ' + name)
 
@@ -271,16 +272,44 @@ async function Login(token, Client, guildId) {
         latestName = titleWords[2]
         latestLevel = titleWords[1]
 
-
-        if (IV < config.lowIVLog) {
+       if (titleWords[0] == '✨') {
+          latestName = titleWords[3]
+          latestLevel = titleWords[2]
+          message.channel.send(`<@716390085896962058> market search --n ${latestName} --sh --o price`)
+          await sleep(2000)
+          const channel = client.channels.cache.get(message.channel.id)
+        const marketDescription = channel.lastMessage.embeds[0].description
+        const marketWords = marketDescription.split("\n")
+        const marketValues = marketWords[0].split(" ")
+        const marketFinal = marketValues[4].split("•")
+        if (link == undefined) {
+          link = 'https://github.com/kyan0045/CatchTwo'
+        }
+         
+        log.send(
+            new MessageBuilder()
+              .setText('@everyone')
+              .setTitle("✨ \`\`-\`\` Shiny Caught")
+              .setURL(link)
+              .setDescription(
+                "**Account: **" + client.user.tag +
+                "\n**Pokemon: **" + latestName +
+                "\n**Level: **" + latestLevel +
+                "\n**IV: **" + iv +
+                "\n**Number: **" + number +
+                "\n**Lowest Market Worth: **" + marketFinal[2].replace('　', '')
+              )
+              .setColor("#E74C3C")
+          );
+        } else if (IV < config.lowIVLog) {
           log.send(
             new MessageBuilder()
               .setText('@everyone')
               .setTitle("Low IV Caught")
-              .setURL("https://github.com/kyan27a/CatchTwo")
+              .setURL(link)
               .setDescription(
                 "**Account: **" + client.user.tag +
-                "**Pokemon: **" + latestName +
+                "\n**Pokemon: **" + latestName +
                 "\n**Level: **" + latestLevel +
                 "\n**IV: **" + iv +
                 "\n**Number: **" + number
@@ -293,10 +322,10 @@ async function Login(token, Client, guildId) {
             new MessageBuilder()
               .setText('@everyone')
               .setTitle("High IV Caught")
-              .setURL("https://github.com/kyan27a/CatchTwo")
+              .setURL(link)
               .setDescription(
                 "**Account: **" + client.user.tag +
-                "**Pokemon: **" + latestName +
+                "\n**Pokemon: **" + latestName +
                 "\n**Level: **" + latestLevel +
                 "\n**IV: **" + iv +
                 "\n**Number: **" + number
@@ -307,10 +336,10 @@ async function Login(token, Client, guildId) {
           log.send(
             new MessageBuilder()
               .setTitle("Pokemon Caught")
-              .setURL("https://github.com/kyan27a/CatchTwo")
+              .setURL(link)
               .setDescription(
                 "**Account: **" + client.user.tag +
-                "**Pokemon: **" + latestName +
+                "\n**Pokemon: **" + latestName +
                 "\n**Level: **" + latestLevel +
                 "\n**IV: **" + iv +
                 "\n**Number: **" + number
@@ -319,7 +348,7 @@ async function Login(token, Client, guildId) {
           )
         }
 
-        const caught = 'Name: ' + name + ' || Level: ' + level + ' || IV: ' + iv + ' || Number: ' + number
+        const caught = 'Account: ' + client.user.tag + ' || Name: ' + latestName + ' || Level: ' + latestLevel + ' || IV: ' + iv + ' || Number: ' + number
         // console.log(caught)
 
         const contents = fs1.readFileSync('./catches.txt', 'utf-8');
@@ -347,7 +376,7 @@ async function Login(token, Client, guildId) {
             return;
           }
 
-          if (message.content.includes(0) || message.content.includes(1) || message.content.includes(2) || message.content.includes(3) || message.content.includes(5) || message.content.includes(6) || message.content.includes(7) || message.content.includes(8) || message.content.includes(9) || message.content.includes('ı') || message.content.includes('ü') || message.content.includes('gelin') || message.content.includes('turk') || message.content.includes('ö') || message.content.includes('gelsin') || message.content.includes('seri') || message.content.includes('ğ') || message.content.includes('ş') || message.content.includes('Turkler') || message.content.includes('https://') || message.content.toLowerCase().includes('j4j') || message.content.toLowerCase().includes('join') || message.content.toLowerCase().includes('!') || message.mentions) {
+          if (message.content.includes(0) || message.content.includes(1) || message.content.includes(2) || message.content.includes(3) || message.content.includes(5) || message.content.includes(6) || message.content.includes(7) || message.content.includes(8) || message.content.includes(9) || message.content.includes('ı') || message.content.includes('ü') || message.content.includes('gelin') || message.content.includes('turk') || message.content.includes('ö') || message.content.includes('gelsin') || message.content.includes('seri') || message.content.includes('ğ') || message.content.includes('ş') || message.content.includes('Turkler') || message.content.includes('https://') || message.content.toLowerCase().includes('j4j') || message.content.toLowerCase().includes('join') || message.content.toLowerCase().includes('!') || message.mentions.everyone) {
             return;
           }
 
@@ -355,7 +384,7 @@ async function Login(token, Client, guildId) {
             return;
           }
 
-          fs1.appendFile('./messages/messages.txt', message.content + "\n", (err) => {
+          fs1.appendFile('./messages/messages.txt', "\n" + message.content, (err) => {
             if (err) throw err;
           });
 
