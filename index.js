@@ -1,4 +1,4 @@
-var version = '1.0';
+var version = '1.1';
 // Version 1.0
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
