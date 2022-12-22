@@ -213,7 +213,7 @@ async function Login(token, Client, guildId) {
             const now = new Date();
             console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
             setTimeout(async function() {
-              Login(channel);
+              Login(token, Client, guildId);
             }, sleeptime);
           }
         }, intervals);
