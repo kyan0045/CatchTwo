@@ -31,11 +31,11 @@ Simple and free pokétwo selfbot</br>
 * [x] Supports Multiple Instances </br>
 * [x] Spams Random Messages </br>
 * [x] Stores & Logs Catches </br>
-* [x] Alerts on Low or High IV </br>
+* [x] Alerts on Low IV, High IV & Shiny</br>
 * [ ] Say & ClickButton Commands </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
-* [ ] Alerts On Legendary, Mythical, Ultra Beast and Shiny Catch </br>
+* [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
 
 <h2 align="left">CONFIGURATIONS</h2>
 
