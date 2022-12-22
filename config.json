@@ -5,7 +5,6 @@
   "lowIVLog": "10.00",
   "highIVLog": "85.00",
   "tokens": [
-  "tokens": [
     {
       "token": "",
       "guildId": ""
@@ -16,5 +15,5 @@
     }
   ],
   "specificGuild": "GUILD IT SHOULD CATCH IN",
-  "logWebhook": "WEBHOOK TO LOG HIGH/LOW IVS"
+  "logWebhook": "WEBHOOK TO LOG CATCHES"
 }
