@@ -48,7 +48,7 @@ axios
               "**\nNew version: **" +
               v +
               "**\nPlease update: " +
-              "https://github.com/kyan0045/catchtwo"
+              "https://github.com/Kyan0045/CatchTwo"
             )
             .setColor("#E74C3C")
         );
@@ -104,6 +104,18 @@ app.listen(3000, () => {
 });
 
 async function Login(token, Client, guildId) {
+  if (!token) {
+    console.log(chalk.redBright('You must specify a (valid) token.'))
+  }
+
+  if (!guildId) {
+    console.log(chalk.redBright('You must specify a (valid) guild ID.'))
+  }
+
+  if (guildId.length > 21) {
+    console.log(chalk.redBright(`You must specify a (valid) guild ID, ${guildId} is too long!`))
+  }
+  
   const client = new Client({ checkUpdate: false, readyStatus: false });
   client.on('ready', async () => {
     console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
@@ -129,53 +141,7 @@ async function Login(token, Client, guildId) {
       `5009`,
       `15000`
     ];
-
-
-    if (config.specificGuild.length >= 18) {
-      const guild = client.guilds.cache.get(config.specificGuild)
-      const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-      let spamShit = spam[Math.floor(Math.random() * spam.length)]
-      let spamChannel = client.channels.cache.get(spamShit)
-      const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
-      let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-      spamChannel.send(spamMessage)
-      channelCount = channelCount + spam.length
-      messageCount = messageCount + 1
-      intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
-      intervalsAfter = intervals / 1000
-
-      setInterval(async () => {
-        intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
-        intervalsAfter = intervals / 1000
-        clearInterval(interval)
-      }, 15000)
-
-      interval = setInterval(async () => {
-        interval2 = setInterval(async () => {
-          const guild = client.guilds.cache.get(config.specificGuild)
-          const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-          let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
-          let spamChannel = client.channels.cache.get(spamShit)
-          const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
-          let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-          spamChannel.send(spamMessage)
-          messageCount = messageCount + 1
-
-
-          await sleep(intervals)
-          if ((randomInteger(0, 1700) == 400)) {
-            let sleeptime = randomInteger(600000, 4000000)
-            let sleeptimes = sleeptime / 1000 / 60
-            const now = new Date();
-            console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
-            setTimeout(async function() {
-              Login(token, Client, guildId);
-            }, sleeptime);
-          }
-        }, intervals);
-      }, 10000)
-
-    } else {
+    
       const guild = client.guilds.cache.get(guildId)
       const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
       let spamShit = spam[Math.floor(Math.random() * spam.length)]
@@ -218,11 +184,10 @@ async function Login(token, Client, guildId) {
           }
         }, intervals);
       }, 10000)
-    }
-  })
+    })
 
   client.on('messageCreate', async (message) => {
-    if (message.guild?.id == config.specificGuild || message.guild?.id == guildId && message.author.id == '716390085896962058') {
+    if (message.guild?.id == guildId && message.author.id == '716390085896962058') {
       const messages = await message.channel.messages.fetch({ limit: 2, around: message.id })
         .catch(() => null);
       const newMessage = Array.from(messages.values());
