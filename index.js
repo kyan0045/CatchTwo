@@ -1,5 +1,5 @@
 var version = '1.1';
-// Version 1.0
+// Version 1.1
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require('discord.js-selfbot-v13');
