@@ -169,6 +169,36 @@ async function Login(token, Client, guildId) {
     })
 
   client.on('messageCreate', async (message) => {
+    
+    if(message.author.id ==== config.owner) {
+      
+      if (!message.content.startsWith(config.prefix)) return;
+      const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+      const cmd = args.shift().toLowerCase();
+      
+      if(cmd === `say`) {
+        message.channel.send(`${args.join(" ")}`)
+        if(config.reactOnSuccess === true) message.react(`👊`);
+      } else if(cmd === `click`) {
+        let msg
+        try {
+          msg = await this.client.channels.cache.get(message?.reference.channelId).messages.fetch(message?.reference?.messageId)
+        } catch (error) {
+          message.reply(`Please use the command as a reply as the message of the target button!`)
+        }
+        if(msg) {
+          console.log(msg.components[0]?.components)
+        }
+        if(msg) {
+          let buttonId = parseInt(args[0])
+          if(!isNaN(buttonId)) {
+            let button = msg.components[0].components[buttonId]
+            await button.click(msg).then(async (e) => {if(config.reactOnSuccess === true) message.react(`👊`);})
+          }
+        }
+      }
+    }
+    
     if (message.guild?.id == guildId && message.author.id == '716390085896962058') {
       const messages = await message.channel.messages.fetch({ limit: 2, around: message.id })
         .catch(() => null);
