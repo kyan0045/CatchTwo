@@ -118,29 +118,11 @@ async function Login(token, Client, guildId) {
   
   const client = new Client({ checkUpdate: false, readyStatus: false });
   client.on('ready', async () => {
+    let channelCount = 0, messageCount = 0;
     console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
     client.user.setStatus('invisible');
     accountCheck = client.user.username
-    let intervals_list = [
-      `9500`,
-      `7500`,
-      `5000`,
-      `4075`,
-      `8700`,
-      `3050`,
-      `9000`,
-      `9320`,
-      `6700`,
-      `7100`,
-      `8300`,
-      `6380`,
-      `5860`,
-      `4468`,
-      `3798`,
-      `3030`,
-      `5009`,
-      `15000`
-    ];
+    let intervals_list = []; //No profit in such long interval
     
       const guild = client.guilds.cache.get(guildId)
       const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
@@ -151,11 +133,11 @@ async function Login(token, Client, guildId) {
       spamChannel.send(spamMessage)
       channelCount = channelCount + spam.length
       messageCount = messageCount + 1
-      intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
+      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
       intervalsAfter = intervals / 1000
 
       setInterval(async () => {
-        intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
+        intervals =  Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
         intervalsAfter = intervals / 1000
         clearInterval(interval)
       }, 15000)
