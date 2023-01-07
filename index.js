@@ -149,7 +149,6 @@ async function Login(token, Client, guildId) {
       const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
       let spamMessage = hi[Math.floor(Math.random() * hi.length)]
       spamChannel.send(spamMessage)
-      channelCount = channelCount + spam.length
       messageCount = messageCount + 1
       intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
       intervalsAfter = intervals / 1000
