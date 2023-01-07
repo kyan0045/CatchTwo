@@ -50,7 +50,7 @@ Simple and free pokétwo selfbot</br>
 | ```token```  | ```String``` | ```undefined```  | The token of the account to run on. |
 | ```guildId```  | ```String``` | ```undefined```  | The guild for this account to interact within. |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
-| ```ownerId```  | ```String``` | ```undefined```  | The userID of your main account. |
+| ```ownerId```  | ```Array``` | ```undefined```  | The userID of your main account. |
 
 ### BATCH FILE FORMAT
 ```
