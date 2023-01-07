@@ -49,7 +49,6 @@ Simple and free pokétwo selfbot</br>
 | ```highIVLog```  | ```String``` | ```undefined```  | Tells the program when to log a pokemon as high IV. |
 | ```token```  | ```String``` | ```undefined```  | The token of the account to run on. |
 | ```guildId```  | ```String``` | ```undefined```  | The guild for this account to interact within. |
-| ```specificGuild```  | ```String``` | ```undefined```  | Tells the program whether or not to interact with a specificGuild. (If you use the batch file for tokens and guildId's, leave it empty) |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
 | ```ownerId```  | ```String``` | ```undefined```  | The userID of your main account. |
 
