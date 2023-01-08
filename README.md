@@ -32,7 +32,7 @@ Simple and free pokétwo selfbot</br>
 * [x] Spams Random Messages </br>
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
-* [ ] Say & ClickButton Commands </br>
+* [ ] Say, React & Click(button) Commands </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
 * [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
@@ -50,7 +50,7 @@ Simple and free pokétwo selfbot</br>
 | ```token```  | ```String``` | ```undefined```  | The token of the account to run on. |
 | ```guildId```  | ```String``` | ```undefined```  | The guild for this account to interact within. |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
-| ```ownerId```  | ```Array``` | ```undefined```  | The userID of your main account. |
+| ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
 
 ### BATCH FILE FORMAT
 ```
