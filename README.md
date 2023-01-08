@@ -32,7 +32,7 @@ Simple and free pokétwo selfbot</br>
 * [x] Spams Random Messages </br>
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
-* [x] Say & ClickButton Commands </br>
+* [X] Say, React & Click(button) Commands </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
 * [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
@@ -49,9 +49,8 @@ Simple and free pokétwo selfbot</br>
 | ```highIVLog```  | ```String``` | ```undefined```  | Tells the program when to log a pokemon as high IV. |
 | ```token```  | ```String``` | ```undefined```  | The token of the account to run on. |
 | ```guildId```  | ```String``` | ```undefined```  | The guild for this account to interact within. |
-| ```specificGuild```  | ```String``` | ```undefined```  | Tells the program whether or not to interact with a specificGuild. (If you use the batch file for tokens and guildId's, leave it empty) |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
-| ```ownerId```  | ```String``` | ```undefined```  | The userID of your main account. |
+| ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
 
 ### BATCH FILE FORMAT
 ```

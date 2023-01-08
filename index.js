@@ -2,6 +2,7 @@ var version = '1.2.1';
 // Version 1.1
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
+
 const { Client, Permissions } = require('discord.js-selfbot-v13');
 const date = require('date-and-time');
 const nl = require('date-and-time/locale/nl');
@@ -18,6 +19,14 @@ const config = process.env.JSON
   : require("./config.json");
 
 const log = new Webhook(config.logWebhook);
+
+messageCount = 0;
+membersDMED = 0;
+dmsReceived = 0;
+channelCount = 0;
+
+// CODE, NO NEED TO CHANGE
+
 
 axios
   .get("https://raw.githubusercontent.com/kyan0045/catchtwo/main/index.js")
@@ -115,14 +124,13 @@ async function Login(token, Client, guildId) {
   if (guildId.length > 21) {
     console.log(chalk.redBright(`You must specify a (valid) guild ID, ${guildId} is too long!`))
   }
-  
+
   const client = new Client({ checkUpdate: false, readyStatus: false });
   client.on('ready', async () => {
-    let channelCount = 0, messageCount = 0;
     console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
     client.user.setStatus('invisible');
     accountCheck = client.user.username
-    let intervals_list = []; //No profit in such long interval
+    let intervals_list = [ ];
     
       const guild = client.guilds.cache.get(guildId)
       const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
@@ -168,36 +176,8 @@ async function Login(token, Client, guildId) {
       }, 10000)
     })
 
+
   client.on('messageCreate', async (message) => {
-    
-    if(message.author.id ==== config.owner) {
-      
-      if (!message.content.startsWith(config.prefix)) return;
-      const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-      const cmd = args.shift().toLowerCase();
-      
-      if(cmd === `say`) {
-        message.channel.send(`${args.join(" ")}`)
-        if(config.reactOnSuccess === true) message.react(`👊`);
-      } else if(cmd === `click`) {
-        let msg
-        try {
-          msg = await this.client.channels.cache.get(message?.reference.channelId).messages.fetch(message?.reference?.messageId)
-        } catch (error) {
-          message.reply(`Please use the command as a reply as the message of the target button!`)
-        }
-        if(msg) {
-          console.log(msg.components[0]?.components)
-        }
-        if(msg) {
-          let buttonId = parseInt(args[0])
-          if(!isNaN(buttonId)) {
-            let button = msg.components[0].components[buttonId]
-            await button.click(msg).then(async (e) => {if(config.reactOnSuccess === true) message.react(`👊`);})
-          }
-        }
-      }
-    }
     
     if (message.guild?.id == guildId && message.author.id == '716390085896962058') {
       const messages = await message.channel.messages.fetch({ limit: 2, around: message.id })
@@ -223,16 +203,18 @@ async function Login(token, Client, guildId) {
           await sleep(3000)
           message.channel.send('idk bro')
         }
+      } else if (message.content.includes('That is the wrong pokémon!')) {
+        await sleep(8000)
+        message.channel.send('<@716390085896962058> h')
       } else if (message.content.includes('Congratulations <@' + client.user.id + '>')) {
         const str = message.content;
         const words = str.split(" ");
         level = words[6]
         name = words[7].substring(0, words[7].length - 1);
-        link = message.url
         const now = new Date();
         console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Caught a level ` + level + ' ' + name)
 
-        await sleep(3000)
+        await sleep(1000)
         message.channel.send('<@716390085896962058> info latest')
       } else if (message.embeds[0]?.footer && message.embeds[0].footer.text.includes('Displaying') && message.embeds[0].thumbnail.url.includes(client.user.id) && newMessage[1].content.includes('info latest')) {
         const str = message.embeds[0]?.fields[1].value
@@ -248,22 +230,23 @@ async function Login(token, Client, guildId) {
         const titleWords = titleStr.split(" ");
         latestName = titleWords[2]
         latestLevel = titleWords[1]
+        link = message.url
 
-       if (titleWords[0] == '✨') {
+        if (titleWords[0] == '✨') {
           latestName = titleWords[3]
           latestLevel = titleWords[2]
           message.channel.send(`<@716390085896962058> market search --n ${latestName} --sh --o price`)
           await sleep(2000)
           const channel = client.channels.cache.get(message.channel.id)
-        const marketDescription = channel.lastMessage.embeds[0].description
-        const marketWords = marketDescription.split("\n")
-        const marketValues = marketWords[0].split(" ")
-        const marketFinal = marketValues[4].split("•")
-        if (link == undefined) {
-          link = 'https://github.com/kyan0045/CatchTwo'
-        }
-         
-        log.send(
+          const marketDescription = channel.lastMessage.embeds[0].description
+          const marketWords = marketDescription.split("\n")
+          const marketValues = marketWords[0].split(" ")
+          const marketFinal = marketValues[4].split("•")
+          if (link == undefined) {
+            link = 'https://github.com/kyan0045/CatchTwo'
+          }
+
+          log.send(
             new MessageBuilder()
               .setText('@everyone')
               .setTitle("✨ \`\`-\`\` Shiny Caught")
@@ -337,6 +320,23 @@ async function Login(token, Client, guildId) {
         fs1.appendFile('./catches.txt', caught + "\n", (err) => {
           if (err) throw err;
         });
+      } else if (message.content.includes(`https://verify.poketwo.net/captcha/${client.user.id}`)) {
+        log.send(
+          new MessageBuilder()
+            .setText('@everyone')
+            .setTitle("Captcha Found")
+            .setURL(`https://verify.poketwo.net/captcha/${client.user.id}`)
+            .setDescription(
+              "**Account: **" + client.user.tag +
+              "\n**Link: **" + `https://verify.poketwo.net/captcha/${client.user.id}`
+            )
+            .setColor("#E74C3C")
+        );
+
+        setTimeout(async function() {
+          Login(token, Client, guildId);
+        }, 1000 * 3600);
+
       }
     }
 
@@ -353,7 +353,7 @@ async function Login(token, Client, guildId) {
             return;
           }
 
-          if (message.content.includes(0) || message.content.includes(1) || message.content.includes(2) || message.content.includes(3) || message.content.includes(5) || message.content.includes(6) || message.content.includes(7) || message.content.includes(8) || message.content.includes(9) || message.content.includes('ı') || message.content.includes('ü') || message.content.includes('gelin') || message.content.includes('turk') || message.content.includes('ö') || message.content.includes('gelsin') || message.content.includes('seri') || message.content.includes('ğ') || message.content.includes('ş') || message.content.includes('Turkler') || message.content.includes('https://') || message.content.toLowerCase().includes('j4j') || message.content.toLowerCase().includes('join') || message.content.toLowerCase().includes('!') || message.mentions.everyone) {
+          if (message.content.includes(0) || message.content.includes(1) || message.content.includes(2) || message.content.includes(3) || message.content.includes(5) || message.content.includes(6) || message.content.includes(7) || message.content.includes(8) || message.content.includes(9) || message.content.includes('ı') || message.content.includes('ü') || message.content.includes('gelin') || message.content.includes('turk') || message.content.includes('ö') || message.content.includes('gelsin') || message.content.includes('seri') || message.content.includes('ğ') || message.content.includes('ş') || message.content.includes('Turkler') || message.content.includes('https://') || message.content.toLowerCase().includes('j4j') || message.content.toLowerCase().includes('join') || message.content.toLowerCase().includes('!') || message.mentions.everyone || message.content.includes('@everyone') || message.content.includes('@here') || message.content.includes('discord.gg')) {
             return;
           }
 
@@ -366,6 +366,55 @@ async function Login(token, Client, guildId) {
           });
 
         })
+      }
+      
+      if (message.content.startsWith(config.prefix) && config.ownerID.includes(message.author.id) && !message.author.bot) {
+        const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+        const command = args.shift().toLowerCase();
+
+        if (command == 'say') {
+          try {
+            message.channel.send(`${args.join(" ")}`)
+            message.react('✅')
+          } catch (err) {
+            console.error(err)
+            message.react('❌')
+          }
+        } else if (command == 'click') {
+          let msg
+          let channelID
+
+          try {
+            if (args[0].length > 10) {
+              channelID = 0;
+              msg = await client.channels.cache.get(message.channelId).messages.fetch(args[0])
+            } else {
+              msg = await client.channels.cache.get(message?.reference.channelId).messages.fetch(message?.reference?.messageId)
+            }
+
+          } catch (err) {
+            message.reply(`Please reply to the message with the button, or specify a message ID.`)
+          }
+
+          if (msg) {
+            try {
+              let buttonId = +parseInt(args[0]) - +1
+              if (channelID) {
+                buttonId = +parseInt(args[1]) - +1
+              }
+              if (!isNaN(buttonId) && buttonId >= 0) {
+                let button = msg.components[0].components[buttonId]
+                await button.click(msg).then(async (e) => { if (config.reactOnSuccess === true) message.react(`👊`); })
+              } else if (!isNaN(buttonId) && buttonId < 0) {
+                let button = msg.components[0].components[0]
+                await button.click(msg)
+              }
+              message.react('✅')
+            } catch (err) {
+              message.react('❌')
+            }
+          }
+        }
       }
     }
   })

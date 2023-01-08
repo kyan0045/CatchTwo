@@ -7,16 +7,14 @@
   "tokens": [
     {
       "token": "",
-      "guildId": ""
+      "guildId": [ "", "" ],
     },
     {
       "token": "",
-      "guildId": ""
+      "guildId": [ "", "" ],
     }
   ],
-  "specificGuild": ["GUILD IT SHOULD CATCH IN", "guild2", "guild3..."],
-  "logWebhook": "WEBHOOK TO LOG CATCHES",
-  "reactOnSuccess": false,
-  "owner": "OWNER ID",
-  "prefix": "BOT PREFIX"
+  "logWebhook": "WEBHOOK TO LOG CATCHES"
+  "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
+  "prefix": "!"
 }
