@@ -1,4 +1,4 @@
-var version = '1.1';
+var version = '1.2.1';
 // Version 1.1
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
@@ -130,72 +130,55 @@ async function Login(token, Client, guildId) {
     console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
     client.user.setStatus('invisible');
     accountCheck = client.user.username
-    let intervals_list = [
-      `9500`,
-      `7500`,
-      `5000`,
-      `4075`,
-      `8700`,
-      `3050`,
-      `9000`,
-      `9320`,
-      `6700`,
-      `7100`,
-      `8300`,
-      `6380`,
-      `5860`,
-      `4468`,
-      `3798`,
-      `3030`,
-      `5009`,
-      `15000`
-    ];
-
-    const guild = client.guilds.cache.get(guildId)
-    const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-    let spamShit = spam[Math.floor(Math.random() * spam.length)]
-    let spamChannel = client.channels.cache.get(spamShit)
-    const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
-    let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-    spamChannel.send(spamMessage)
-    channelCount = channelCount + spam.length
-    messageCount = messageCount + 1
-    intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
-    intervalsAfter = intervals / 1000
-
-    setInterval(async () => {
-      intervals = intervals_list[Math.floor(Math.random() * intervals_list.length)]
+    let intervals_list = [ ];
+    
+      const guild = client.guilds.cache.get(guildId)
+      const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
+      let spamShit = spam[Math.floor(Math.random() * spam.length)]
+      let spamChannel = client.channels.cache.get(spamShit)
+      const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
+      let spamMessage = hi[Math.floor(Math.random() * hi.length)]
+      spamChannel.send(spamMessage)
+      channelCount = channelCount + spam.length
+      messageCount = messageCount + 1
+      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
       intervalsAfter = intervals / 1000
-      clearInterval(interval)
-    }, 15000)
 
-    interval = setInterval(async () => {
-      interval2 = setInterval(async () => {
-        const guild = client.guilds.cache.get(guildId)
-        const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-        let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
-        let spamChannel = client.channels.cache.get(spamShit)
-        const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
-        let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-        await spamChannel.send(spamMessage)
-        messageCount = messageCount + 1
+      setInterval(async () => {
+        intervals =  Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+        intervalsAfter = intervals / 1000
+        clearInterval(interval)
+      }, 15000)
+
+      interval = setInterval(async () => {
+        interval2 = setInterval(async () => {
+          const guild = client.guilds.cache.get(guildId)
+          const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
+          let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
+          let spamChannel = client.channels.cache.get(spamShit)
+          const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
+          let spamMessage = hi[Math.floor(Math.random() * hi.length)]
+          await spamChannel.send(spamMessage)
+          messageCount = messageCount + 1
 
 
-        await sleep(intervals)
-        if ((randomInteger(0, 1700) == 400)) {
-          let sleeptime = randomInteger(600000, 4000000)
-          let sleeptimes = sleeptime / 1000 / 60
-          const now = new Date();
-          console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
-          setTimeout(async function() {
-            Login(token, Client, guildId);
-          }, sleeptime);
-        }
-      }, intervals);
-    }, 10000)
-  })
+          await sleep(intervals)
+          if ((randomInteger(0, 1700) == 400)) {
+            let sleeptime = randomInteger(600000, 4000000)
+            let sleeptimes = sleeptime / 1000 / 60
+            const now = new Date();
+            console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
+            setTimeout(async function() {
+              Login(token, Client, guildId);
+            }, sleeptime);
+          }
+        }, intervals);
+      }, 10000)
+    })
+
 
   client.on('messageCreate', async (message) => {
+    
     if (message.guild?.id == guildId && message.author.id == '716390085896962058') {
       const messages = await message.channel.messages.fetch({ limit: 2, around: message.id })
         .catch(() => null);

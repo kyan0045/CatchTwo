@@ -32,7 +32,7 @@ Simple and free pokétwo selfbot</br>
 * [x] Spams Random Messages </br>
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
-* [ ] Say, React & Click(button) Commands </br>
+* [X] Say, React & Click(button) Commands </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
 * [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>

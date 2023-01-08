@@ -15,5 +15,6 @@
     }
   ],
   "logWebhook": "WEBHOOK TO LOG CATCHES"
-  "ownerID": [ "ID OF MAIN ACCOUNT", "..." ]
+  "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
+  "prefix": "!"
 }
