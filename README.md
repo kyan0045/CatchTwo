@@ -51,6 +51,8 @@ Simple and free pokétwo selfbot</br>
 | ```guildId```  | ```String``` | ```undefined```  | The guild for this account to interact within. |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
 | ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
+| ```prefix```  | ```String``` | ```undefined```  | The prefix to use for the selfbot. |
+
 
 ### BATCH FILE FORMAT
 ```
