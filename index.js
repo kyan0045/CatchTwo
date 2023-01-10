@@ -1,4 +1,4 @@
-var version = '1.1.3';
+var version = '1.1.4';
 // Version 1.1.3
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
@@ -141,11 +141,11 @@ async function Login(token, Client, guildId) {
       spamChannel.send(spamMessage)
       channelCount = channelCount + spam.length
       messageCount = messageCount + 1
-      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
+      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
       intervalsAfter = intervals / 1000
 
       setInterval(async () => {
-        intervals =  Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
         intervalsAfter = intervals / 1000
         clearInterval(interval)
       }, 15000)
