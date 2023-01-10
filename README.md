@@ -34,6 +34,7 @@ Simple and free pokétwo selfbot</br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
 * [X] Say, React & Click(button) Commands </br>
 * [X] Pauses on captcha </br>
+* [ ] Restart command </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
 * [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
