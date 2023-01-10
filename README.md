@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/uNyvCPs9tv)
-![Version](https://img.shields.io/badge/Version-1.1.5-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.1.6-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -33,6 +33,7 @@ Simple and free pokétwo selfbot</br>
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
 * [X] Say, React & Click(button) Commands </br>
+* [X] Pauses on captcha </br>
 * [ ] Usefull Webpage </br>
 * [ ] Market Sniper </br>
 * [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
@@ -61,4 +62,7 @@ guildId2 token2
 ``` 
 - Use a space to seperate the guildId from the token.
 
+### IMPORTANT
+
+* In order for the logging to work, your account must have a profile picture different than the standard discord one.
 
