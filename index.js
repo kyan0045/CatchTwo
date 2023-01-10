@@ -1,5 +1,5 @@
-var version = '1.1.5';
-// Version 1.1.5
+var version = '1.1.6';
+// Version 1.1.6
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 
@@ -120,56 +120,62 @@ async function Login(token, Client, guildId) {
     console.log(chalk.redBright(`You must specify a (valid) guild ID, ${guildId} is too long!`))
   }
 
+  var isOnBreak = false;
   const client = new Client({ checkUpdate: false, readyStatus: false });
-  client.on('ready', async () => {
-    console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
-    client.user.setStatus('invisible');
-    accountCheck = client.user.username
-    let intervals_list = [];
-    
-    async function interval() {
+  if (!isOnBreak) {
+    client.on('ready', async () => {
+      console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
+      client.user.setStatus('invisible');
+      accountCheck = client.user.username
+      let intervals_list = [];
+
+      async function interval() {
+        if (!isOnBreak) {
+        const guild = client.guilds.cache.get(guildId)
+        const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
+        let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
+        let spamChannel = client.channels.cache.get(spamShit)
+        const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
+        let spamMessage = hi[Math.floor(Math.random() * hi.length)]
+        await spamChannel.send(spamMessage)
+        messageCount = messageCount + 1
+
+
+        await sleep(intervals)
+        if ((randomInteger(0, 1700) == 400)) {
+          let sleeptime = randomInteger(600000, 4000000)
+          let sleeptimes = sleeptime / 1000 / 60
+          const now = new Date();
+          console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
+          setTimeout(async function() {
+            Login(token, Client, guildId);
+          }, sleeptime);
+          log.send(`Sleeping for ${sleeptimes} minutes`)
+        }
+        }
+      }
+
       const guild = client.guilds.cache.get(guildId)
-      const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-      let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
+      const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
+      let spamShit = spam[Math.floor(Math.random() * spam.length)]
       let spamChannel = client.channels.cache.get(spamShit)
       const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
       let spamMessage = hi[Math.floor(Math.random() * hi.length)]
       await spamChannel.send(spamMessage)
+      channelCount = channelCount + spam.length
       messageCount = messageCount + 1
+      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
 
+      Interval = setInterval(interval, intervals);
 
-      await sleep(intervals)
-      if ((randomInteger(0, 1700) == 400)) {
-        let sleeptime = randomInteger(600000, 4000000)
-        let sleeptimes = sleeptime / 1000 / 60
-        const now = new Date();
-        console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
-        setTimeout(async function() {
-          Login(token, Client, guildId);
-        }, sleeptime);
-      }
-    }
+       setInterval(async () => {
+        intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
+        clearInterval(Interval)
+        Interval = setInterval(interval, intervals)
+      }, 15000)
 
-    const guild = client.guilds.cache.get(guildId)
-    const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-    let spamShit = spam[Math.floor(Math.random() * spam.length)]
-    let spamChannel = client.channels.cache.get(spamShit)
-    const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
-    let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-    spamChannel.send(spamMessage)
-    channelCount = channelCount + spam.length
-    messageCount = messageCount + 1
-    let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
-
-    let Interval = setInterval(interval, intervals);
-
-    setInterval(async () => {
-      intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
-      clearInterval(Interval)
-      Interval = setInterval(interval, intervals)
-    }, 15000)
-
-  })
+    })
+  }
 
   client.on('messageCreate', async (message) => {
     if (message.guild?.id == guildId && message.author.id == '716390085896962058') {
@@ -317,7 +323,8 @@ async function Login(token, Client, guildId) {
         log.send(
           new MessageBuilder()
             .setText('@everyone')
-            .setTitle("Captcha Found")
+            .setTitle("Captcha Found -> Sleeping for 1 hour")
+            .setFooter('Restart your application to resume immediately.')
             .setURL(`https://verify.poketwo.net/captcha/${client.user.id}`)
             .setDescription(
               "**Account: **" + client.user.tag +
@@ -325,8 +332,9 @@ async function Login(token, Client, guildId) {
             )
             .setColor("#E74C3C")
         );
-
+        isOnBreak = true;
         setTimeout(async function() {
+          isOnBreak = false;
           Login(token, Client, guildId);
         }, 1000 * 3600);
       }
