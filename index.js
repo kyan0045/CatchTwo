@@ -1,5 +1,5 @@
-var version = '1.1.4';
-// Version 1.1.3
+var version = '1.1.5';
+// Version 1.1.5
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 
@@ -40,10 +40,10 @@ axios
           chalk.bold.bgRed(
             "There is a new version available: " +
             v +
-            "\nPlease update.                       " +
+            "\nPlease update.                         " +
             chalk.underline(
-              "https://github.com/kyan0045/catchtwo"
-            ) + '  '
+              "\nhttps://github.com/kyan0045/catchtwo"
+            ) + '   '
           )
         );
 
@@ -79,11 +79,6 @@ if (config.isBatchTokenFile) {
   }, []);
 }
 
-function sleep(timeInMs) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeInMs)
-  })
-}
 
 app.get('/', function(req, res) {
   res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNT!`)
@@ -130,55 +125,53 @@ async function Login(token, Client, guildId) {
     console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
     client.user.setStatus('invisible');
     accountCheck = client.user.username
-    let intervals_list = [ ];
+    let intervals_list = [];
     
+    async function interval() {
       const guild = client.guilds.cache.get(guildId)
-      const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-      let spamShit = spam[Math.floor(Math.random() * spam.length)]
+      const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
+      let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
       let spamChannel = client.channels.cache.get(spamShit)
       const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
       let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-      spamChannel.send(spamMessage)
-      channelCount = channelCount + spam.length
+      await spamChannel.send(spamMessage)
       messageCount = messageCount + 1
-      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
-      intervalsAfter = intervals / 1000
-
-      setInterval(async () => {
-      let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
-        intervalsAfter = intervals / 1000
-        clearInterval(interval)
-      }, 15000)
-
-      interval = setInterval(async () => {
-        interval2 = setInterval(async () => {
-          const guild = client.guilds.cache.get(guildId)
-          const spamChannels = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
-          let spamShit = spamChannels[Math.floor(Math.random() * spamChannels.length)]
-          let spamChannel = client.channels.cache.get(spamShit)
-          const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
-          let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-          await spamChannel.send(spamMessage)
-          messageCount = messageCount + 1
 
 
-          await sleep(intervals)
-          if ((randomInteger(0, 1700) == 400)) {
-            let sleeptime = randomInteger(600000, 4000000)
-            let sleeptimes = sleeptime / 1000 / 60
-            const now = new Date();
-            console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
-            setTimeout(async function() {
-              Login(token, Client, guildId);
-            }, sleeptime);
-          }
-        }, intervals);
-      }, 10000)
-    })
+      await sleep(intervals)
+      if ((randomInteger(0, 1700) == 400)) {
+        let sleeptime = randomInteger(600000, 4000000)
+        let sleeptimes = sleeptime / 1000 / 60
+        const now = new Date();
+        console.log(date.format(now, 'HH:mm') + `: ` + chalk.red(client.user.username) + `: Sleeptime: ${sleeptimes} minutes`)
+        setTimeout(async function() {
+          Login(token, Client, guildId);
+        }, sleeptime);
+      }
+    }
 
+    const guild = client.guilds.cache.get(guildId)
+    const spam = guild.channels.cache.filter(channel => channel.type == "GUILD_TEXT" && channel.name.includes(`spam`) && channel.permissionsFor(guild.me).has(Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES)).map(channel => channel.id)
+    let spamShit = spam[Math.floor(Math.random() * spam.length)]
+    let spamChannel = client.channels.cache.get(spamShit)
+    const hi = fs.readFileSync(__dirname + '/messages/messages.txt', 'utf-8').split('\n')
+    let spamMessage = hi[Math.floor(Math.random() * hi.length)]
+    spamChannel.send(spamMessage)
+    channelCount = channelCount + spam.length
+    messageCount = messageCount + 1
+    let intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
+
+    let Interval = setInterval(interval, intervals);
+
+    setInterval(async () => {
+      intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; //2-5 Seconds are enough to bypass anti-bot
+      clearInterval(Interval)
+      Interval = setInterval(interval, intervals)
+    }, 15000)
+
+  })
 
   client.on('messageCreate', async (message) => {
-    
     if (message.guild?.id == guildId && message.author.id == '716390085896962058') {
       const messages = await message.channel.messages.fetch({ limit: 2, around: message.id })
         .catch(() => null);
@@ -336,7 +329,6 @@ async function Login(token, Client, guildId) {
         setTimeout(async function() {
           Login(token, Client, guildId);
         }, 1000 * 3600);
-
       }
     }
 
@@ -367,7 +359,7 @@ async function Login(token, Client, guildId) {
 
         })
       }
-      
+
       if (message.content.startsWith(config.prefix) && config.ownerID.includes(message.author.id) && !message.author.bot) {
         const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
         const command = args.shift().toLowerCase();
@@ -380,6 +372,31 @@ async function Login(token, Client, guildId) {
             console.error(err)
             message.react('❌')
           }
+        } else if (command == 'react') {
+          let msg
+          let channelID
+
+          try {
+            if (args[0].length > 10) {
+              channelID = 0;
+              msg = await client.channels.cache.get(message.channelId).messages.fetch(args[0])
+            } else {
+              msg = await client.channels.cache.get(message?.reference.channelId).messages.fetch(message?.reference?.messageId)
+            }
+
+          } catch (err) {
+            message.reply(`Please reply to the message with the button, or specify a message ID.`)
+          }
+
+          if (msg) {
+            try {
+              console.log(msg.reactions.cache)
+              console.log(msg.reactions.cache._emoji)
+            } catch (err) {
+              message.react('❌')
+            }
+          }
+
         } else if (command == 'click') {
           let msg
           let channelID
