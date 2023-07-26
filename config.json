@@ -7,14 +7,14 @@
   "tokens": [
     {
       "token": "",
-      "guildId": [ "", "" ],
+      "guildId": [ "", "" ]
     },
     {
       "token": "",
-      "guildId": [ "", "" ],
+      "guildId": [ "", "" ]
     }
   ],
-  "logWebhook": "WEBHOOK TO LOG CATCHES"
+  "logWebhook": "WEBHOOK TO LOG CATCHES",
   "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
   "prefix": "!"
 }
