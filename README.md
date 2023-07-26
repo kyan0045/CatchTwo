@@ -14,7 +14,7 @@
 <img src="https://media.discordapp.net/attachments/1033334586966552666/1054896887842488422/image.png" lt="poketwo autocatcher logo" align="left" height="170"><h1>CatchTwo; Pokétwo Autocatcher</h1>
 
 Simple and free pokétwo selfbot</br>
-[![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/uNyvCPs9tv)
+[![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
 ![Version](https://img.shields.io/badge/Version-1.1.6-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
@@ -26,6 +26,9 @@ Simple and free pokétwo selfbot</br>
 <img src="https://poketwo.net/_next/image?url=%2Fassets%2Flogo.png&w=256&q=75" alt="poketwo logo" align="right" height="120px"><h2>ABOUT</h2>
 **CatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!**
 
+<h2 align="left">FEATURES</h2>
+
+If you need any support, please join [our Discord server](https://discord.gg/tXa2Hw5jHy): https://discord.gg/tXa2Hw5jHy
 <h2 align="left">FEATURES</h2>
 
 * [x] Supports Multiple Instances </br>
