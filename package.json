@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "axios": "^1.4.0",
+    "chalk": "4.1.0",
+    "date-and-time": "^3.0.2",
+    "discord-webhook-node": "^1.1.8",
+    "discord.js-selfbot-v13": "^2.14.9",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.1",
+    "pokehint": "^1.0.4"
+  }
+}
