@@ -58,8 +58,8 @@ Simple and free pokétwo selfbot</br>
 
 ### BATCH FILE FORMAT
 ```
-guildId1 token1
-guildId2 token2
+token1 guildId1
+token2 guildId2
 ``` 
 - Use a space to seperate the guildId from the token.
 
