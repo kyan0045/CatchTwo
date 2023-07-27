@@ -1,20 +1,9 @@
 {
-  "isBatchTokenFile": false,
   "incenseMode": false,
   "reactAfterCatch": false,
   "lowIVLog": "10.00",
   "highIVLog": "85.00",
-  "tokens": [
-    {
-      "token": "",
-      "guildId": [ "", "" ]
-    },
-    {
-      "token": "",
-      "guildId": [ "", "" ]
-    }
-  ],
   "logWebhook": "WEBHOOK TO LOG CATCHES",
-  "ownerID": [ "ID OF MAIN ACCOUNT" ],
+  "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
   "prefix": "!"
 }
