@@ -1,6 +1,6 @@
-var version = "1.1.7"
-// Version 1.1.7
-// EVERYTHING can be set up in config.json, no need to change anything here :)!
+var version = "1.2.0"
+// Version 1.2.0
+// EVERYTHING can be set up in config.json & tokens.txt, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
 const date = require("date-and-time")
@@ -15,8 +15,15 @@ const { Webhook, MessageBuilder } = require("discord-webhook-node")
 const config = process.env.JSON
   ? JSON.parse(process.env.JSON)
   : require("./config.json")
-let log;
-if (config.logWebhook.length > 25) { const log = new Webhook(config.logWebhook) }
+let log
+if (config.logWebhook.length > 25) {
+  log = new Webhook(config.logWebhook)
+  log.setUsername("CatchTwo Logs")
+  log.setAvatar(
+    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+  )
+}
+const { exec } = require("child_process")
 
 // CODE, NO NEED TO CHANGE
 
@@ -63,15 +70,11 @@ axios
     console.log(error)
   })
 
-// INFO: Load batch token file if enabled
-if (config.isBatchTokenFile) {
-  /* let data = process.env.TOKENS;
-  if (!data) */ data = fs.readFileSync("./batch_token.cfg", "utf-8")
-  config.tokens = data.split("\n").reduce((previousTokens, line) => {
-    let [token, guildId] = line.replace("\r", "").split(" ")
-    return [...previousTokens, { token, guildId }]
-  }, [])
-}
+data = fs.readFileSync("./tokens.txt", "utf-8")
+config.tokens = data.split("\n").reduce((previousTokens, line) => {
+  let [token, guildId] = line.replace("\r", "").split(" ")
+  return [...previousTokens, { token, guildId }]
+}, [])
 
 app.get("/", async function (req, res) {
   res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNT!`)
@@ -148,7 +151,9 @@ async function Login(token, Client, guildId) {
                 chalk.red(client.user.username) +
                 `: Sleeptime: ${sleeptimes} minutes`
             )
+            isOnBreak = true
             setTimeout(async function () {
+              isOnBreak = false
               Login(token, Client, guildId)
             }, sleeptime)
             if (log) log.send(`Sleeping for ${sleeptimes} minutes`)
@@ -223,7 +228,7 @@ async function Login(token, Client, guildId) {
             message.channel.send(caughtMessage)
           }
         } else {
-          console.log('Unknown pokemon found...')
+          console.log("Unknown pokemon found...")
         }
       } else if (message.content.includes("That is the wrong pokémon!")) {
         await sleep(8000)
@@ -234,7 +239,11 @@ async function Login(token, Client, guildId) {
         const str = message.content
         const words = str.split(" ")
         level = words[6]
-        name = words[7].substring(0, words[7].length - 1)
+        if (words[8] && !words[8].includes("Add" || " "))
+          name = words[7] + " " + words[8].substring(0, words[8].length - 1)
+        if (words[8] && words[8]?.includes("Add"))
+          name = words[7].substring(0, words[7].length - 1)
+        if (!words[8]) name = words[7].substring(0, words[7].length - 1)
         const now = new Date()
         console.log(
           date.format(now, "HH:mm") +
@@ -265,12 +274,14 @@ async function Login(token, Client, guildId) {
 
         const titleStr = message.embeds[0]?.title
         const titleWords = titleStr.split(" ")
-        latestName = titleWords[2]
+        if (titleWords[3]) latestName = titleWords[2] + titleWords[3]
+        if (!titleWords[3]) latestName = titleWords[2]
         latestLevel = titleWords[1]
         link = message.url
 
         if (titleWords[0] == "✨") {
-          latestName = titleWords[3]
+          if (titleWords[4]) latestName = titleWords[3] + titleWords[4]
+          if (!titleWords[4]) latestName = titleWords[3]
           latestLevel = titleWords[2]
           message.channel.send(
             `<@716390085896962058> market search --n ${latestName} --sh --o price`
@@ -381,7 +392,6 @@ async function Login(token, Client, guildId) {
           iv +
           " || Number: " +
           number
-        // console.log(caught)
 
         const contents = fs.readFileSync("./catches.txt", "utf-8")
 
@@ -389,7 +399,7 @@ async function Login(token, Client, guildId) {
           return
         }
 
-        fs.appendFile("../catches.txt", caught + "\n", (err) => {
+        fs.appendFile("./catches.txt", caught + "\n", (err) => {
           if (err) throw err
         })
       } else if (
@@ -421,66 +431,6 @@ async function Login(token, Client, guildId) {
     }
 
     if (message.channel.name && message.content) {
-      /*if (
-        !message.content.includes("\n") &&
-        message.author.id !== client.user.id &&
-        !message.author.bot
-      ) {
-        fs.readFile("./messages/messages.txt", function (res, req) {
-          //fs.writeFile('./messages/j4jmessages.txt', message.content + `\r\n`, function(err, result) {
-          //if(err) console.log('error', err);      })
-          //})
-          const contents = fs.readFileSync("./messages/messages.txt", "utf-8")
-
-          if (contents.includes(message.content)) {
-            return
-          }
-
-          if (
-            message.content.includes(0) ||
-            message.content.includes(1) ||
-            message.content.includes(2) ||
-            message.content.includes(3) ||
-            message.content.includes(5) ||
-            message.content.includes(6) ||
-            message.content.includes(7) ||
-            message.content.includes(8) ||
-            message.content.includes(9) ||
-            message.content.includes("ı") ||
-            message.content.includes("ü") ||
-            message.content.includes("gelin") ||
-            message.content.includes("turk") ||
-            message.content.includes("ö") ||
-            message.content.includes("gelsin") ||
-            message.content.includes("seri") ||
-            message.content.includes("ğ") ||
-            message.content.includes("ş") ||
-            message.content.includes("Turkler") ||
-            message.content.includes("https://") ||
-            message.content.toLowerCase().includes("j4j") ||
-            message.content.toLowerCase().includes("join") ||
-            message.content.toLowerCase().includes("!") ||
-            message.mentions.everyone ||
-            message.content.includes("@everyone") ||
-            message.content.includes("@here") ||
-            message.content.includes("discord.gg")
-          ) {
-            return
-          }
-
-          if (client.user.username !== accountCheck) {
-            return
-          }
-
-          fs.appendFile(
-            "./messages/messages.txt",
-            "\n" + message.content,
-            (err) => {
-              if (err) throw err
-            }
-          )
-        })
-      } */
 
       if (
         message.content.startsWith(config.prefix) &&
@@ -506,7 +456,7 @@ async function Login(token, Client, guildId) {
           let channelID
 
           try {
-            if (args[0].length > 10) {
+            if (args[0]?.length > 10) {
               channelID = 0
               msg = await client.channels.cache
                 .get(message.channelId)
@@ -518,16 +468,20 @@ async function Login(token, Client, guildId) {
             }
           } catch (err) {
             message.reply(
-              `Please reply to the message with the button, or specify a message ID.`
+              `Please reply to the message with the emoji, or specify a message ID.`
             )
           }
 
           if (msg) {
             try {
-              console.log(msg.reactions.cache)
-              console.log(msg.reactions.cache._emoji)
+              console.log(msg.reactions.cache.first()?._emoji.name)
+              if (msg.reactions.cache.first()?._emoji) {
+                msg.react(msg.reactions.cache.first()._emoji.name)
+              }
+              message.react("✅")
             } catch (err) {
               message.react("❌")
+              console.log(err)
             }
           }
         } else if (command == "click") {
@@ -571,6 +525,316 @@ async function Login(token, Client, guildId) {
               message.react("❌")
             }
           }
+        } else if (command == "help") {
+          try {
+            webhooks = await message.channel.fetchWebhooks()
+          } catch (err) {
+            if (err.code == "50013") {
+              webhooks = config.logWebhook
+            } else {
+              console.log(err)
+            }
+          }
+          if (webhooks.size > 0) {
+            webhook = new Webhook(webhooks?.first().url)
+            webhook.setUsername("CatchTwo")
+            webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          } else {
+            try {
+              newWebhook = await message.channel.createWebhook("CatchTwo", {
+                avatar:
+                  "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                reason: "CatchTwo Commands",
+              })
+            } catch (err) {
+              if (err.code == "50013") {
+                newWebhook = config.logWebhook
+              }
+            }
+            webhook = new Webhook(newWebhook)
+            webhook.setUsername("CatchTwo")
+            webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          }
+          webhook.send(
+            new MessageBuilder()
+              .setText(`<@${message.author.id}>`)
+              .setTitle("CatchTwo Command Help")
+              .setFooter("©️ CatchTwo ~ @kyan0045")
+              .setURL(`https://github.com/kyan0045/CatchTwo`)
+              .setDescription(
+                `CatchTwo is a simple and easy to use PokéTwo selfbot, you can find available commands below.`
+              )
+              .addField("!help", "This is this command.", true)
+              .addField(
+                "!say",
+                "This can be used to make the selfbot repeat a message you specify.",
+                true
+              )
+              .addField(
+                "!click",
+                "This can be used to make the selfbot click a button you specify.",
+                true
+              )
+              .addField(
+                "!react",
+                "This can be used to make the selfbot react to a message you specify.",
+                true
+              )
+              .addField(
+                "!restart",
+                "This can be used to make the selfbot restart.",
+                true
+              )
+              .addField(
+                "!support",
+                "This can be used to get a link to our support server.",
+                true
+              )
+              .addField(
+                "!config [view, set]",
+                "This can be used to view and change your config.",
+                true
+              )
+              .setColor("#E74C3C")
+          )
+        } else if (command == "restart") {
+          message.reply("Restarting...")
+          if (log)
+            log.send(
+              new MessageBuilder()
+                .setTitle("Restarting...")
+                .setURL("https://github.com/kyan0045/catchtwo")
+                .setColor("#E74C3C")
+            )
+
+            setTimeout(() => {
+
+              exec("node restart.js", (error, stdout, stderr) => {
+              if (error) {
+                console.error(`Error during restart: ${error.message}`)
+                return
+              }
+              console.log(`Restart successful. ${stdout}`)
+            })
+
+            setTimeout(() => {
+              client.destroy(token)
+              process.exit()
+            }, 1000)
+          }, 1000)
+        } else if (command == "support") {
+          try {
+            webhooks = await message.channel.fetchWebhooks()
+          } catch (err) {
+            if (err.code == "50013") {
+              webhooks = config.logWebhook
+            } else {
+              console.log(err)
+            }
+          }
+          if (webhooks.size > 0) {
+            webhook = new Webhook(webhooks?.first().url)
+            await webhook.setUsername("CatchTwo")
+            await webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          } else {
+            try {
+              newWebhook = await message.channel.createWebhook("CatchTwo", {
+                avatar:
+                  "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                reason: "CatchTwo Commands",
+              })
+            } catch (err) {
+              if (err.code == "50013") {
+                newWebhook = config.logWebhook
+              }
+            }
+            webhook = new Webhook(newWebhook)
+            webhook.setUsername("CatchTwo")
+            webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          }
+          webhook.send(
+            new MessageBuilder()
+              .setText(`<@${message.author.id}> https://discord.gg/tXa2Hw5jHy`)
+              .setTitle("CatchTwo Support Server")
+              .setFooter("©️ CatchTwo ~ @kyan0045")
+              .setURL(`https://discord.gg/tXa2Hw5jHy`)
+              .setDescription(
+                `If you need any support, or have questions, please join our support server here.`
+              )
+              .setColor("#f5b3b3")
+          )
+        } else if (command == "config") {
+          if (!args[0]) {
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Config Help")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(
+                  `You can change properties in your config using \`\`${config.prefix}config set [property] [value]\`\`\nIf you wish to view your current config, use \`\`${config.prefix}config view\`\` instead.\n\`\`Note:\`\` Changes only take effect after the selfbot has restarted.`
+                )
+                .setColor("#f5b3b3")
+            )
+          }
+          if (args[0] == "view") {
+            const config = await fs.readFileSync("./config.json", "utf-8")
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (!webhooks)
+              return message.reply(
+                `<@${message.author.id}>\n\`\`\`json\n${config}\n\`\`\``
+              )
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            if (webhook)
+              webhook.send(
+                `<@${message.author.id}>\n\`\`\`json\n${config}\n\`\`\``
+              )
+          }
+          if (args[0] == "set" && !args[1]) {
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Config Help")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(
+                  `You can change properties in your config using \`\`${config.prefix}config set [property] [value]\`\`\n\`\`Note:\`\` Changes only take effect after the selfbot has restarted.`
+                )
+                .setColor("#f5b3b3")
+            )
+          }
+          if (args[0] == "set" && args[1]) {
+            let property = args[1]
+            let value = args[2]
+
+            const rawData = fs.readFileSync("./config.json")
+            let config = JSON.parse(rawData)
+
+            if (!(property in config)) {
+              message.reply(
+                `Property \`${property}\` does not exist in the config.`
+              )
+              return
+            }
+
+            if (typeof config[property] === "boolean") {
+              value = value.toLowerCase() === "true"
+            } else if (typeof config[property] === "number") {
+              value = Number(value)
+            }
+
+            config[property] = value
+
+            fs.writeFileSync("./config.json", JSON.stringify(config, null, 2))
+            message.reply(
+              `Property \`${property}\` updated with value \`${value}\`.`
+            )
+          }
         }
       }
     }
@@ -594,6 +858,14 @@ async function start() {
   for (var i = 0; i < config.tokens.length; i++) {
     await Login(config.tokens[i].token, Client, config.tokens[i].guildId)
   }
+  if (log)
+    log.send(
+      new MessageBuilder()
+        .setTitle("Started!")
+        .setURL("https://github.com/kyan0045/catchtwo")
+        .setDescription(`Found ${config.tokens.length} token(s).`)
+        .setColor("#7ff889")
+    )
 }
 
 process.on("unhandledRejection", (reason, p) => {
