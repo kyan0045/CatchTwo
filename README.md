@@ -32,7 +32,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 
 <h2 align="left">Features</h2>
 
-* [x] Supports Multiple Instances </br>
+* [x] Supports Infinite Accounts </br>
 * [x] Spams Random Messages </br>
 * [x] Interactive Commands </br>
 * [x] Useful Webhook Logging </br>
