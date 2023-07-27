@@ -55,6 +55,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
 | ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
 | ```prefix```  | ```String``` | ```undefined```  | The prefix to use for the selfbot. |
+| ```blacklistedGuilds```  | ```Array``` | ```undefined```  | The server IDs of servers you do not want the bot to catch in, if no guildId is provided. |
 
 <h2 align="left">Commands</h2>
 
@@ -102,6 +103,7 @@ Token2 guildId2
 ### Important
 
 * In order for the logging to work, your account must have a profile picture different than the standard discord one.
+* If no guildId is provided, the bot will automatically catch pokemons in all guilds available, to prevent this, either add a guildId, or blacklist certain guilds in the config.
 
 ## Contributing
 Pull requests & suggestions are always welcome! For major changes, please open an issue/DM me on Discord first (@kyan0045) to discuss what you would like to change and to what extend.
