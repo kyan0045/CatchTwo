@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.1.7-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.2.0-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -23,50 +23,88 @@ Simple and free pokétwo selfbot</br>
 
 
 
-<img src="https://poketwo.net/_next/image?url=%2Fassets%2Flogo.png&w=256&q=75" alt="poketwo logo" align="right" height="120px"><h2>ABOUT</h2>
-**CatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!**
+<img src="https://poketwo.net/_next/image?url=%2Fassets%2Flogo.png&w=256&q=75" alt="poketwo logo" align="right" height="120px"><h2>About</h2>
+CatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!
 
-<h2 align="left">FEATURES</h2>
+<h2 align="left">Support</h2>
 
 If you need any support, please join [our Discord server](https://discord.gg/tXa2Hw5jHy): https://discord.gg/tXa2Hw5jHy
-<h2 align="left">FEATURES</h2>
+
+<h2 align="left">Features</h2>
 
 * [x] Supports Multiple Instances </br>
 * [x] Spams Random Messages </br>
+* [x] Interactive Commands </br>
+* [x] Useful Webhook Logging </br>
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
-* [X] Say, React & Click(button) Commands </br>
 * [X] Pauses on captcha </br>
-* [ ] Restart command </br>
-* [ ] Usefull Webpage </br>
+* [ ] Useful Webpage </br>
 * [ ] Market Sniper </br>
 * [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
 
-<h2 align="left">CONFIGURATIONS</h2>
+<h2 align="left">Configurations</h2>
 
 
 | Name  | Type | Default Value | Description |
 | ------------- | ------------- | ------------- | ------------- |
-| ```isBatchTokenFile```  | ```Boolean``` | ```False```  | Tells the program whether or not to use ```batch_token.cfg```. |
 | ```incenseMode```  | ```Boolean``` | ```False```  | Tells the program whether or not to interact with incenses. |
 | ```reactAfterCatch```  | ```Boolean``` | ```False```  | Tells the program whether or not to react after catching something. |
 | ```lowIVLog```  | ```String``` | ```undefined```  | Tells the program when to log a pokemon as low IV. |
 | ```highIVLog```  | ```String``` | ```undefined```  | Tells the program when to log a pokemon as high IV. |
-| ```token```  | ```String``` | ```undefined```  | The token of the account to run on. |
-| ```guildId```  | ```String``` | ```undefined```  | The guild for this account to interact within. |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
 | ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
 | ```prefix```  | ```String``` | ```undefined```  | The prefix to use for the selfbot. |
 
+<h2 align="left">Commands</h2>
 
-### BATCH FILE FORMAT
+| Name  | Options | Description |
+| ------------- | ------------- | ------------- |
+| ```help```  | ```none```  | Gives a list of these available commands. |
+| ```config```  | ```view, set```  | Can be used to view and change the config through Discord. |
+| ```restart```  | ```none``` | Can be used to restart the selfbot. |
+| ```say```  | ```content``` | Can be used to make the selfbot repeat after you. |
+| ```react```  | ```messageID``` | Can be used to make the selfbot react to the first emoji on a message. |
+| ```click```  | ```messageID``` | Can be used to click a button in Discord. |
+| ```support```  | ```none``` | Gives a link to our support server. |
+
+## Installation
+
+- Download [NodeJS](https://nodejs.org/en/download)
+- Run the following commands in your shell/console:
+
+```bash
+git clone https://github.com/kyan0045/catchtwo.git
 ```
-token1 guildId1
-token2 guildId2
+Note: You can also download the files using other methods.
+
+```bash
+cd catchtwo
+```
+
+```bash
+npm i
+```
+- Now enter the correct values in [config.json](./config.json) & [tokens.txt](./tokens.txt).
+
+To start the selfbot, run the following command in your shell/console:
+```javascript
+node .
+```
+
+### Token Format
+```
+Token1 guildId1
+Token2 guildId2
 ``` 
 - Use a space to seperate the guildId from the token.
 
-### IMPORTANT
+### Important
 
 * In order for the logging to work, your account must have a profile picture different than the standard discord one.
 
+## Contributing
+Pull requests & suggestions are always welcome! For major changes, please open an issue/DM me on Discord first (@kyan0045) to discuss what you would like to change and to what extend.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
