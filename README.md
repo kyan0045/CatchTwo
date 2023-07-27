@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.2.0-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.2.1-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -39,9 +39,9 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny</br>
 * [X] Pauses on captcha </br>
+* [x] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
 * [ ] Useful Webpage </br>
 * [ ] Market Sniper </br>
-* [ ] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
 
 <h2 align="left">Configurations</h2>
 
