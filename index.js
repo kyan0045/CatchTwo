@@ -1,6 +1,6 @@
-var version = "1.2.0"
-// Version 1.2.0
-// EVERYTHING can be set up in config.json & tokens.txt, no need to change anything here :)!
+var version = "1.2.1"
+// Version 1.2.1
+// EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
 const date = require("date-and-time")
@@ -10,7 +10,7 @@ const express = require("express")
 const app = express()
 const fs = require("fs-extra")
 const chalk = require("chalk")
-const { solveHint } = require("pokehint")
+const { solveHint, checkRarity } = require("pokehint")
 const { Webhook, MessageBuilder } = require("discord-webhook-node")
 const config = process.env.JSON
   ? JSON.parse(process.env.JSON)
@@ -360,25 +360,89 @@ async function Login(token, Client, guildId) {
                 .setColor("#E74C3C")
             )
         } else {
-          if (log)
-            log.send(
-              new MessageBuilder()
-                .setTitle("Pokemon Caught")
-                .setURL(link)
-                .setDescription(
-                  "**Account: **" +
-                    client.user.tag +
-                    "\n**Pokemon: **" +
-                    latestName +
-                    "\n**Level: **" +
-                    latestLevel +
-                    "\n**IV: **" +
-                    iv +
-                    "\n**Number: **" +
-                    number
-                )
-                .setColor("#2e3236")
-            )
+          rarity = await checkRarity(`${name}`)
+
+          if (rarity == 'legendary') {
+            if (log)
+              log.send(
+                new MessageBuilder()
+                  .setTitle("Legendary Caught")
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#2e3236")
+              )
+          } else if (rarity == 'mythical') {
+            if (log)
+              log.send(
+                new MessageBuilder()
+                  .setTitle("Mythical Caught")
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#2e3236")
+              )
+          } else if (rarity == 'ultra_beast') {
+            if (log)
+              log.send(
+                new MessageBuilder()
+                  .setTitle("Ultra Beast Caught")
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#2e3236")
+              )
+          } else if (rarity == 'regular') {
+            if (log)
+              log.send(
+                new MessageBuilder()
+                  .setTitle("Pokemon Caught")
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#2e3236")
+              )
+          }
         }
 
         const caught =
@@ -431,7 +495,6 @@ async function Login(token, Client, guildId) {
     }
 
     if (message.channel.name && message.content) {
-
       if (
         message.content.startsWith(config.prefix) &&
         config.ownerID.includes(message.author.id) &&
@@ -611,9 +674,8 @@ async function Login(token, Client, guildId) {
                 .setColor("#E74C3C")
             )
 
-            setTimeout(() => {
-
-              exec("node restart.js", (error, stdout, stderr) => {
+          setTimeout(() => {
+            exec("node restart.js", (error, stdout, stderr) => {
               if (error) {
                 console.error(`Error during restart: ${error.message}`)
                 return
