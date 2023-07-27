@@ -1,4 +1,2 @@
-config.json
-tokens.txt
-catches.txt
-messages.txt
+*.txt
+*.json
