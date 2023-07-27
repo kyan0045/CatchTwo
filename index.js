@@ -116,7 +116,6 @@ async function Login(token, Client, guildId) {
 
       async function interval() {
         if (!isOnBreak) {
-          if (guildId) {
           const guild = client.guilds.cache.get(guildId)
           const spamChannels = guild.channels.cache
             .filter(
@@ -158,7 +157,6 @@ async function Login(token, Client, guildId) {
             }, sleeptime)
             if (log) log.send(`Sleeping for ${sleeptimes} minutes`)
           }
-        }
         }
       }
     if (guildId) {
