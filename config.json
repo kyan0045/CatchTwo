@@ -6,5 +6,5 @@
   "logWebhook": "WEBHOOK TO LOG CATCHES",
   "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
   "prefix": "!",
-  "blacklistedGuilds": [ "...", "..." ]
+  "blacklistedGuilds": [ "716390832034414685", "..." ]
 }
