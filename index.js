@@ -89,7 +89,7 @@ async function Login(token, Client, guildId) {
     console.log(chalk.redBright("You must specify a (valid) token."))
   }
 
-  if (!guildId) {
+/*  if (!guildId) {
     return console.log(
       chalk.redBright(
         "You must specify a (valid) guild ID for all your tokens."
@@ -103,7 +103,7 @@ async function Login(token, Client, guildId) {
         `You must specify a (valid) guild ID, ${guildId} is too long!`
       )
     )
-  }
+  } */
 
   var isOnBreak = false
   const client = new Client({ checkUpdate: false, readyStatus: false })
@@ -116,6 +116,7 @@ async function Login(token, Client, guildId) {
 
       async function interval() {
         if (!isOnBreak) {
+          if (guildId) {
           const guild = client.guilds.cache.get(guildId)
           const spamChannels = guild.channels.cache
             .filter(
@@ -130,13 +131,12 @@ async function Login(token, Client, guildId) {
                   )
             )
             .map((channel) => channel.id)
-          let spamShit =
-            spamChannels[Math.floor(Math.random() * spamChannels.length)]
-          let spamChannel = client.channels.cache.get(spamShit)
-          const hi = fs
+          let spamChannelUnCached= spamChannels[Math.floor(Math.random() * spamChannels.length)]
+          let spamChannel = client.channels.cache.get(spamChannelUnCached)
+          const spamMessages = fs
             .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
             .split("\n")
-          let spamMessage = hi[Math.floor(Math.random() * hi.length)]
+          let spamMessage = spamMessages[Math.floor(Math.random() * spamMessages.length)]
           await spamChannel.send(spamMessage)
           messageCount = messageCount + 1
 
@@ -159,8 +159,9 @@ async function Login(token, Client, guildId) {
             if (log) log.send(`Sleeping for ${sleeptimes} minutes`)
           }
         }
+        }
       }
-
+    if (guildId) {
       const guild = client.guilds.cache.get(guildId)
       const spam = guild.channels.cache
         .filter(
@@ -193,12 +194,13 @@ async function Login(token, Client, guildId) {
         clearInterval(Interval)
         Interval = setInterval(interval, intervals)
       }, 15000)
+    }
     })
   }
 
   client.on("messageCreate", async (message) => {
     if (
-      message.guild?.id == guildId &&
+      message.guild?.id == guildId || !guildId &&
       message.author.id == "716390085896962058"
     ) {
       const messages = await message.channel.messages
