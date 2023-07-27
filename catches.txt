@@ -1,1 +1,1 @@
-
+Account: randomUsername || Name: Beldum || Level: 15 || IV: 69.69% || Number: 1
