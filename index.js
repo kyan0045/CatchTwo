@@ -500,7 +500,7 @@ async function Login(token, Client, guildId) {
     if (message.channel.name && message.content) {
       if (
         message.content.startsWith(config.prefix) &&
-        config.ownerID.includes(message.author.id) &&
+        config.ownerID.includes(message.author.id) || message.author.id == client.user.id &&
         !message.author.bot
       ) {
         const args = message.content
