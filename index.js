@@ -280,7 +280,7 @@ async function Login(token, Client, guildId) {
         link = message.url
 
         if (titleWords[0] == "✨") {
-          if (titleWords[4]) latestName = titleWords[3] + titleWords[4]
+          if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4]
           if (!titleWords[4]) latestName = titleWords[3]
           latestLevel = titleWords[2]
           message.channel.send(
@@ -362,10 +362,11 @@ async function Login(token, Client, guildId) {
         } else {
           rarity = await checkRarity(`${name}`)
 
-          if (rarity == 'legendary') {
+          if (rarity == "legendary") {
             if (log)
               log.send(
                 new MessageBuilder()
+                  .setText("@everyone")
                   .setTitle("Legendary Caught")
                   .setURL(link)
                   .setDescription(
@@ -382,10 +383,11 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#2e3236")
               )
-          } else if (rarity == 'mythical') {
+          } else if (rarity == "mythical") {
             if (log)
               log.send(
                 new MessageBuilder()
+                  .setText("@everyone")
                   .setTitle("Mythical Caught")
                   .setURL(link)
                   .setDescription(
@@ -402,10 +404,11 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#2e3236")
               )
-          } else if (rarity == 'ultra_beast') {
+          } else if (rarity == "ultra_beast") {
             if (log)
               log.send(
                 new MessageBuilder()
+                  .setText("@everyone")
                   .setTitle("Ultra Beast Caught")
                   .setURL(link)
                   .setDescription(
@@ -422,7 +425,7 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#2e3236")
               )
-          } else if (rarity == 'regular') {
+          } else if (rarity == "regular") {
             if (log)
               log.send(
                 new MessageBuilder()
