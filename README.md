@@ -20,6 +20,7 @@ Simple and free pokétwo selfbot</br>
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/pulls)
+<a href="https://replit.com/new/github/kyan0045/catchtwo"><img src="https://binbashbanana.github.io/deploy-buttons/buttons/remade/replit.svg" alt="Deploy on replit" /></a>
 
 
 
