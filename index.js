@@ -89,7 +89,7 @@ app.listen(3000, async () => {
 
 async function Login(token, Client, guildId) {
   if (!token) {
-    console.log(chalk.redBright("You must specify a (valid) token.") + chalk.white(`${token}` is invalid."))
+    console.log(chalk.redBright("You must specify a (valid) token.") + chalk.white(` ${token} is invalid.`))
   }
 
 /*  if (!guildId) {
