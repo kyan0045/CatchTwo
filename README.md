@@ -34,13 +34,14 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 <h2 align="left">Features</h2>
 
 * [x] Supports Infinite Accounts </br>
-* [x] Spams Random Messages </br>
+* [x] Can catch EVERY pokemon (Gen 9 included!) </br>
 * [x] Interactive Commands </br>
+* [x] Spams Random Messages </br>
 * [x] Useful Webhook Logging </br>
 * [x] Stores & Logs Catches </br>
-* [x] Alerts on Low IV, High IV & Shiny</br>
-* [X] Pauses on captcha </br>
-* [x] Alerts On Legendary, Mythical and Ultra Beast Catch </br>
+* [x] Alerts on Low IV, High IV & Shiny, Legendaries, Mythicals, and Ultra Beasts</br>
+* [x] Tracks catches and calculates catch rates per hour </br>
+* [x] Pauses on captcha </br>
 * [ ] Useful Webpage </br>
 * [ ] Market Sniper </br>
 
@@ -63,12 +64,15 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | Name  | Options | Description |
 | ------------- | ------------- | ------------- |
 | ```help```  | ```none```  | Gives a list of these available commands. |
-| ```config```  | ```view, set```  | Can be used to view and change the config through Discord. |
-| ```restart```  | ```none``` | Can be used to restart the selfbot. |
 | ```say```  | ```content``` | Can be used to make the selfbot repeat after you. |
-| ```react```  | ```messageID``` | Can be used to make the selfbot react to the first emoji on a message. |
 | ```click```  | ```messageID``` | Can be used to click a button in Discord. |
+| ```react```  | ```messageID``` | Can be used to make the selfbot react to the first emoji on a message. |
+| ```restart```  | ```none``` | Can be used to restart the selfbot. |
 | ```support```  | ```none``` | Gives a link to our support server. |
+| ```config```  | ```view, set```  | Can be used to view and change the config through Discord. |
+| ```stats```  | ```pokemon``` | Gives an overview with useful statistics. |
+| ```ping```  | ```none``` | Gives the selfbot's response time. |
+
 
 ## Installation
 
@@ -95,6 +99,8 @@ To start the selfbot, run the following command in your shell/console:
 ```javascript
 node .
 ```
+
+- More detailed installation guides (pc, phone, replit) are available in our Discord server.
 
 ### Token Format
 ```
