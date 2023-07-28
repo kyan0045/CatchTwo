@@ -121,6 +121,7 @@ Token2 guildId2
   <img src="https://media.discordapp.net/attachments/1031166956541333675/1134432994149548072/Opera_Snapshot_2023-07-28_122751_replit.com.png?width=1039&height=171">
   And... you're done!
 </details>
+
 ## Contributing
 Pull requests & suggestions are always welcome! For major changes, please open an issue/DM me on Discord first (@kyan0045) to discuss what you would like to change and to what extend.
 
