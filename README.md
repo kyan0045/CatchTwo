@@ -105,6 +105,21 @@ Token2 guildId2
 * In order for the logging to work, your account must have a profile picture different than the standard discord one.
 * If no guildId is provided, the bot will automatically catch pokemons in all guilds available, to prevent this, either add a guildId, or blacklist certain guilds in the config.
 
+### Replit
+
+* If you wish to run our autocatcher on Replit, we strongly recommend you to use Replit's secret feature, to prevent people from stealing your tokens and webhook. You can find the steps to creating a secret below.
+* <details><summary>Click to open</summary>
+  1. Open your CatchTwo repl, and look for the "Secrets" tool. </br>
+  <img src="https://media.discordapp.net/attachments/1031166956541333675/1134430854421151744/Opera_Snapshot_2023-07-28_122147_replit.com.png">
+  </br>
+  2. Click the secret tool, go to the new window, and click "New Secret".
+  <img src="https://media.discordapp.net/attachments/1031166956541333675/1134432967180169256/Opera_Snapshot_2023-07-28_122438_replit.com.png?width=972&height=551">
+  3. Create a secret called "TOKENS", put your tokens and guildId's in, and click "Save"
+  <img src="https://media.discordapp.net/attachments/1031166956541333675/1134432967465377792/Opera_Snapshot_2023-07-28_122640_replit.com.png?width=1039&height=149">
+  4. Create a secret called "CONFIG", put your config in, and click "Save"
+  <img src="https://media.discordapp.net/attachments/1031166956541333675/1134432994149548072/Opera_Snapshot_2023-07-28_122751_replit.com.png?width=1039&height=171">
+  And... you're done!
+</details>
 ## Contributing
 Pull requests & suggestions are always welcome! For major changes, please open an issue/DM me on Discord first (@kyan0045) to discuss what you would like to change and to what extend.
 
