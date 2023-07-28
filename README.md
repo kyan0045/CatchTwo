@@ -73,6 +73,8 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 ## Installation
 
 - Download [NodeJS](https://nodejs.org/en/download)
+- Download [Git](https://git-scm.com/downloads)
+  
 - Run the following commands in your shell/console:
 
 ```bash
