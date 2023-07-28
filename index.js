@@ -12,8 +12,8 @@ const fs = require("fs-extra")
 const chalk = require("chalk")
 const { solveHint, checkRarity } = require("pokehint")
 const { Webhook, MessageBuilder } = require("discord-webhook-node")
-const config = process.env.JSON
-  ? JSON.parse(process.env.JSON)
+const config = process.env.CONFIG
+  ? JSON.parse(process.env.CONFIG)
   : require("./config.json")
 let log
 if (config.logWebhook.length > 25) {
@@ -70,7 +70,8 @@ axios
     console.log(error)
   })
 
-data = fs.readFileSync("./tokens.txt", "utf-8")
+let data = process.env.TOKENS;
+if (!data) data = fs.readFileSync("./tokens.txt", "utf-8")
 config.tokens = data.split("\n").reduce((previousTokens, line) => {
   let [token, guildId] = line.replace("\r", "").split(" ")
   return [...previousTokens, { token, guildId }]
