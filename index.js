@@ -76,6 +76,8 @@ config.tokens = data.split("\n").reduce((previousTokens, line) => {
   return [...previousTokens, { token, guildId }]
 }, [])
 
+if (process.env.REPLIT_DB_URL) console.log(`You are running on replit, please use it's secret feature, to prevent your tokens and webhook from being stolen and misused.\nCreate a secret variable called "CONFIG" for your config, and a secret variable called "TOKENS" for your tokens.`)
+
 app.get("/", async function (req, res) {
   res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNT!`)
 })
