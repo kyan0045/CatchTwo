@@ -27,8 +27,12 @@ const { exec } = require("child_process")
 
 // CODE, NO NEED TO CHANGE
 
-channelCount = 0
-messageCount = 0
+spamMessageCount = 0
+pokemonCount = 0
+legendaryCount = 0
+mythicalCount = 0
+ultrabeastCount = 0
+shinyCount = 0
 
 axios
   .get("https://raw.githubusercontent.com/kyan0045/catchtwo/main/index.js")
@@ -70,14 +74,17 @@ axios
     console.log(error)
   })
 
-let data = process.env.TOKENS;
+let data = process.env.TOKENS
 if (!data) data = fs.readFileSync("./tokens.txt", "utf-8")
 config.tokens = data.split("\n").reduce((previousTokens, line) => {
   let [token, guildId] = line.replace("\r", "").split(" ")
   return [...previousTokens, { token, guildId }]
 }, [])
 
-if (process.env.REPLIT_DB_URL) console.log(`You are running on replit, please use it's secret feature, to prevent your tokens and webhook from being stolen and misused.\nCreate a secret variable called "CONFIG" for your config, and a secret variable called "TOKENS" for your tokens.`)
+if (process.env.REPLIT_DB_URL)
+  console.log(
+    `You are running on replit, please use it's secret feature, to prevent your tokens and webhook from being stolen and misused.\nCreate a secret variable called "CONFIG" for your config, and a secret variable called "TOKENS" for your tokens.`
+  )
 
 app.get("/", async function (req, res) {
   res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNT!`)
@@ -89,10 +96,13 @@ app.listen(3000, async () => {
 
 async function Login(token, Client, guildId) {
   if (!token) {
-    console.log(chalk.redBright("You must specify a (valid) token.") + chalk.white(` ${token} is invalid.`))
+    console.log(
+      chalk.redBright("You must specify a (valid) token.") +
+        chalk.white(` ${token} is invalid.`)
+    )
   }
 
-/*  if (!guildId) {
+  /*  if (!guildId) {
     return console.log(
       chalk.redBright(
         "You must specify a (valid) guild ID for all your tokens."
@@ -107,7 +117,6 @@ async function Login(token, Client, guildId) {
       )
     )
   } */
-
   var isOnBreak = false
   const client = new Client({ checkUpdate: false, readyStatus: false })
 
@@ -117,93 +126,65 @@ async function Login(token, Client, guildId) {
       client.user.setStatus("invisible")
       accountCheck = client.user.username
 
-      async function interval() {
+      async function interval(intervals) {
         if (!isOnBreak) {
           const guild = client.guilds.cache.get(guildId)
-          const spamChannels = guild.channels.cache
-            .filter(
-              (channel) =>
-                channel.type == "GUILD_TEXT" &&
-                channel.name.includes(`spam`) &&
-                channel
-                  .permissionsFor(guild.members.me)
-                  .has(
-                    Permissions.FLAGS.VIEW_CHANNEL,
-                    Permissions.FLAGS.SEND_MESSAGES
-                  )
+          const spamChannels = guild.channels.cache.filter(
+            (channel) =>
+              channel.type === "GUILD_TEXT" &&
+              channel.name.includes("spam") &&
+              channel
+                .permissionsFor(guild.members.me)
+                .has([
+                  Permissions.FLAGS.VIEW_CHANNEL,
+                  Permissions.FLAGS.SEND_MESSAGES,
+                ])
+          )
+
+          if (spamChannels.size === 0) {
+            throw new Error(
+              `Couldn't find a channel called 'spam' in the guild specified for ${client.user.username}. Please create one.`
             )
-            .map((channel) => channel.id)
-          let spamChannelUnCached= spamChannels[Math.floor(Math.random() * spamChannels.length)]
-          let spamChannel = client.channels.cache.get(spamChannelUnCached)
+          }
+
+          const spamChannel = spamChannels.random()
           const spamMessages = fs
             .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
             .split("\n")
-          let spamMessage = spamMessages[Math.floor(Math.random() * spamMessages.length)]
-          await spamChannel.send(spamMessage)
-          messageCount = messageCount + 1
+          const spamMessage =
+            spamMessages[Math.floor(Math.random() * spamMessages.length)]
 
-          await sleep(intervals)
-          if (randomInteger(0, 1700) == 400) {
-            let sleeptime = randomInteger(600000, 4000000)
-            let sleeptimes = sleeptime / 1000 / 60
-            const now = new Date()
-            console.log(
-              date.format(now, "HH:mm") +
-                `: ` +
-                chalk.red(client.user.username) +
-                `: Sleeptime: ${sleeptimes} minutes`
-            )
+          await spamChannel.send(spamMessage)
+          spamMessageCount++
+
+          if (randomInteger(0, 1700) === 400) {
+            let sleeptime = randomInteger(600000, 2500000)
             isOnBreak = true
-            setTimeout(async function () {
+
+            setTimeout(async () => {
               isOnBreak = false
-              Login(token, Client, guildId)
             }, sleeptime)
-            if (log) log.send(`Sleeping for ${sleeptimes} minutes`)
           }
         }
       }
-    if (guildId) {
-      const guild = client.guilds.cache.get(guildId)
-      const spam = guild.channels.cache
-        .filter(
-          (channel) =>
-            channel.type == "GUILD_TEXT" &&
-            channel.name.includes(`spam`) &&
-            channel
-              .permissionsFor(guild.members.me)
-              .has(
-                Permissions.FLAGS.VIEW_CHANNEL,
-                Permissions.FLAGS.SEND_MESSAGES
-              )
-        )
-        .map((channel) => channel.id)
-      let spamShit = spam[Math.floor(Math.random() * spam.length)]
-      let spamChannel = client.channels.cache.get(spamShit)
-      const hi = fs
-        .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
-        .split("\n")
-      let spamMessage = hi[Math.floor(Math.random() * hi.length)]
-      if (!spamChannel) throw new Error(`Couldn't find a channel called spam in the guild specified for ${client.user.username}. Please create one.`)
-      await spamChannel.send(spamMessage)
-      channelCount = channelCount + spam.length
-      messageCount = messageCount + 1
-      intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000 //2-5 Seconds are enough to bypass anti-bot
 
-      Interval = setInterval(interval, intervals)
+      intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000
+      setInterval(() => interval(intervals), intervals)
 
-      setInterval(async () => {
-        intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000 //2-5 Seconds are enough to bypass anti-bot
-        clearInterval(Interval)
-        Interval = setInterval(interval, intervals)
+      setInterval(() => {
+        intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000
       }, 15000)
-    }
+
+      startTime = Date.now()
     })
   }
 
   client.on("messageCreate", async (message) => {
     if (
-      message.guild?.id == guildId || !guildId &&
-      message.author.id == "716390085896962058" && !config.blacklistedGuilds.includes(message.guild?.id)
+      message.guild?.id == guildId ||
+      (!guildId &&
+        message.author.id == "716390085896962058" &&
+        !config.blacklistedGuilds.includes(message.guild?.id))
     ) {
       const messages = await message.channel.messages
         .fetch({ limit: 2, around: message.id })
@@ -240,6 +221,7 @@ async function Login(token, Client, guildId) {
       } else if (
         message.content.includes("Congratulations <@" + client.user.id + ">")
       ) {
+        pokemonCount++
         const str = message.content
         const words = str.split(" ")
         level = words[6]
@@ -284,6 +266,7 @@ async function Login(token, Client, guildId) {
         link = message.url
 
         if (titleWords[0] == "✨") {
+          shinyCount++
           if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4]
           if (!titleWords[4]) latestName = titleWords[3]
           latestLevel = titleWords[2]
@@ -367,6 +350,7 @@ async function Login(token, Client, guildId) {
           rarity = await checkRarity(`${name}`)
 
           if (rarity == "legendary") {
+            legendaryCount++
             if (log)
               log.send(
                 new MessageBuilder()
@@ -388,6 +372,7 @@ async function Login(token, Client, guildId) {
                   .setColor("#2e3236")
               )
           } else if (rarity == "mythical") {
+            mythicalCount++
             if (log)
               log.send(
                 new MessageBuilder()
@@ -409,6 +394,7 @@ async function Login(token, Client, guildId) {
                   .setColor("#2e3236")
               )
           } else if (rarity == "ultra_beast") {
+            ultrabeastCount++
             if (log)
               log.send(
                 new MessageBuilder()
@@ -496,23 +482,23 @@ async function Login(token, Client, guildId) {
         isOnBreak = true
         setTimeout(async function () {
           isOnBreak = false
-          Login(token, Client, guildId)
         }, 1000 * 3600)
       }
     }
 
     if (message.channel.name && message.content) {
       if (
-        message.content.startsWith(config.prefix) &&
-        config.ownerID.includes(message.author.id) || message.author.id == client.user.id &&
-        !message.author.bot
+        (message.content.startsWith(config.prefix) &&
+          config.ownerID.includes(message.author.id)) ||
+        (message.author.id == client.user.id && !message.author.bot)
       ) {
         const args = message.content
           .slice(config.prefix.length)
           .trim()
           .split(/ +/g)
         const command = args.shift().toLowerCase()
-
+        const commandReceivedTimestamp = Date.now()
+        
         if (command == "say") {
           try {
             message.channel.send(`${args.join(" ")}`)
@@ -638,7 +624,11 @@ async function Login(token, Client, guildId) {
               .setDescription(
                 `CatchTwo is a simple and easy to use PokéTwo selfbot, you can find available commands below.`
               )
-              .addField("!help", "This is this command.", true)
+              .addField(
+                "!help",
+                "This is the command you're looking at right now.",
+                true
+              )
               .addField(
                 "!say",
                 "This can be used to make the selfbot repeat a message you specify.",
@@ -666,7 +656,17 @@ async function Login(token, Client, guildId) {
               )
               .addField(
                 "!config [view, set]",
-                "This can be used to view and change your config.",
+                "This can be used to view and change values in your config.",
+                true
+              )
+              .addField(
+                "!stats [pokemon]",
+                "This can be used to view your stats.",
+                true
+              )
+              .addField(
+                "!ping",
+                "This can be used to check the bot's response time.",
                 true
               )
               .setColor("#E74C3C")
@@ -904,6 +904,183 @@ async function Login(token, Client, guildId) {
               `Property \`${property}\` updated with value \`${value}\`.`
             )
           }
+        } else if (command == "stats") {
+          try {
+            webhooks = await message.channel.fetchWebhooks()
+          } catch (err) {
+            if (err.code == "50013") {
+              webhooks = config.logWebhook
+            } else {
+              console.log(err)
+            }
+          }
+          if (webhooks.size > 0) {
+            webhook = new Webhook(webhooks?.first().url)
+            await webhook.setUsername("CatchTwo")
+            await webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          } else {
+            try {
+              newWebhook = await message.channel.createWebhook("CatchTwo", {
+                avatar:
+                  "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                reason: "CatchTwo Commands",
+              })
+            } catch (err) {
+              if (err.code == "50013") {
+                newWebhook = config.logWebhook
+              }
+            }
+            webhook = new Webhook(newWebhook)
+            webhook.setUsername("CatchTwo")
+            webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          }
+
+          function getElapsedTimeInSeconds() {
+            currentTime = Date.now()
+            const elapsedTimeInMilliseconds = currentTime - startTime
+            const elapsedTimeInSeconds = elapsedTimeInMilliseconds / 1000
+            elapsedTimeInMinutes = elapsedTimeInSeconds / 60
+
+            const roundedElapsedTimeInMinutes = elapsedTimeInMinutes.toFixed(2)
+
+            return roundedElapsedTimeInMinutes + " minutes"
+          }
+
+          function getRate(number, elapsedTime) {
+            const rate = (number / elapsedTime) * 60
+            return rate.toFixed(2) + " per hour"
+          }
+
+          timeSinceStart = getElapsedTimeInSeconds()
+          const clientUptime = +new Date() - +client.uptime
+          const uptime = Math.round(+clientUptime / 1000)
+
+          if (!args[0]) {
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Stats")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(`**Started:** <t:${uptime}:R>`)
+                .addField("Runtime", timeSinceStart, true)
+                .addField(" ", " ", true)
+                .addField(" ", " ", true)
+                .addField("Messages Spammed", spamMessageCount, true)
+                .addField("Pokemon Caught", pokemonCount, true)
+                .addField(" ", " ", true)
+                .addField(
+                  "Spammed Messages Rate",
+                  getRate(spamMessageCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(
+                  "Pokemon Catch Rate",
+                  getRate(pokemonCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(" ", " ", true)
+                .setColor("#f5b3b3")
+            )
+          } else if (args[0] && args[0] == "pokemon") {
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Pokemon Stats")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(`**Started:** <t:${uptime}:R>`)
+                .addField("Runtime", timeSinceStart, false)
+                .addField("Pokemon Caught", pokemonCount, true)
+                .addField(
+                  "Pokemon Catch Rate",
+                  getRate(pokemonCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(" ", " ", true)
+                .addField("Legendaries Caught", legendaryCount, true)
+                .addField(
+                  "Legendary Catch Rate",
+                  getRate(legendaryCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(" ", " ", true)
+                .addField("Mythicals Caught", mythicalCount, true)
+                .addField(
+                  "Mythical Catch Rate",
+                  getRate(mythicalCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(" ", " ", true)
+                .addField("Ultra Beasts Caught", ultrabeastCount, true)
+                .addField(
+                  "Ultra Beast Catch Rate",
+                  getRate(ultrabeastCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(" ", " ", true)
+                .addField("Shinies Caught", shinyCount, true)
+                .addField(
+                  "Shiny Catch Rate",
+                  getRate(shinyCount, elapsedTimeInMinutes),
+                  true
+                )
+                .addField(" ", " ", true)
+                .setColor("#f5b3b3")
+            )
+          }
+        } else if (command == "ping") {
+          try {
+            webhooks = await message.channel.fetchWebhooks()
+          } catch (err) {
+            if (err.code == "50013") {
+              webhooks = config.logWebhook
+            } else {
+              console.log(err)
+            }
+          }
+          if (webhooks.size > 0) {
+            webhook = new Webhook(webhooks?.first().url)
+            await webhook.setUsername("CatchTwo")
+            await webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          } else {
+            try {
+              newWebhook = await message.channel.createWebhook("CatchTwo", {
+                avatar:
+                  "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                reason: "CatchTwo Commands",
+              })
+            } catch (err) {
+              if (err.code == "50013") {
+                newWebhook = config.logWebhook
+              }
+            }
+            webhook = new Webhook(newWebhook)
+            webhook.setUsername("CatchTwo")
+            webhook.setAvatar(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+          }
+
+          webhook.send(
+            new MessageBuilder()
+              .setText(`<@${message.author.id}>`)
+              .setTitle("CatchTwo Ping")
+              .setFooter("©️ CatchTwo ~ @kyan0045")
+              .setURL(`https://discord.gg/tXa2Hw5jHy`)
+              .setDescription(
+                `**Current Ping:** \`\`${
+                  Date.now() - commandReceivedTimestamp
+                } ms\`\``
+              )
+              .setColor("#f5b3b3")
+          )
         }
       }
     }
