@@ -260,7 +260,7 @@ async function Login(token, Client, guildId) {
 
         const titleStr = message.embeds[0]?.title
         const titleWords = titleStr.split(" ")
-        if (titleWords[3]) latestName = titleWords[2] + titleWords[3]
+        if (titleWords[3]) latestName = titleWords[2] + " " + titleWords[3]
         if (!titleWords[3]) latestName = titleWords[2]
         latestLevel = titleWords[1]
         link = message.url
