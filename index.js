@@ -1,5 +1,5 @@
-var version = "1.2.2"
-// Version 1.2.2
+var version = "1.2.3"
+// Version 1.2.3
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -489,8 +489,9 @@ async function Login(token, Client, guildId) {
     if (message.channel.name && message.content) {
       if (
         (message.content.startsWith(config.prefix) &&
-          config.ownerID.includes(message.author.id)) ||
-        (message.author.id == client.user.id && !message.author.bot)
+          config.ownerID.includes(message.author.id) && !message.author.bot) ||
+          (message.content.startsWith(config.prefix) &&
+          message.author.id == client.user.id && !message.author.bot)
       ) {
         const args = message.content
           .slice(config.prefix.length)
