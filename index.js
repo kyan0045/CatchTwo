@@ -183,6 +183,7 @@ async function Login(token, Client, guildId) {
         .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
         .split("\n")
       let spamMessage = hi[Math.floor(Math.random() * hi.length)]
+      if (!spamChannel) throw new Error(`Couldn't find a channel called spam in the guild specified for ${client.user.username}. Please create one.`)
       await spamChannel.send(spamMessage)
       channelCount = channelCount + spam.length
       messageCount = messageCount + 1
