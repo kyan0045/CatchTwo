@@ -259,13 +259,13 @@ async function Login(token, Client, guildId) {
             name
         )
 
-        await sleep(1000)
-        message.channel.send("<@716390085896962058> info latest")
+        await sleep(2000)
+        message.channel.send("<@716390085896962058> i l")
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
         message.embeds[0].thumbnail.url.includes(client.user.id) &&
-        newMessage[1].content.includes("info latest")
+        newMessage[1].content.includes("i l")
       ) {
         const str = message.embeds[0]?.fields[1].value
         const words = str.split(" ")
