@@ -1,5 +1,5 @@
-var version = "1.2.5"
-// Version 1.2.5
+var version = "1.2.6"
+// Version 1.2.6
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -103,14 +103,14 @@ async function Login(token, Client, guildId) {
   }
 
   if (!guildId) {
-    return console.log(
+     console.log(
       chalk.redBright(
         "You must specify a (valid) guild ID for all your tokens. This is the guild in which they will spam."
       )
     )
   }
 
-  if (guildId.length > 21) {
+  if (guildId && guildId.length > 21) {
     console.log(
       chalk.redBright(
         `You must specify a (valid) guild ID, ${guildId} is too long!`
@@ -129,6 +129,7 @@ async function Login(token, Client, guildId) {
 
       async function interval(intervals) {
         if (!isOnBreak) {
+          if (guildId) {
           const guild = client.guilds.cache.get(guildId)
           const spamChannels = guild.channels.cache.filter(
             (channel) =>
@@ -157,6 +158,7 @@ async function Login(token, Client, guildId) {
 
           await spamChannel.send(spamMessage)
           spamMessageCount++
+        }
 
           if (randomInteger(0, 1700) === 400) {
             let sleeptime = randomInteger(600000, 2500000)
@@ -499,7 +501,7 @@ async function Login(token, Client, guildId) {
     }
   }
 
-    if (message.channel.name && message.content) {
+    if (message.channel && message.content) {
       if (
         (message.content.startsWith(config.prefix) &&
           config.ownerID.includes(message.author.id) && !message.author.bot) ||
@@ -1113,6 +1115,52 @@ async function Login(token, Client, guildId) {
           message.react("❌")
         }
         } else if (command == "setup") {
+          if (!args[0]) {
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}> https://discord.gg/tXa2Hw5jHy`)
+                .setTitle("CatchTwo Setup Information")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(
+                  `To setup a new autocatching server, run \`\`${config.prefix}setup new\`\`.\nThis will automatically create a server with log, catch, and command channels, attempt to add Pokétwo, and create a logging webhook.`
+                )
+                .setColor("#f5b3b3")
+            )
+          }
           if (args[0] && args[0] == "new") {
 
             const template = await client.fetchGuildTemplate('https://discord.new/dpxCRxf4K9Qj')
@@ -1228,3 +1276,4 @@ function sleep(timeInMs) {
     setTimeout(resolve, timeInMs)
   })
 }
+
