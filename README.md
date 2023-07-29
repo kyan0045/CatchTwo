@@ -57,7 +57,8 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
 | ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
 | ```prefix```  | ```String``` | ```undefined```  | The prefix to use for the selfbot. |
-| ```blacklistedGuilds```  | ```Array``` | ```undefined```  | The server IDs of servers you do not want the bot to catch in, if no guildId is provided. |
+| ```globalCatch```  | ```Boolean``` | ```False```  | Tells the program whether to catch just in the specified guild, or in all (unblacklisted) guilds. |
+| ```blacklistedGuilds```  | ```Array``` | ```716390832034414685```  | The server IDs of servers you do not want the bot to catch in. |
 
 <h2 align="left">Commands</h2>
 
@@ -72,6 +73,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```config```  | ```view, set```  | Can be used to view and change the config through Discord. |
 | ```stats```  | ```pokemon``` | Gives an overview with useful statistics. |
 | ```ping```  | ```none``` | Gives the selfbot's response time. |
+| ```solved```  | ```none``` | Tells the program that the captcha has been solved. |
 
 
 ## Installation
