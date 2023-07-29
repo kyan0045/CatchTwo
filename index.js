@@ -1,5 +1,5 @@
-var version = "1.2.4"
-// Version 1.2.4
+var version = "1.2.5"
+// Version 1.2.5
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -183,7 +183,7 @@ async function Login(token, Client, guildId) {
   client.on("messageCreate", async (message) => {
     if (
       message.guild?.id == guildId ||
-      (config.globalCatch &&
+      (!guildId &&
         message.author.id == "716390085896962058" &&
         !config.blacklistedGuilds.includes(message.guild?.id))
     ) {
@@ -417,7 +417,7 @@ async function Login(token, Client, guildId) {
                   .setColor("#2e3236")
               )
           } else if (rarity == "regular") {
-            if (log)
+            if (config.logCatches && log)
               log.send(
                 new MessageBuilder()
                   .setTitle("Pokemon Caught")
@@ -688,6 +688,11 @@ async function Login(token, Client, guildId) {
                 "This can be used to resume the bot after completing a captcha.",
                 true
               )
+              .addField(
+                "!setup new",
+                "This can be used to automatically set up a new CatchTwo server.",
+                true
+              )
               .setColor("#E74C3C")
           )
         } else if (command == "restart") {
@@ -952,8 +957,8 @@ async function Login(token, Client, guildId) {
               }
             }
             webhook = new Webhook(newWebhook)
-            webhook.setUsername("CatchTwo")
-            webhook.setAvatar(
+            await webhook.setUsername("CatchTwo")
+            await webhook.setAvatar(
               "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
             )
           }
@@ -1106,6 +1111,51 @@ async function Login(token, Client, guildId) {
           message.react("✅")
         } catch (err) {
           message.react("❌")
+        }
+        } else if (command == "setup") {
+          if (args[0] && args[0] == "new") {
+
+            const template = await client.fetchGuildTemplate('https://discord.new/dpxCRxf4K9Qj')
+            const createdGuild = await template.createGuild(`CatchTwo || ${client.user.username}`)
+            createdGuild.setIcon('https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67')
+            const introductionChannel = await createdGuild.channels.cache.filter(
+              (channel) =>
+                channel.type === "GUILD_TEXT" &&
+                channel.name.includes("introduction")
+            )
+            introductionChannel.first().send(`**CATCHTWO: POKÉTWO AUTOCATCHER**\n\nCatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!\n\nGithub: https://github.com/kyan0045/catchtwo\nDiscord: https://discord.gg/NRHcUuD3jg`)
+            createdInvite = await introductionChannel.first().createInvite()
+            const loggingChannel = await createdGuild.channels.cache.filter(
+              (channel) =>
+                channel.type === "GUILD_TEXT" &&
+                channel.name.includes("logs")
+            )
+            createdWebhook = await loggingChannel.first().createWebhook("CatchTwo Logging")
+            const catchChannels = await createdGuild.channels.cache.filter(
+              (channel) =>
+                channel.type === "GUILD_TEXT" &&
+                channel.name.includes("catch")
+            )
+            const catchChannelsArray = Array.from(catchChannels.values());
+            try {
+            await client.authorizeURL('https://discord.com/api/oauth2/authorize?client_id=716390085896962058&permissions=387144&scope=bot%20applications.commands', {
+              guild_id: createdGuild.id,
+              permissions: "387144", // your permissions
+              authorize: true
+            }).then(async () => {
+              const commandChannel = await createdGuild.channels.cache.filter(
+                (channel) =>
+                  channel.type === "GUILD_TEXT" &&
+                  channel.name.includes("commands")
+              )
+
+              commandChannel.first().send(`<@716390085896962058> redirect ${catchChannelsArray[0].id} ${catchChannelsArray[1].id} ${catchChannelsArray[2].id}`)
+              message.reply(`## SUCCESFULLY CREATED SERVER\n* I succesfully setup a server for you.'n${createdInvite}\n\n### CONFIG VALUES\n\`\`\`json\n{\n"logWebhook": "${createdWebhook.url}",\n"guildId": "${createdGuild.id}"\n}`)
+            })
+          } catch (err) {
+            console.log(`Failed to add Pokétwo to ${createdGuild.name}`)
+          }
+          message.reply(`## SUCCESFULLY CREATED SERVER\n* I succesfully setup a server for you.\n${createdInvite}\n\n* Failed to invite Pokétwo, please invite it with the following link:\nhttps://discord.com/api/oauth2/authorize?client_id=716390085896962058&permissions=387144&scope=bot%20applications.commands&guild_id=${createdGuild.id}\nOnce invited run the following command: \`\`<@716390085896962058> redirect ${catchChannelsArray[0].id} ${catchChannelsArray[1].id} ${catchChannelsArray[2].id}\`\`\n### CONFIG VALUES\n\`\`\`json\n{\n"logWebhook": "${createdWebhook.url}",\n"guildId": "${createdGuild.id}"\n}\`\`\``)
         }
         }
         }
