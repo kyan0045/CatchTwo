@@ -1,5 +1,5 @@
 var version = "1.2.4"
-// Version 1.2.2
+// Version 1.2.4
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -102,10 +102,10 @@ async function Login(token, Client, guildId) {
     )
   }
 
-  /*  if (!guildId) {
+  if (!guildId) {
     return console.log(
       chalk.redBright(
-        "You must specify a (valid) guild ID for all your tokens."
+        "You must specify a (valid) guild ID for all your tokens. This is the guild in which they will spam."
       )
     )
   }
@@ -116,7 +116,8 @@ async function Login(token, Client, guildId) {
         `You must specify a (valid) guild ID, ${guildId} is too long!`
       )
     )
-  } */
+  }
+
   var isOnBreak = false
   const client = new Client({ checkUpdate: false, readyStatus: false })
 
