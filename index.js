@@ -1,5 +1,5 @@
-var version = "1.2.3"
-// Version 1.2.3
+var version = "1.2.4"
+// Version 1.2.2
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -347,7 +347,7 @@ async function Login(token, Client, guildId) {
                 .setColor("#E74C3C")
             )
         } else {
-          rarity = await checkRarity(`${name}`)
+          rarity = await checkRarity(`${latestName}`)
 
           if (rarity == "legendary") {
             legendaryCount++
@@ -483,8 +483,20 @@ async function Login(token, Client, guildId) {
         setTimeout(async function () {
           isOnBreak = false
         }, 1000 * 3600)
-      }
+        config.ownerID.forEach(async (ownerID) => {
+          try {
+            if (ownerID !== client.user.id) {
+
+              const user = await client.users.fetch(ownerID);
+
+              user.send(`## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`);
+            }
+          } catch (err) {
+            console.log(err)
+          }
+        })
     }
+  }
 
     if (message.channel.name && message.content) {
       if (
@@ -668,6 +680,11 @@ async function Login(token, Client, guildId) {
               .addField(
                 "!ping",
                 "This can be used to check the bot's response time.",
+                true
+              )
+              .addField(
+                "!solved",
+                "This can be used to resume the bot after completing a captcha.",
                 true
               )
               .setColor("#E74C3C")
@@ -1082,8 +1099,15 @@ async function Login(token, Client, guildId) {
               )
               .setColor("#f5b3b3")
           )
+        } else if (command == "solved") {
+          try {
+          isOnBreak = false;
+          message.react("✅")
+        } catch (err) {
+          message.react("❌")
         }
-      }
+        }
+        }
     }
   })
 
