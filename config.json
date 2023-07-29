@@ -1,6 +1,7 @@
 {
   "incenseMode": false,
   "reactAfterCatch": false,
+  "logCatches": true,
   "lowIVLog": "10.00",
   "highIVLog": "85.00",
   "logWebhook": "WEBHOOK TO LOG CATCHES",
