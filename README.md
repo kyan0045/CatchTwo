@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.2.1-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.2.5-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -52,8 +52,9 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ------------- | ------------- | ------------- | ------------- |
 | ```incenseMode```  | ```Boolean``` | ```False```  | Tells the program whether or not to interact with incenses. |
 | ```reactAfterCatch```  | ```Boolean``` | ```False```  | Tells the program whether or not to react after catching something. |
-| ```lowIVLog```  | ```String``` | ```undefined```  | Tells the program when to log a pokemon as low IV. |
-| ```highIVLog```  | ```String``` | ```undefined```  | Tells the program when to log a pokemon as high IV. |
+| ```logCatches```  | ```String``` | ```True```  | Tells the program whether or not to log all catches. |
+| ```lowIVLog```  | ```String``` | ```15.00```  | Tells the program when to log a pokemon as low IV. |
+| ```highIVLog```  | ```String``` | ```85.00```  | Tells the program when to log a pokemon as high IV. |
 | ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
 | ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
 | ```prefix```  | ```String``` | ```undefined```  | The prefix to use for the selfbot. |
@@ -74,6 +75,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```stats```  | ```pokemon``` | Gives an overview with useful statistics. |
 | ```ping```  | ```none``` | Gives the selfbot's response time. |
 | ```solved```  | ```none``` | Tells the program that the captcha has been solved. |
+| ```setup```  | ```new``` | Automatically creates and sets up a new server for autocatching. |
 
 
 ## Installation
@@ -114,7 +116,6 @@ Token2 guildId2
 ### Important
 
 * In order for the logging to work, your account must have a profile picture different than the standard discord one.
-* If no guildId is provided, the bot will automatically catch pokemons in all guilds available, to prevent this, either add a guildId, or blacklist certain guilds in the config.
 
 ### Replit
 
