@@ -103,7 +103,7 @@ async function Login(token, Client, guildId) {
   }
 
   if (!guildId) {
-     console.log(
+    console.log(
       chalk.redBright(
         "You must specify a (valid) guild ID for all your tokens. This is the guild in which they will spam."
       )
@@ -130,35 +130,35 @@ async function Login(token, Client, guildId) {
       async function interval(intervals) {
         if (!isOnBreak) {
           if (guildId) {
-          const guild = client.guilds.cache.get(guildId)
-          const spamChannels = guild.channels.cache.filter(
-            (channel) =>
-              channel.type === "GUILD_TEXT" &&
-              channel.name.includes("spam") &&
-              channel
-                .permissionsFor(guild.members.me)
-                .has([
-                  Permissions.FLAGS.VIEW_CHANNEL,
-                  Permissions.FLAGS.SEND_MESSAGES,
-                ])
-          )
-
-          if (spamChannels.size === 0) {
-            throw new Error(
-              `Couldn't find a channel called 'spam' in the guild specified for ${client.user.username}. Please create one.`
+            /*const guild = client.guilds.cache.get(guildId)
+            const spamChannels = guild.channels.cache.filter(
+              (channel) =>
+                channel.type === "GUILD_TEXT" &&
+                channel.name.includes("spam") &&
+                channel
+                  .permissionsFor(guild.members.me)
+                  .has([
+                    Permissions.FLAGS.VIEW_CHANNEL,
+                    Permissions.FLAGS.SEND_MESSAGES,
+                  ])
             )
+
+            if (spamChannels.size === 0) {
+              throw new Error(
+                `Couldn't find a channel called 'spam' in the guild specified for ${client.user.username}. Please create one.`
+              )
+            }
+
+            spamChannel = spamChannels.random()*/
+            const spamMessages = fs
+              .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
+              .split("\n")
+            const spamMessage =
+              spamMessages[Math.floor(Math.random() * spamMessages.length)]
+
+            await spamChannel.send(spamMessage)
+            spamMessageCount++
           }
-
-          const spamChannel = spamChannels.random()
-          const spamMessages = fs
-            .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
-            .split("\n")
-          const spamMessage =
-            spamMessages[Math.floor(Math.random() * spamMessages.length)]
-
-          await spamChannel.send(spamMessage)
-          spamMessageCount++
-        }
 
           if (randomInteger(0, 1700) === 400) {
             let sleeptime = randomInteger(600000, 2500000)
@@ -170,6 +170,39 @@ async function Login(token, Client, guildId) {
           }
         }
       }
+
+      let levelup = fs.readFileSync("./data/levelup.json", "utf-8")
+      let data = JSON.parse(levelup)
+
+      if (!data.hasOwnProperty(client.user.username)) {
+        data[client.user.username] = []
+      }
+
+      let modifiedLevelup = JSON.stringify(data, null, 2)
+      fs.writeFileSync("./data/levelup.json", modifiedLevelup)
+
+      const guild = client.guilds.cache.get(guildId)
+      const spamChannels = guild.channels.cache.filter(
+        (channel) =>
+          channel.type === "GUILD_TEXT" &&
+          channel.name.includes("spam") &&
+          channel
+            .permissionsFor(guild.members.me)
+            .has([
+              Permissions.FLAGS.VIEW_CHANNEL,
+              Permissions.FLAGS.SEND_MESSAGES,
+            ])
+      )
+
+      if (spamChannels.size === 0) {
+        throw new Error(
+          `Couldn't find a channel called 'spam' in the guild specified for ${client.user.username}. Please create one.`
+        )
+      }
+
+      const spamChannel = spamChannels.random()
+
+      spamChannel.send("<@716390085896962058> i")
 
       intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000
       setInterval(() => interval(intervals), intervals)
@@ -216,7 +249,18 @@ async function Login(token, Client, guildId) {
             message.channel.send(caughtMessage)
           }
         } else {
-          console.log("Unknown pokemon found...")
+          const words = message.content.split(" ");
+          let lastWord = words[words.length - 1];
+          if (words[3].includes('_') && words[4]) {
+              lastWord = words[3] + ' ' + words[4]
+          }
+          const now = new Date()
+          console.log(
+            date.format(now, "HH:mm") +
+              `: ` +
+              chalk.red(client.user.username) +
+              `: Could not identify ` + lastWord
+          )
         }
       } else if (message.content.includes("That is the wrong pokémon!")) {
         await sleep(8000)
@@ -228,9 +272,9 @@ async function Login(token, Client, guildId) {
         const str = message.content
         const words = str.split(" ")
         level = words[6]
-        if (words[8] && !words[8].includes("Add" || " "))
+        if (words[8] && !words[8].includes("Add" || "Thi"))
           name = words[7] + " " + words[8].substring(0, words[8].length - 1)
-        if (words[8] && words[8]?.includes("Add"))
+        if (words[8] && words[8]?.includes("Add" || "Thi"))
           name = words[7].substring(0, words[7].length - 1)
         if (!words[8]) name = words[7].substring(0, words[7].length - 1)
         const now = new Date()
@@ -241,7 +285,8 @@ async function Login(token, Client, guildId) {
             `: Caught a level ` +
             level +
             " " +
-            name
+            name +
+            "!"
         )
 
         await sleep(2000)
@@ -288,7 +333,7 @@ async function Login(token, Client, guildId) {
           if (log)
             log.send(
               new MessageBuilder()
-                .setText("@everyone")
+                .setText(await getMentions(config.ownerID))
                 .setTitle("✨ ``-`` Shiny Caught")
                 .setURL(link)
                 .setDescription(
@@ -305,13 +350,13 @@ async function Login(token, Client, guildId) {
                     "\n**Lowest Market Worth: **" +
                     marketFinal[2].replace("　", "")
                 )
-                .setColor("#E74C3C")
+                .setColor("#EEC60E")
             )
         } else if (IV < config.lowIVLog) {
           if (log)
             log.send(
               new MessageBuilder()
-                .setText("@everyone")
+                .setText(await getMentions(config.ownerID))
                 .setTitle("Low IV Caught")
                 .setURL(link)
                 .setDescription(
@@ -332,7 +377,7 @@ async function Login(token, Client, guildId) {
           if (log)
             log.send(
               new MessageBuilder()
-                .setText("@everyone")
+                .setText(await getMentions(config.ownerID))
                 .setTitle("High IV Caught")
                 .setURL(link)
                 .setDescription(
@@ -357,7 +402,7 @@ async function Login(token, Client, guildId) {
             if (log)
               log.send(
                 new MessageBuilder()
-                  .setText("@everyone")
+                  .setText(await getMentions(config.ownerID))
                   .setTitle("Legendary Caught")
                   .setURL(link)
                   .setDescription(
@@ -372,14 +417,14 @@ async function Login(token, Client, guildId) {
                       "\n**Number: **" +
                       number
                   )
-                  .setColor("#2e3236")
+                  .setColor("#E74C3C")
               )
           } else if (rarity == "mythical") {
             mythicalCount++
             if (log)
               log.send(
                 new MessageBuilder()
-                  .setText("@everyone")
+                  .setText(await getMentions(config.ownerID))
                   .setTitle("Mythical Caught")
                   .setURL(link)
                   .setDescription(
@@ -394,14 +439,14 @@ async function Login(token, Client, guildId) {
                       "\n**Number: **" +
                       number
                   )
-                  .setColor("#2e3236")
+                  .setColor("#E74C3C")
               )
           } else if (rarity == "ultra_beast") {
             ultrabeastCount++
             if (log)
               log.send(
                 new MessageBuilder()
-                  .setText("@everyone")
+                  .setText(await getMentions(config.ownerID))
                   .setTitle("Ultra Beast Caught")
                   .setURL(link)
                   .setDescription(
@@ -416,7 +461,7 @@ async function Login(token, Client, guildId) {
                       "\n**Number: **" +
                       number
                   )
-                  .setColor("#2e3236")
+                  .setColor("#E74C3C")
               )
           } else if (rarity == "regular") {
             if (config.logCatches && log)
@@ -453,13 +498,13 @@ async function Login(token, Client, guildId) {
           " || Number: " +
           number
 
-        const contents = fs.readFileSync("./catches.txt", "utf-8")
+        const contents = fs.readFileSync("./data/catches.txt", "utf-8")
 
         if (contents.includes(caught)) {
           return
         }
 
-        fs.appendFile("./catches.txt", caught + "\n", (err) => {
+        fs.appendFile("./data/catches.txt", caught + "\n", (err) => {
           if (err) throw err
         })
       } else if (
@@ -470,9 +515,11 @@ async function Login(token, Client, guildId) {
         if (log)
           log.send(
             new MessageBuilder()
-              .setText("@everyone")
+              .setText(await getMentions(config.ownerID))
               .setTitle("Captcha Found -> Sleeping for 1 hour")
-              .setFooter("Restart your application to resume immediately.")
+              .setFooter(
+                `Run ${config.prefix}solved to resume immediately.`
+              )
               .setURL(`https://verify.poketwo.net/captcha/${client.user.id}`)
               .setDescription(
                 "**Account: **" +
@@ -480,7 +527,7 @@ async function Login(token, Client, guildId) {
                   "\n**Link: **" +
                   `https://verify.poketwo.net/captcha/${client.user.id}`
               )
-              .setColor("#E74C3C")
+              .setColor("#FF5600")
           )
         isOnBreak = true
         setTimeout(async function () {
@@ -489,24 +536,191 @@ async function Login(token, Client, guildId) {
         config.ownerID.forEach(async (ownerID) => {
           try {
             if (ownerID !== client.user.id) {
+              const user = await client.users.fetch(ownerID)
 
-              const user = await client.users.fetch(ownerID);
-
-              user.send(`## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`);
+              user.send(
+                `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
+              )
             }
           } catch (err) {
             console.log(err)
           }
         })
+      } else if (
+        message.embeds[0]?.footer &&
+        message.embeds[0].footer.text.includes("Displaying") &&
+        message.embeds[0].thumbnail.url.includes(client.user.id) &&
+        newMessage[1].content == "<@716390085896962058> i"
+      ) {
+        const str = message.embeds[0]?.fields[1].value
+        const words = str.split(" ")
+        iv = words[28]
+        IV = iv.substring(0, iv.length - 2)
+
+        const footerStr = message.embeds[0]?.footer.text
+        const footerWords = footerStr.split(" ")
+        number = footerWords[2].substring(0, footerWords[2].length - 5)
+
+        const titleStr = message.embeds[0]?.title
+        const titleWords = titleStr.split(" ")
+        if (titleWords[3]) latestName = titleWords[2] + " " + titleWords[3]
+        if (!titleWords[3]) latestName = titleWords[2]
+        latestLevel = titleWords[1]
+
+        if (latestLevel === "100") {
+          let levelup = fs.readFileSync("./data/levelup.json", "utf-8")
+          let data = JSON.parse(levelup)
+
+          const index = data[client.user.username].indexOf(parseFloat(number))
+
+          if (index !== -1) {
+            data[client.user.username].splice(index, 1)
+            log.send(
+              new MessageBuilder()
+                .setTitle("Leveling Completed")
+                .setURL(link)
+                .setDescription(
+                  "**Account: **" +
+                    client.user.tag +
+                    "\n**Pokemon: **" +
+                    latestName +
+                    "\n**Level: **" +
+                    latestLevel +
+                    "\n**IV: **" +
+                    iv +
+                    "\n**Number: **" +
+                    number
+                )
+                .setColor("#00A0FF")
+            )
+          } else {
+            const firstNumber = data[client.user.username].shift()
+            const now = new Date()
+            if (firstNumber) {
+              message.channel.send(`<@716390085896962058> s ${firstNumber}`)
+            } else {
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  `${latestName} is level 100! Your levelup list is now empty.`
+              )
+            }
+          }
+
+          let modifiedLevelup = JSON.stringify(data, null, 2)
+          fs.writeFileSync("./data/levelup.json", modifiedLevelup)
+        }
+
+        if (titleWords[0] == "✨") {
+          if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4]
+          if (!titleWords[4]) latestName = titleWords[3]
+          latestLevel = titleWords[2]
+          if (latestLevel === "100") {
+            let levelup = fs.readFileSync("./data/levelup.json", "utf-8")
+            let data = JSON.parse(levelup)
+
+            const index = data[client.user.username].indexOf(parseFloat(number))
+
+            if (index !== -1) {
+              data[client.user.username].splice(index, 1)
+              log.send(
+                new MessageBuilder()
+                  .setTitle("Leveling Completed")
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#00A0FF")
+              )
+            } else {
+              const firstNumber = data[client.user.username].shift()
+              const now = new Date()
+              if (firstNumber) {
+                message.channel.send(`<@716390085896962058> s ${firstNumber}`)
+              } else {
+                console.log(
+                  date.format(now, "HH:mm") +
+                    `: ` +
+                    chalk.red(client.user.username) +
+                    `: ` +
+                    `${latestName} is level 100! Your levelup list is now empty.`
+                )
+              }
+            }
+
+            let modifiedLevelup = JSON.stringify(data, null, 2)
+            fs.writeFileSync("./data/levelup.json", modifiedLevelup)
+          }
+        }
+      } else if (
+        message.content.includes(`Couldn't find that pokemon!`) &&
+        newMessage[1].author.id == client.user.id &&
+        newMessage[1].content.includes(`<@716390085896962058> s`)
+      ) {
+        selectedNumber = newMessage[1].content.split(" ")
+        let levelup = fs.readFileSync("./data/levelup.json", "utf-8")
+        let data = JSON.parse(levelup)
+
+        const index = data[client.user.username].indexOf(parseFloat(args[2]))
+
+        if (index !== -1) {
+          data[client.user.username].splice(index, 1)
+        } else {
+          const firstNumber = data[client.user.username].shift()
+          const now = new Date()
+          if (firstNumber) {
+            message.channel.send(`<@716390085896962058> s ${firstNumber}`)
+          } else {
+            console.log(
+              date.format(now, "HH:mm") +
+                `: ` +
+                chalk.red(client.user.username) +
+                `: ` +
+                `Couldn't find the pokemon with the number ${selectedNumber}. Your levelup list is now empty.`
+            )
+          }
+        }
+
+        let modifiedLevelup = JSON.stringify(data, null, 2)
+        fs.writeFileSync("./data/levelup.json", modifiedLevelup)
+      } else if (
+        message.embeds[0]?.title &&
+        message.embeds[0]?.title.includes(
+          `Congratulations ${client.user.username}!`
+        )
+      ) {
+        if (message.embeds[0]?.description.includes(`level 100!`)) {
+          message.channel.send(`<@716390085896962058> i`)
+          const descriptionArgs = message.embeds[0]?.description.split(" ")
+          console.log(
+            date.format(now, "HH:mm") +
+              `: ` +
+              chalk.red(client.user.username) +
+              `${descriptionArgs[2]} reached level 100!`
+          )
+        }
+      }
     }
-  }
 
     if (message.channel && message.content) {
       if (
         (message.content.startsWith(config.prefix) &&
-          config.ownerID.includes(message.author.id) && !message.author.bot) ||
-          (message.content.startsWith(config.prefix) &&
-          message.author.id == client.user.id && !message.author.bot)
+          config.ownerID.includes(message.author.id) &&
+          !message.author.bot) ||
+        (message.content.startsWith(config.prefix) &&
+          message.author.id == client.user.id &&
+          !message.author.bot)
       ) {
         const args = message.content
           .slice(config.prefix.length)
@@ -514,7 +728,7 @@ async function Login(token, Client, guildId) {
           .split(/ +/g)
         const command = args.shift().toLowerCase()
         const commandReceivedTimestamp = Date.now()
-        
+
         if (command == "say") {
           try {
             message.channel.send(`${args.join(" ")}`)
@@ -691,8 +905,13 @@ async function Login(token, Client, guildId) {
                 true
               )
               .addField(
-                "!setup new",
+                "!setup [new]",
                 "This can be used to automatically set up a new CatchTwo server.",
+                true
+              )
+              .addField(
+                "!levelup [add, list]",
+                "This can be used to manage your levelup list.",
                 true
               )
               .setColor("#E74C3C")
@@ -1109,11 +1328,11 @@ async function Login(token, Client, guildId) {
           )
         } else if (command == "solved") {
           try {
-          isOnBreak = false;
-          message.react("✅")
-        } catch (err) {
-          message.react("❌")
-        }
+            isOnBreak = false
+            message.react("✅")
+          } catch (err) {
+            message.react("❌")
+          }
         } else if (command == "setup") {
           if (!args[0]) {
             try {
@@ -1151,7 +1370,9 @@ async function Login(token, Client, guildId) {
             }
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}> https://discord.gg/tXa2Hw5jHy`)
+                .setText(
+                  `<@${message.author.id}> https://discord.gg/tXa2Hw5jHy`
+                )
                 .setTitle("CatchTwo Setup Information")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1162,51 +1383,316 @@ async function Login(token, Client, guildId) {
             )
           }
           if (args[0] && args[0] == "new") {
-
-            const template = await client.fetchGuildTemplate('https://discord.new/dpxCRxf4K9Qj')
-            const createdGuild = await template.createGuild(`CatchTwo || ${client.user.username}`)
-            createdGuild.setIcon('https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67')
-            const introductionChannel = await createdGuild.channels.cache.filter(
-              (channel) =>
-                channel.type === "GUILD_TEXT" &&
-                channel.name.includes("introduction")
+            const template = await client.fetchGuildTemplate(
+              "https://discord.new/dpxCRxf4K9Qj"
             )
-            introductionChannel.first().send(`**CATCHTWO: POKÉTWO AUTOCATCHER**\n\nCatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!\n\nGithub: https://github.com/kyan0045/catchtwo\nDiscord: https://discord.gg/NRHcUuD3jg`)
+            const createdGuild = await template.createGuild(
+              `CatchTwo || ${client.user.username}`
+            )
+            createdGuild.setIcon(
+              "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+            )
+            const introductionChannel =
+              await createdGuild.channels.cache.filter(
+                (channel) =>
+                  channel.type === "GUILD_TEXT" &&
+                  channel.name.includes("introduction")
+              )
+            introductionChannel
+              .first()
+              .send(
+                `**CATCHTWO: POKÉTWO AUTOCATCHER**\n\nCatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!\n\nGithub: https://github.com/kyan0045/catchtwo\nDiscord: https://discord.gg/NRHcUuD3jg`
+              )
             createdInvite = await introductionChannel.first().createInvite()
             const loggingChannel = await createdGuild.channels.cache.filter(
               (channel) =>
-                channel.type === "GUILD_TEXT" &&
-                channel.name.includes("logs")
+                channel.type === "GUILD_TEXT" && channel.name.includes("logs")
             )
-            createdWebhook = await loggingChannel.first().createWebhook("CatchTwo Logging")
+            createdWebhook = await loggingChannel
+              .first()
+              .createWebhook("CatchTwo Logging")
             const catchChannels = await createdGuild.channels.cache.filter(
               (channel) =>
-                channel.type === "GUILD_TEXT" &&
-                channel.name.includes("catch")
+                channel.type === "GUILD_TEXT" && channel.name.includes("catch")
             )
-            const catchChannelsArray = Array.from(catchChannels.values());
+            const catchChannelsArray = Array.from(catchChannels.values())
             try {
-            await client.authorizeURL('https://discord.com/api/oauth2/authorize?client_id=716390085896962058&permissions=387144&scope=bot%20applications.commands', {
-              guild_id: createdGuild.id,
-              permissions: "387144", // your permissions
-              authorize: true
-            }).then(async () => {
-              const commandChannel = await createdGuild.channels.cache.filter(
-                (channel) =>
-                  channel.type === "GUILD_TEXT" &&
-                  channel.name.includes("commands")
-              )
+              await client
+                .authorizeURL(
+                  "https://discord.com/api/oauth2/authorize?client_id=716390085896962058&permissions=387144&scope=bot%20applications.commands",
+                  {
+                    guild_id: createdGuild.id,
+                    permissions: "387144",
+                    authorize: true,
+                  }
+                )
+                .then(async () => {
+                  const commandChannel =
+                    await createdGuild.channels.cache.filter(
+                      (channel) =>
+                        channel.type === "GUILD_TEXT" &&
+                        channel.name.includes("commands")
+                    )
 
-              commandChannel.first().send(`<@716390085896962058> redirect ${catchChannelsArray[0].id} ${catchChannelsArray[1].id} ${catchChannelsArray[2].id}`)
-              message.reply(`## SUCCESFULLY CREATED SERVER\n* I succesfully setup a server for you.'n${createdInvite}\n\n### CONFIG VALUES\n\`\`\`json\n{\n"logWebhook": "${createdWebhook.url}",\n"guildId": "${createdGuild.id}"\n}`)
-            })
-          } catch (err) {
-            console.log(`Failed to add Pokétwo to ${createdGuild.name}`)
+                  commandChannel
+                    .first()
+                    .send(
+                      `<@716390085896962058> redirect ${catchChannelsArray[0].id} ${catchChannelsArray[1].id} ${catchChannelsArray[2].id}`
+                    )
+                  message.reply(
+                    `## SUCCESFULLY CREATED SERVER\n* I succesfully setup a server for you.'n${createdInvite}\n\n### CONFIG VALUES\n\`\`\`json\n{\n"logWebhook": "${createdWebhook.url}",\n"guildId": "${createdGuild.id}"\n}`
+                  )
+                })
+            } catch (err) {
+              console.log(`Failed to add Pokétwo to ${createdGuild.name}`)
+            }
+            message.reply(
+              `## SUCCESFULLY CREATED SERVER\n* I succesfully setup a server for you.\n${createdInvite}\n\n* Failed to invite Pokétwo, please invite it with the following link:\nhttps://discord.com/api/oauth2/authorize?client_id=716390085896962058&permissions=387144&scope=bot%20applications.commands&guild_id=${createdGuild.id}\nOnce invited run the following command: \`\`<@716390085896962058> redirect ${catchChannelsArray[0].id} ${catchChannelsArray[1].id} ${catchChannelsArray[2].id}\`\`\n### CONFIG VALUES\n\`\`\`json\n{\n"logWebhook": "${createdWebhook.url}",\n"guildId": "${createdGuild.id}"\n}\`\`\``
+            )
           }
-          message.reply(`## SUCCESFULLY CREATED SERVER\n* I succesfully setup a server for you.\n${createdInvite}\n\n* Failed to invite Pokétwo, please invite it with the following link:\nhttps://discord.com/api/oauth2/authorize?client_id=716390085896962058&permissions=387144&scope=bot%20applications.commands&guild_id=${createdGuild.id}\nOnce invited run the following command: \`\`<@716390085896962058> redirect ${catchChannelsArray[0].id} ${catchChannelsArray[1].id} ${catchChannelsArray[2].id}\`\`\n### CONFIG VALUES\n\`\`\`json\n{\n"logWebhook": "${createdWebhook.url}",\n"guildId": "${createdGuild.id}"\n}\`\`\``)
+        } else if (command == "levelup") {
+          if (!args[0]) {
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Levelup Information")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(
+                  `To add pokemon to the levelup list, run \`\`${config.prefix}levelup add <@${client.user.id}> [pokemon number(s)]\`\`.\nTo view the current levelup list, run \`\`${config.prefix}levelup list\`\`.`
+                )
+                .setColor("#f5b3b3")
+            )
+          }
+          if (args[0] && args[0] == "add" && !args[1]?.includes(client.user.id)) {
+              try {
+                webhooks = await message.channel.fetchWebhooks()
+              } catch (err) {
+                if (err.code == "50013") {
+                  webhooks = config.logWebhook
+                } else {
+                  console.log(err)
+                }
+              }
+              if (webhooks.size > 0) {
+                webhook = new Webhook(webhooks?.first().url)
+                await webhook.setUsername("CatchTwo")
+                await webhook.setAvatar(
+                  "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+                )
+              } else {
+                try {
+                  newWebhook = await message.channel.createWebhook("CatchTwo", {
+                    avatar:
+                      "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                    reason: "CatchTwo Commands",
+                  })
+                } catch (err) {
+                  if (err.code == "50013") {
+                    newWebhook = config.logWebhook
+                  }
+                }
+                webhook = new Webhook(newWebhook)
+                webhook.setUsername("CatchTwo")
+                webhook.setAvatar(
+                  "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+                )
+              }
+              webhook.send(
+                new MessageBuilder()
+                  .setText(`<@${message.author.id}>`)
+                  .setTitle("CatchTwo Levelup Error")
+                  .setFooter("©️ CatchTwo ~ @kyan0045")
+                  .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                  .setDescription(
+                    `You must mention the user to who's level list it should be added to. Correct use case: \`\`${config.prefix}levelup add <@${client.user.id}> [pokemon number(s)]\`\``
+                  )
+                  .setColor("#f5b3b3")
+              )
         }
+        if (args[0] && args[0] == "add" && args[1] && args[1].includes(client.user.id) && !args[2]) {
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Levelup Error")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(
+                  `You must specify the number(s) of the pokemon to add to the level list. Correct use case: \`\`${config.prefix}levelup add <@${client.user.id}> [pokemon number(s)]\`\``
+                )
+                .setColor("#f5b3b3")
+            )
+                }
+          if (args[0] && args[0] == "add" && args[1] && args[1].includes(client.user.id) && args[2]) {
+            let levelup = fs.readFileSync("./data/levelup.json", "utf-8")
+            let data = JSON.parse(levelup)
+
+            const validNumbers = args.slice(2).filter((arg) => {
+              const num = parseFloat(arg)
+              return !isNaN(num) && num < 1000000
+            })
+
+            data[client.user.username].push(
+              ...validNumbers.filter(
+                (num) => !data[client.user.username].includes(num)
+              )
+            )
+
+            let modifiedLevelup = JSON.stringify(data, null, 2)
+
+            fs.writeFileSync("./data/levelup.json", modifiedLevelup)
+
+            const formattedNumbers = validNumbers.join(", ");
+
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.send(
+              new MessageBuilder()
+                .setText(`<@${message.author.id}>`)
+                .setTitle("CatchTwo Levelup")
+                .setFooter("©️ CatchTwo ~ @kyan0045")
+                .setURL(`https://discord.gg/tXa2Hw5jHy`)
+                .setDescription(
+                  `**${client.user.username}:** Succesfully added pokemon \`\`${formattedNumbers}\`\` to \`\`./data/levelup.json\`\``
+                )
+                .setColor("#f5b3b3")
+            )
+          }
+          if (args[0] && args[0] == "list") {
+            try {
+              webhooks = await message.channel.fetchWebhooks()
+            } catch (err) {
+              if (err.code == "50013") {
+                webhooks = config.logWebhook
+              } else {
+                console.log(err)
+              }
+            }
+            if (webhooks.size > 0) {
+              webhook = new Webhook(webhooks?.first().url)
+              await webhook.setUsername("CatchTwo")
+              await webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            } else {
+              try {
+                newWebhook = await message.channel.createWebhook("CatchTwo", {
+                  avatar:
+                    "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67",
+                  reason: "CatchTwo Commands",
+                })
+              } catch (err) {
+                if (err.code == "50013") {
+                  newWebhook = config.logWebhook
+                }
+              }
+              webhook = new Webhook(newWebhook)
+              webhook.setUsername("CatchTwo")
+              webhook.setAvatar(
+                "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
+              )
+            }
+            webhook.sendFile("./data/levelup.json")
+          }
         }
-        }
+      }
     }
   })
 
@@ -1277,3 +1763,11 @@ function sleep(timeInMs) {
   })
 }
 
+async function getMentions(ownerIDs) {
+  const mentions = ownerIDs
+    .filter((ownerID) => ownerID.length >= 18)
+    .map((ownerID) => `<@${ownerID}>`)
+    .join(", ")
+
+  return mentions
+}
