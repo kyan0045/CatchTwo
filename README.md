@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.2.5-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.2.6-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -36,12 +36,13 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 * [x] Supports Infinite Accounts </br>
 * [x] Can catch EVERY pokemon (Gen 9 included!) </br>
 * [x] Interactive Commands </br>
-* [x] Spams Random Messages </br>
 * [x] Useful Webhook Logging </br>
+* [x] Levelup System </br>
+* [x] Spams Random Messages </br>
 * [x] Stores & Logs Catches </br>
 * [x] Alerts on Low IV, High IV & Shiny, Legendaries, Mythicals, and Ultra Beasts</br>
 * [x] Tracks catches and calculates catch rates per hour </br>
-* [x] Pauses on captcha </br>
+* [x] Pauses and alerts on captcha </br>
 * [ ] Useful Webpage </br>
 * [ ] Market Sniper </br>
 
@@ -76,6 +77,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```ping```  | ```none``` | Gives the selfbot's response time. |
 | ```solved```  | ```none``` | Tells the program that the captcha has been solved. |
 | ```setup```  | ```new``` | Automatically creates and sets up a new server for autocatching. |
+| ```levelup```  | ```add, list``` | This can be used to manage the levelup system. |
 
 
 ## Installation
