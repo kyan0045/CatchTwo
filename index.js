@@ -217,7 +217,7 @@ async function Login(token, Client, guildId) {
 
   client.on("messageCreate", async (message) => {
     if (
-      message.guild?.id == guildId ||
+      message.guild?.id == guildId && message.author.id == "716390085896962058" ||
       (config.globalCatch &&
         message.author.id == "716390085896962058" &&
         !config.blacklistedGuilds.includes(message.guild?.id))
