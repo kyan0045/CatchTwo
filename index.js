@@ -161,12 +161,28 @@ async function Login(token, Client, guildId) {
           }
 
           if (randomInteger(0, 1700) === 400) {
-            let sleeptime = randomInteger(600000, 2500000)
+            let sleeptime = randomInteger(600000, 4000000)
             isOnBreak = true
 
             setTimeout(async () => {
               isOnBreak = false
             }, sleeptime)
+
+const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
+            sleepTimeInMinutes = sleepTimeInSeconds / 60
+
+            const roundedSleepTimeInMinutes = sleepTimeInMinutes.toFixed(2)
+
+        if (log) 
+           log.send( 
+             new MessageBuilder() 
+               .setTitle("Sleeping") 
+               .setURL("https://github.com/kyan0045/catchtwo") 
+               .setDescription( 
+                 `Sleeping for ${roundedSleepTimeInMinutes} minutes.`
+               ) 
+               .setColor("#E74C3C") 
+           )
           }
         }
       }
