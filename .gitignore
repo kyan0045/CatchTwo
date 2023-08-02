@@ -1,2 +1,3 @@
 *.txt
 *.json
+/node_modules
