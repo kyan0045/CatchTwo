@@ -10,12 +10,14 @@ const express = require("express");
 const app = express();
 const fs = require("fs-extra");
 const chalk = require("chalk");
+const { ShinyHunter } = require('./manager/farm.js')
 const { solveHint, checkRarity } = require("pokehint");
 const { Webhook, MessageBuilder } = require("discord-webhook-node");
+const { exec } = require("child_process");
 const config = process.env.CONFIG
   ? JSON.parse(process.env.CONFIG)
   : require("./config.json");
-let log;
+let log, main = null;
 if (config.logWebhook.length > 25) {
   log = new Webhook(config.logWebhook);
   log.setUsername("CatchTwo Logs");
@@ -23,7 +25,6 @@ if (config.logWebhook.length > 25) {
     "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
   );
 }
-const { exec } = require("child_process");
 
 // CODE, NO NEED TO CHANGE
 
@@ -256,7 +257,7 @@ async function Login(token, Client, guildId) {
         spawned_embed = message.embeds[0];
       } else if (message.content.includes("The pokémon is")) {
         const pokemon = await solveHint(message);
-        if (pokemon) {
+        if (pokemon && (!require('./config.json').huntPokemons.includes(pokemon))) { // If pokemon is identified and its not hunted by main account
           await sleep(1000);
           let msg = ["c", "catch"];
           await message.channel.send(
@@ -271,6 +272,9 @@ async function Login(token, Client, guildId) {
               caughtMessages[Math.floor(Math.random() * caughtMessages.length)];
             message.channel.send(caughtMessage);
           }
+        } else if(require('./config.json').huntPokemons.includes(pokemon)) {
+          await sleep(1000)
+          await main.catch(message.channel.id, pokemon)
         } else {
           const words = message.content.split(" ");
           let lastWord = words[words.length - 1];
@@ -1664,6 +1668,8 @@ async function start() {
   for (var i = 0; i < config.tokens.length; i++) {
     await Login(config.tokens[i].token, Client, config.tokens[i].guildId);
   }
+  main = new ShinyHunter(config.main)
+  main.login()
   if (log)
     log.send(
       new MessageBuilder()
