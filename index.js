@@ -161,12 +161,12 @@ async function Login(token, Client, guildId) {
           }
 
           if (randomInteger(0, 1700) === 400) {
-            let sleeptime = randomInteger(600000, 4000000)
+            let sleepTimeInMilliseconds = randomInteger(600000, 4000000)
             isOnBreak = true
 
             setTimeout(async () => {
               isOnBreak = false
-            }, sleeptime)
+            }, sleepTimeInMilliseconds)
 
 const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
             sleepTimeInMinutes = sleepTimeInSeconds / 60
@@ -1720,8 +1720,10 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
 
     await sleep(rateLimitPause)
   })
-
+try {
   client.login(token, (bot = false))
+} catch (err) {
+  throw new Error(`Unable to login to token ${token}`)
 }
 
 start()
