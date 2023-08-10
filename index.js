@@ -1725,6 +1725,7 @@ try {
 } catch (err) {
   throw new Error(`Unable to login to token ${token}`)
 }
+}
 
 start()
 
