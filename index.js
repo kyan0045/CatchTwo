@@ -1,5 +1,5 @@
-var version = "1.2.6"
-// Version 1.2.6
+var version = "1.2.7"
+// Version 1.2.7
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -74,12 +74,19 @@ axios
     console.log(error)
   })
 
-let data = process.env.TOKENS
+let data = process.env.TOKENS;
 if (!data) data = fs.readFileSync("./tokens.txt", "utf-8")
-config.tokens = data.split("\n").reduce((previousTokens, line) => {
-  let [token, guildId] = line.replace("\r", "").split(" ")
-  return [...previousTokens, { token, guildId }]
-}, [])
+const tokensAndGuildIds = data.split(/\s+/);
+config.tokens = [];
+
+for (let i = 0; i < tokensAndGuildIds.length; i += 2) {
+  const token = tokensAndGuildIds[i].trim();
+  const guildId = tokensAndGuildIds[i + 1].trim();
+  
+  if (token && guildId) {
+    config.tokens.push({ token, guildId });
+  }
+}
 
 if (process.env.REPLIT_DB_URL)
   console.log(
