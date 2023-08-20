@@ -541,7 +541,14 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
           `https://verify.poketwo.net/captcha/${client.user.id}`
         )
       ) {
-        if (log)
+        const now = new Date()
+        console.log(
+          date.format(now, "HH:mm") +
+            `: ` +
+            chalk.red(client.user.username) +
+            `: Encountered a captcha (https://verify.poketwo.net/captcha/${client.user.id})`
+        )
+          if (log)
           log.send(
             new MessageBuilder()
               .setText(await getMentions(config.ownerID))
