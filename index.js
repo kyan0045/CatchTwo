@@ -76,8 +76,14 @@ axios
 
 let data = process.env.TOKENS;
 if (!data) data = fs.readFileSync("./tokens.txt", "utf-8")
+if (!data) throw new Error(`Unable to find your tokens.`)
 const tokensAndGuildIds = data.split(/\s+/);
 config.tokens = [];
+
+if (tokensAndGuildIds.length % 2 !== 0) {
+  if (!process.env.TOKENS) throw new Error(`Invalid number of tokens and guild IDs, please check if ./tokens.txt has an empty line, and if so, remove it.`)
+  throw new Error(`Invalid number of tokens and guild IDs.`);
+}
 
 for (let i = 0; i < tokensAndGuildIds.length; i += 2) {
   const token = tokensAndGuildIds[i].trim();
