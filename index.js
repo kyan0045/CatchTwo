@@ -1,5 +1,5 @@
-var version = "1.2.7"
-// Version 1.2.7
+var version = "1.2.8"
+// Version 1.2.8
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13")
@@ -94,7 +94,7 @@ for (let i = 0; i < tokensAndGuildIds.length; i += 2) {
   }
 }
 
-if (process.env.REPLIT_DB_URL)
+if (process.env.REPLIT_DB_URL && (!process.env.TOKENS || !process.env.CONFIG))
   console.log(
     `You are running on replit, please use it's secret feature, to prevent your tokens and webhook from being stolen and misused.\nCreate a secret variable called "CONFIG" for your config, and a secret variable called "TOKENS" for your tokens.`
   )
@@ -359,7 +359,7 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
           if (link == undefined) {
             link = "https://github.com/kyan0045/CatchTwo"
           }
-          if (log)
+            if (config.logCatches && log)
             log.send(
               new MessageBuilder()
                 .setText(await getMentions(config.ownerID))
@@ -380,9 +380,73 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
                     marketFinal[2].replace("　", "")
                 )
                 .setColor("#EEC60E")
-            )
-        } else if (IV < config.lowIVLog) {
-          if (log)
+            ) 
+        } else if (config.logCatches && log) {
+          rarity = await checkRarity(`${latestName}`)
+            if (rarity !== "Regular") {
+                if (IV < config.lowIVLog) {
+                log.send(
+                new MessageBuilder()
+                  .setText(await getMentions(config.ownerID))
+                  .setTitle(`Low IV ${rarity} Caught`)
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#E74C3C")
+              )
+                } else if (IV > config.highIVLog) { 
+                log.send(
+                new MessageBuilder()
+                  .setText(await getMentions(config.ownerID))
+                  .setTitle(`High IV ${rarity} Caught`)
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#E74C3C")
+              )               
+             } else {
+                log.send(
+                new MessageBuilder()
+                  .setText(await getMentions(config.ownerID))
+                  .setTitle(`${rarity} Caught`)
+                  .setURL(link)
+                  .setDescription(
+                    "**Account: **" +
+                      client.user.tag +
+                      "\n**Pokemon: **" +
+                      latestName +
+                      "\n**Level: **" +
+                      latestLevel +
+                      "\n**IV: **" +
+                      iv +
+                      "\n**Number: **" +
+                      number
+                  )
+                  .setColor("#E74C3C")
+              )
+                }
+            } else {
+           if (IV < config.lowIVLog) {
             log.send(
               new MessageBuilder()
                 .setText(await getMentions(config.ownerID))
@@ -403,7 +467,6 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
                 .setColor("#E74C3C")
             )
         } else if (IV > config.highIVLog) {
-          if (log)
             log.send(
               new MessageBuilder()
                 .setText(await getMentions(config.ownerID))
@@ -422,79 +485,9 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
                     number
                 )
                 .setColor("#E74C3C")
-            )
+            ) 
         } else {
-          rarity = await checkRarity(`${latestName}`)
-
-          if (rarity == "legendary") {
-            legendaryCount++
-            if (log)
-              log.send(
-                new MessageBuilder()
-                  .setText(await getMentions(config.ownerID))
-                  .setTitle("Legendary Caught")
-                  .setURL(link)
-                  .setDescription(
-                    "**Account: **" +
-                      client.user.tag +
-                      "\n**Pokemon: **" +
-                      latestName +
-                      "\n**Level: **" +
-                      latestLevel +
-                      "\n**IV: **" +
-                      iv +
-                      "\n**Number: **" +
-                      number
-                  )
-                  .setColor("#E74C3C")
-              )
-          } else if (rarity == "mythical") {
-            mythicalCount++
-            if (log)
-              log.send(
-                new MessageBuilder()
-                  .setText(await getMentions(config.ownerID))
-                  .setTitle("Mythical Caught")
-                  .setURL(link)
-                  .setDescription(
-                    "**Account: **" +
-                      client.user.tag +
-                      "\n**Pokemon: **" +
-                      latestName +
-                      "\n**Level: **" +
-                      latestLevel +
-                      "\n**IV: **" +
-                      iv +
-                      "\n**Number: **" +
-                      number
-                  )
-                  .setColor("#E74C3C")
-              )
-          } else if (rarity == "ultra_beast") {
-            ultrabeastCount++
-            if (log)
-              log.send(
-                new MessageBuilder()
-                  .setText(await getMentions(config.ownerID))
-                  .setTitle("Ultra Beast Caught")
-                  .setURL(link)
-                  .setDescription(
-                    "**Account: **" +
-                      client.user.tag +
-                      "\n**Pokemon: **" +
-                      latestName +
-                      "\n**Level: **" +
-                      latestLevel +
-                      "\n**IV: **" +
-                      iv +
-                      "\n**Number: **" +
-                      number
-                  )
-                  .setColor("#E74C3C")
-              )
-          } else if (rarity == "regular") {
-            if (config.logCatches && log)
-              log.send(
+               log.send(
                 new MessageBuilder()
                   .setTitle("Pokemon Caught")
                   .setURL(link)
@@ -512,6 +505,16 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
                   )
                   .setColor("#2e3236")
               )
+            }
+            }
+          if (rarity == "Legendary") {
+            legendaryCount++
+
+          } else if (rarity == "Mythical") {
+            mythicalCount++
+
+          } else if (rarity == "Ultra Beast") {
+            ultrabeastCount++ 
           }
         }
 
@@ -525,7 +528,9 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
           " || IV: " +
           iv +
           " || Number: " +
-          number
+          number +
+          " || Rarity: " +
+          rarity
 
         const contents = fs.readFileSync("./data/catches.txt", "utf-8")
 
