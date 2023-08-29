@@ -341,7 +341,8 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
         if (!titleWords[3]) latestName = titleWords[2]
         latestLevel = titleWords[1]
         link = message.url
-
+        rarity = await checkRarity(`${latestName}`)
+        
         if (titleWords[0] == "✨") {
           shinyCount++
           if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4]
@@ -382,7 +383,6 @@ const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000
                 .setColor("#EEC60E")
             ) 
         } else if (config.logCatches && log) {
-          rarity = await checkRarity(`${latestName}`)
             if (rarity !== "Regular") {
                 if (IV < config.lowIVLog) {
                 log.send(
