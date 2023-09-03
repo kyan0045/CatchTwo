@@ -563,7 +563,7 @@ async function Login(token, Client, guildId) {
               const line = lines[i];
               const accountMatch = line.match(/Account: (.+?) \|\|/);
               const numberMatch = line.match(/Number: (\d+)/);
-              if (accountMatch || numberMatch) {
+              if (accountMatch && numberMatch) {
                 message.channel.send(
                   `<@716390085896962058> expedition send ${numberMatch[1]}`
                 );
