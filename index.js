@@ -1054,6 +1054,11 @@ async function Login(token, Client, guildId) {
                 "This can be used to manage your levelup list.",
                 true
               )
+              .addField(
+                "!duel",
+                "This can be used to get a list of duelish pokemon.",
+                true
+              )
               .setColor("#E74C3C")
           );
         } else if (command == "restart") {
