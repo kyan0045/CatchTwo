@@ -1847,7 +1847,70 @@ async function Login(token, Client, guildId) {
             }
             webhook.sendFile("./data/levelup.json");
           }
+        } else if (command === "duel") {
+          try {
+            message.react("✅");
+
+        const messages = [
+            "<@716390085896962058>p --n rayquaza --hpiv >23 --atkiv >10 --defiv >23 --spdiv 31",
+            "<@716390085896962058>p --n eternatus --hpiv >25 --defiv >26 --spatkiv >20 --spdefiv >27 --spdiv 31",
+            "<@716390085896962058>p --n groudon --hpiv >23 --atkiv >17 --defiv >17 --spdefiv >26 --spdiv >28",
+            "<@716390085896962058>p --n kyogre --hpiv >25 --defiv >26 --spatkiv >10 --spdiv 31",
+            "<@716390085896962058>p --n dialga --hpiv >15 --spatkiv >19 --spdefiv >18 --spdiv >28",
+            "<@716390085896962058>p --n regigigas --hpiv >10 --atkiv >6 --defiv >6 --spdefiv >11 --spdiv 31",
+            "<@716390085896962058>p --n arceus --hpiv >15 --defiv >16 --spatkiv >20 --spdiv >28",
+            "<@716390085896962058>p --n yveltal --hpiv >23 --atkiv >13 --defiv >9 --spdefiv >17 --spdiv 31",
+            "<@716390085896962058>p --n yveltal --hpiv >23 --atkiv >24 --defiv >23 --spdefiv >17 --spdiv >13",
+            "<@716390085896962058>p --n xerneas --hpiv >15 --atkiv >26 --spdefiv >15 --spdiv >28",
+            "<@716390085896962058>p --n giratina --hpiv >25 --defiv >25 --spdiv >28",
+            "<@716390085896962058>p --n mewtwo --hpiv >24 --defiv >25 --spatkiv >9 --spdiv >28",
+            "<@716390085896962058> p --n Coalossal --n Carkol --n Rolycoly --hp >24 --atk >28 --def >28 --spdef >28 --spatk >28 --spdiv 31",
+            "<@716390085896962058> p --n Slaking --n Vigoroth --n Slakoth --hp >24 --atk >28 --def >28 --spdiv 31",
+            "<@716390085896962058> p --n Metagross --n Metang --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Braviary --n Rufflet --hp >24 --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Primarina --n Brionne --n Popplio --hp >24 --spdef >28 --spdiv 31",
+            "<@716390085896962058> p --n Golisopod --n Wimpod --atk >28 --def >28 --spdiv 31",
+            "<@716390085896962058> p --n Gyarados --n Magikarp --atk >28 --def >28 --spdef >28 --spdiv 31",
+            "<@716390085896962058> p --n Dragonite --n Dragonair --n Dratini --atk >28 --spatk >28 --spdiv 31",
+            "<@716390085896962058> p --n Salamence --n Shelgon --n Bagon --atk >28 --def >28 --spdiv 31",
+            "<@716390085896962058> p --n Skuntank --n Stunky --hp >24 --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Garchomp --n Gabite --hp >24 --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Mega Garchomp --hp >24 --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Delphox --n Braixen --n Fennekin --spatk >28 --spdef >28 --spdiv 31",
+            "<@716390085896962058> p --n Decidueye --n Dartrix --n Rowlet --atk >28 --spatk >28 --spdef >28 --spdiv 31",
+            "<@716390085896962058> p --n Dragapult --n Drakloak --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Gardevoir --n Kirlia --atk >28 --spdef >28 --spdiv 31",
+            "<@716390085896962058> p --n Gengar --n Haunter --atk >28 --spatk >28 --spdiv 31",
+            "<@716390085896962058> p --n Aerodactyl --atk >28 --def >28 --spdiv 31",
+            "<@716390085896962058> p --n Scizor --atk >28 --def >28 --spdef >28",
+            "<@716390085896962058> p --n Blaziken --atk >28 --spdiv 31",
+            "<@716390085896962058> p --n Swampert --atk >28 --def >28 --spdef >28",
+            "<@716390085896962058> p --n Lucario --n Riolu --atk >28 --spatk >28 --spdiv 31",
+            "<@716390085896962058> p --n Gallade --n Kirlia --atk >28 --spdef >28 --spdiv 31",
+            "<@716390085896962058>p --n larvitar --n pupitar --n tyranitar --hpiv >20 --atkiv >25 --defiv >15 --spdefiv >20",
+            "<@716390085896962058>p --n froakie --n frogadier --n greninja --atkiv >14 --spatkiv >23 --spdiv >27",
+            "<@716390085896962058>p --n axew --n fraxure --n haxorus --hpiv >24 --atkiv >23 --spdefiv >24"
+        ];
+
+        let counter = 0;
+
+        function sendRandomMessage() {
+            if (counter < messages.length) {
+                const randomDelay = Math.floor(Math.random() * 2000) + 5000;
+                setTimeout(() => {
+                    message.channel.send(messages[counter]);
+                    counter++;
+                    sendRandomMessage();
+                }, randomDelay);
+            }
         }
+
+          sendRandomMessage();
+          } catch (err) {
+            console.error(err);
+            message.react("❌");
+          }
+        } //Duel Command Contribution by ViwesBot :3
       }
     }
   });
