@@ -134,7 +134,6 @@ async function Login(token, Client, guildId) {
   }
 
   var isOnBreak = false;
-  var isOnExpedition = false;
   const client = new Client({ checkUpdate: false, readyStatus: false });
 
   if (!isOnBreak) {
@@ -548,50 +547,6 @@ async function Login(token, Client, guildId) {
           if (err) throw err;
         });
 
-        if (isOnExpedition !== true) {
-          const targetAccount = client.user.username;
-
-          fs.readFile("./data/catches.txt", "utf8", async (err, data) => {
-            if (err) {
-              console.error("Error reading the file:", err);
-              return;
-            }
-
-            const lines = data.split("\n");
-
-            for (let i = lines.length - 1; i >= 0; i--) {
-              const line = lines[i];
-              const accountMatch = line.match(/Account: (.+?) \|\|/);
-              const numberMatch = line.match(/Number: (\d+)/);
-              if (accountMatch && numberMatch) {
-                message.channel.send(
-                  `<@716390085896962058> expedition send ${numberMatch[1]}`
-                );
-                const filter = (m) => m.author.id == "716390085896962058";
-                await message.channel
-                  .awaitMessages({ filter, max: 1, time: 5_000 })
-                  .then(async (collectedMessages) => {
-                    if (
-                      collectedMessages.first().content ==
-                      "You can only have 1 expedition running at a time!"
-                    )
-                      isOnExpedition = true;
-                    if (
-                      collectedMessages
-                        .first()
-                        .content.includes("How long should your")
-                    ) {
-                      await collectedMessages
-                        .first()
-                        .selectMenu(0, ["12 hours"]);
-                      isOnExpedition = true;
-                    }
-                  });
-                break;
-              }
-            }
-          });
-        }
       } else if (
         message.content.includes(
           `https://verify.poketwo.net/captcha/${client.user.id}`
@@ -802,54 +757,6 @@ async function Login(token, Client, guildId) {
               `${descriptionArgs[2]} reached level 100!`
           );
         }
-      }
-    }
-
-    if (
-      message.channel.type == "DM" &&
-      message.author.id == "716390085896962058"
-    ) {
-      if (message.content.includes("has returned from its expedition")) {
-        const targetAccount = client.user.username;
-
-        fs.readFile("./data/catches.txt", "utf8", async (err, data) => {
-          if (err) {
-            console.error("Error reading the file:", err);
-            return;
-          }
-
-          const lines = data.split("\n");
-
-          for (let i = lines.length - 1; i >= 0; i--) {
-            const line = lines[i];
-            const accountMatch = line.match(/Account: (.+?) \|\|/);
-            const numberMatch = line.match(/Number: (\d+)/);
-            if (accountMatch || numberMatch) {
-              message.channel.send(
-                `<@716390085896962058> expedition send ${numberMatch[1]}`
-              );
-              const filter = (m) => m.author.id == "716390085896962058";
-              await message.channel
-                .awaitMessages({ filter, max: 1, time: 5_000 })
-                .then(async (collectedMessages) => {
-                  if (
-                    collectedMessages.first().content ==
-                    "You can only have 1 expedition running at a time!"
-                  )
-                    isOnExpedition = true;
-                  if (
-                    collectedMessages
-                      .first()
-                      .content.includes("How long should your")
-                  ) {
-                    await collectedMessages.first().selectMenu(0, ["12 hours"]);
-                    isOnExpedition = true;
-                  }
-                });
-              break;
-            }
-          }
-        });
       }
     }
 
