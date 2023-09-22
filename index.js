@@ -292,6 +292,7 @@ async function Login(token, Client, guildId) {
         message.embeds[0]?.title &&
         message.embeds[0].title.includes("wild pokémon has appeared")
       ) {
+        if (config.incenseMode == false && message.embeds[0]?.footer && message.embeds[0].footer.text.includes("Incense")) return;
         let hintMessages = ["h", "hint"];
         message.channel.send(
           "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
