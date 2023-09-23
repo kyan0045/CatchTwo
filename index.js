@@ -1,5 +1,5 @@
-var version = "1.2.9";
-// Version 1.2.9
+var version = "1.3.0";
+// Version 1.3.0
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13");
@@ -51,21 +51,20 @@ axios
           )
         );
 
-        if (log)
-          log.send(
-            new MessageBuilder()
-              .setTitle("New Version")
-              .setURL("https://github.com/kyan0045/catchtwo")
-              .setDescription(
-                "Current version:** " +
-                  version +
-                  "**\nNew version: **" +
-                  v +
-                  "**\nPlease update: " +
-                  "https://github.com/kyan0045/CatchTwo"
-              )
-              .setColor("#E74C3C")
-          );
+        log?.send(
+          new MessageBuilder()
+            .setTitle("New Version")
+            .setURL("https://github.com/kyan0045/catchtwo")
+            .setDescription(
+              "Current version:** " +
+                version +
+                "**\nNew version: **" +
+                v +
+                "**\nPlease update: " +
+                "https://github.com/kyan0045/CatchTwo"
+            )
+            .setColor("#E74C3C")
+        );
       }
     }
   })
@@ -105,7 +104,7 @@ app.get("/", async function (req, res) {
   res.send(`CURRENTLY RUNNING ON ${config.tokens.length} ACCOUNT(S)!`);
 });
 
-app.listen(3000, async () => {
+app.listen(20040, async () => {
   console.log(chalk.bold.bgRed(`SERVER STATUS: ONLINE`));
 });
 
@@ -134,16 +133,17 @@ async function Login(token, Client, guildId) {
   }
 
   var isOnBreak = false;
+  var captcha = false;
   const client = new Client({ checkUpdate: false, readyStatus: false });
 
-  if (!isOnBreak) {
+  if (!isOnBreak && !captcha) {
     client.on("ready", async () => {
       console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
       client.user.setStatus("invisible");
       accountCheck = client.user.username;
 
       async function interval(intervals) {
-        if (!isOnBreak) {
+        if (!isOnBreak && !captcha) {
           if (guildId) {
             /*const guild = client.guilds.cache.get(guildId)
             const spamChannels = guild.channels.cache.filter(
@@ -182,20 +182,22 @@ async function Login(token, Client, guildId) {
             setTimeout(async () => {
               isOnBreak = false;
               now = new Date();
-              if (log)
-                log.send(
-                  new MessageBuilder()
-                    .setTitle("⏯️ ``-`` Resumed")
-                    .setURL("https://github.com/kyan0045/catchtwo")
-                    .setDescription("**Account: **" + client.user.tag)
-                    .setColor("#7ff889")
-                );
-                             console.log(
-            date.format(now, "HH:mm") +
-              `: ` +
-              chalk.red(client.user.username) +
-              `: has resumed `
-          );
+
+              log?.send(
+                new MessageBuilder()
+                  .setTitle("⏯️ ``-`` Resumed")
+                  .setURL("https://github.com/kyan0045/catchtwo")
+                  .setDescription("**Account: **" + client.user.tag)
+                  .setColor("#7ff889")
+              );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.green(`SLEEPING`) +
+                  ` - Resumed`
+              );
             }, sleepTimeInMilliseconds);
 
             const sleepTimeInSeconds = sleepTimeInMilliseconds / 1000;
@@ -203,29 +205,30 @@ async function Login(token, Client, guildId) {
 
             const roundedSleepTimeInMinutes = sleepTimeInMinutes.toFixed(2);
 
-            if (log)
-              log.send(
-                new MessageBuilder()
-                  .setTitle("⏸️ ``-`` Sleeping")
-                  .setURL("https://github.com/kyan0045/catchtwo")
-                  .setDescription(
-                    "**Account: **" +
-                      client.user.tag +
-                      "\n**Minutes: **" +
-                      roundedSleepTimeInMinutes +
-                      " minutes"
-                  )
-                  .setColor("#EEC60E")
-              );
-             now = new Date();
-             console.log(
-            date.format(now, "HH:mm") +
-              `: ` +
-              chalk.red(client.user.username) +
-              `: is sleeping for ` +
-              roundedSleepTimeInMinutes + 
-                 ` minutes`
-          );
+            log?.send(
+              new MessageBuilder()
+                .setTitle("⏸️ ``-`` Sleeping")
+                .setURL("https://github.com/kyan0045/catchtwo")
+                .setDescription(
+                  "**Account: **" +
+                    client.user.tag +
+                    "\n**Minutes: **" +
+                    roundedSleepTimeInMinutes +
+                    " minutes"
+                )
+                .setColor("#EEC60E")
+            );
+            now = new Date();
+            console.log(
+              date.format(now, "HH:mm") +
+                `: ` +
+                chalk.red(client.user.username) +
+                `: ` +
+                chalk.bold.yellow(`SLEEPING`) +
+                ` - Sleeping for ` +
+                roundedSleepTimeInMinutes +
+                ` minutes`
+            );
           }
         }
       }
@@ -292,7 +295,42 @@ async function Login(token, Client, guildId) {
         message.embeds[0]?.title &&
         message.embeds[0].title.includes("wild pokémon has appeared")
       ) {
-        if (config.incenseMode == false && message.embeds[0]?.footer && message.embeds[0].footer.text.includes("Incense")) return;
+        if (
+          config.incenseMode == false &&
+          message.embeds[0]?.footer &&
+          message.embeds[0].footer.text.includes("Incense")
+        )
+          return;
+        if (
+          config.incenseMode == true &&
+          message.embeds[0]?.footer &&
+          message.embeds[0].footer.text.includes("Incense")
+        ) {
+          if (isOnBreak == false) {
+            isOnBreak = true;
+            now = new Date();
+            console.log(
+              date.format(now, "HH:mm") +
+                `: ` +
+                chalk.red(client.user.username) +
+                `: ` +
+                chalk.bold.yellow(`INCENSE`) +
+                ` - Detected incense, paused spamming.`
+            );
+          }
+          if (message.embeds[0]?.footer.text.includes("Spawns Remaining: 0.")) {
+            isOnBreak = false;
+            now = new Date();
+            console.log(
+              date.format(now, "HH:mm") +
+                `: ` +
+                chalk.red(client.user.username) +
+                `: ` +
+                chalk.bold.green(`INCENSE`) +
+                ` - End of incense, resumed spamming.`
+            );
+          }
+        }
         let hintMessages = ["h", "hint"];
         message.channel.send(
           "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
@@ -318,7 +356,7 @@ async function Login(token, Client, guildId) {
           if (words[3].includes("_") && words[4]) {
             lastWord = words[3] + " " + words[4];
           }
-          const now = new Date();
+          now = new Date();
           console.log(
             date.format(now, "HH:mm") +
               `: ` +
@@ -334,25 +372,6 @@ async function Login(token, Client, guildId) {
         message.content.includes("Congratulations <@" + client.user.id + ">")
       ) {
         pokemonCount++;
-        const str = message.content;
-        const words = str.split(" ");
-        level = words[6];
-        if (words[8] && !(words[8].includes("Add") || words[8].includes("Thi")))
-          name = words[7] + " " + words[8].substring(0, words[8].length - 1);
-        if (words[8] && (words[8].includes("Add") || words[8].includes("Thi")))
-          name = words[7].substring(0, words[7].length - 1);
-        if (!words[8]) name = words[7].substring(0, words[7].length - 1);
-        const now = new Date();
-        console.log(
-          date.format(now, "HH:mm") +
-            `: ` +
-            chalk.red(client.user.username) +
-            `: Caught a level ` +
-            level +
-            " " +
-            name +
-            "!"
-        );
 
         await sleep(2000);
         message.channel.send("<@716390085896962058> i l");
@@ -365,7 +384,7 @@ async function Login(token, Client, guildId) {
         const str = message.embeds[0]?.fields[1].value;
         const words = str.split(" ");
         iv = words[28];
-        IV = iv.substring(0, iv.length - 2);
+        IV = iv.substring(0, iv.length - 1);
 
         const footerStr = message.embeds[0]?.footer.text;
         const footerWords = footerStr.split(" ");
@@ -377,8 +396,9 @@ async function Login(token, Client, guildId) {
         if (!titleWords[3]) latestName = titleWords[2];
         latestLevel = titleWords[1];
         link = message.url;
+        now = new Date();
 
-        if (titleWords[0] == "✨") {
+        if (titleWords[0] == "✨" && config.logCatches) {
           shinyCount++;
           if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4];
           if (!titleWords[4]) latestName = titleWords[3];
@@ -395,33 +415,42 @@ async function Login(token, Client, guildId) {
           if (link == undefined) {
             link = "https://github.com/kyan0045/CatchTwo";
           }
-          if (config.logCatches && log)
-            log.send(
-              new MessageBuilder()
-                .setText(await getMentions(config.ownerID))
-                .setTitle("✨ ``-`` Shiny Caught")
-                .setURL(link)
-                .setDescription(
-                  "**Account: **" +
-                    client.user.tag +
-                    "\n**Pokemon: **" +
-                    latestName +
-                    "\n**Level: **" +
-                    latestLevel +
-                    "\n**IV: **" +
-                    iv +
-                    "\n**Number: **" +
-                    number +
-                    "\n**Lowest Market Worth: **" +
-                    marketFinal[2].replace("　", "")
-                )
-                .setColor("#EEC60E")
-            );
-        } else if (config.logCatches && log) {
+          log?.send(
+            new MessageBuilder()
+              .setText(await getMentions(config.ownerID))
+              .setTitle("✨ ``-`` Shiny Caught")
+              .setURL(link)
+              .setDescription(
+                "**Account: **" +
+                  client.user.tag +
+                  "\n**Pokemon: **" +
+                  latestName +
+                  "\n**Level: **" +
+                  latestLevel +
+                  "\n**IV: **" +
+                  iv +
+                  "\n**Number: **" +
+                  number +
+                  "\n**Lowest Market Worth: **" +
+                  marketFinal[2].replace("　", "")
+              )
+              .setColor("#EEC60E")
+          );
+          console.log(
+            date.format(now, "HH:mm") +
+              `: ` +
+              chalk.red(client.user.username) +
+              `: ✨ Caught a level ` +
+              latestLevel +
+              " Shiny " +
+              latestName +
+              "!"
+          );
+        } else if (config.logCatches) {
           rarity = await checkRarity(`${latestName}`);
           if (rarity !== "Regular") {
             if (IV < config.lowIVLog) {
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setText(await getMentions(config.ownerID))
                   .setTitle(`Low IV ${rarity} Caught`)
@@ -440,8 +469,20 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#E74C3C")
               );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.blue(`${rarity.toUpperCase()} &  LOW IV`) +
+                  ` - Caught a level ` +
+                  latestLevel +
+                  ` ${IV}% ` +
+                  latestName +
+                  "!"
+              );
             } else if (IV > config.highIVLog) {
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setText(await getMentions(config.ownerID))
                   .setTitle(`High IV ${rarity} Caught`)
@@ -460,8 +501,20 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#E74C3C")
               );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.blue(`${rarity.toUpperCase()} & HIGH IV`) +
+                  ` - Caught a level ` +
+                  latestLevel +
+                  ` ${IV}% ` +
+                  latestName +
+                  "!"
+              );
             } else {
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setText(await getMentions(config.ownerID))
                   .setTitle(`${rarity} Caught`)
@@ -480,10 +533,22 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#E74C3C")
               );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.blue(`${rarity.toUpperCase()}`) +
+                  ` - Caught a level ` +
+                  latestLevel +
+                  " " +
+                  latestName +
+                  "!"
+              );
             }
           } else {
             if (IV < config.lowIVLog) {
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setText(await getMentions(config.ownerID))
                   .setTitle("Low IV Caught")
@@ -502,8 +567,20 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#E74C3C")
               );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.blue(`LOW IV`) +
+                  ` - Caught a level ` +
+                  latestLevel +
+                  ` ${IV}% ` +
+                  latestName +
+                  "!"
+              );
             } else if (IV > config.highIVLog) {
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setText(await getMentions(config.ownerID))
                   .setTitle("High IV Caught")
@@ -522,8 +599,20 @@ async function Login(token, Client, guildId) {
                   )
                   .setColor("#E74C3C")
               );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.blue(`HIGH IV`) +
+                  ` - Caught a level ` +
+                  latestLevel +
+                  ` ${IV}% ` +
+                  latestName +
+                  "!"
+              );
             } else {
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setTitle("Pokemon Caught")
                   .setURL(link)
@@ -540,6 +629,18 @@ async function Login(token, Client, guildId) {
                       number
                   )
                   .setColor("#2e3236")
+              );
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.cyan(`${rarity.toUpperCase()}`) +
+                  ` - Caught a level ` +
+                  latestLevel +
+                  ` ` +
+                  latestName +
+                  "!"
               );
             }
           }
@@ -585,26 +686,30 @@ async function Login(token, Client, guildId) {
           date.format(now, "HH:mm") +
             `: ` +
             chalk.red(client.user.username) +
-            `: Encountered a captcha ( https://verify.poketwo.net/captcha/${client.user.id} )`
+            `: ` +
+            chalk.bold.red(`CAPTCHA`) +
+            ` - Encountered a captcha ( https://verify.poketwo.net/captcha/${client.user.id} )`
         );
-        if (log)
-          log.send(
-            new MessageBuilder()
-              .setText(await getMentions(config.ownerID))
-              .setTitle("Captcha Found -> Sleeping for 1 hour")
-              .setFooter(`Run ${config.prefix}solved to resume immediately.`)
-              .setURL(`https://verify.poketwo.net/captcha/${client.user.id}`)
-              .setDescription(
-                "**Account: **" +
-                  client.user.tag +
-                  "\n**Link: **" +
-                  `https://verify.poketwo.net/captcha/${client.user.id}`
-              )
-              .setColor("#FF5600")
-          );
+
+        log?.send(
+          new MessageBuilder()
+            .setText(await getMentions(config.ownerID))
+            .setTitle("Captcha Found -> Sleeping for 1 hour")
+            .setFooter(`Run ${config.prefix}solved to resume immediately.`)
+            .setURL(`https://verify.poketwo.net/captcha/${client.user.id}`)
+            .setDescription(
+              "**Account: **" +
+                client.user.tag +
+                "\n**Link: **" +
+                `https://verify.poketwo.net/captcha/${client.user.id}`
+            )
+            .setColor("#FF5600")
+        );
         isOnBreak = true;
+        captcha = true;
         setTimeout(async function () {
           isOnBreak = false;
+          captcha = false;
         }, 1000 * 3600);
         config.ownerID.forEach(async (ownerID) => {
           try {
@@ -628,7 +733,7 @@ async function Login(token, Client, guildId) {
         const str = message.embeds[0]?.fields[1].value;
         const words = str.split(" ");
         iv = words[28];
-        IV = iv.substring(0, iv.length - 2);
+        IV = iv.substring(0, iv.length - 1);
 
         const footerStr = message.embeds[0]?.footer.text;
         const footerWords = footerStr.split(" ");
@@ -648,7 +753,7 @@ async function Login(token, Client, guildId) {
 
           if (index !== -1) {
             data[client.user.username].splice(index, 1);
-            log.send(
+            log?.send(
               new MessageBuilder()
                 .setTitle("Leveling Completed")
                 .setURL(link)
@@ -677,13 +782,24 @@ async function Login(token, Client, guildId) {
                   `: ` +
                   chalk.red(client.user.username) +
                   `: ` +
-                  `${latestName} is level 100! Your levelup list is now empty.`
+                  chalk.magenta.bold(`LEVELING`) +
+                  ` - ${latestName} is level 100! Your levelup list is now empty.`
               );
             }
           }
 
           let modifiedLevelup = JSON.stringify(data, null, 2);
           fs.writeFileSync("./data/levelup.json", modifiedLevelup);
+        } else if (latestLevel !== "100") {
+          now = new Date();
+          console.log(
+            date.format(now, "HH:mm") +
+              `: ` +
+              chalk.red(client.user.username) +
+              `: ` +
+              chalk.magenta.bold(`LEVELING`) +
+              ` - Currently leveling ${IV}% ${latestName}! Progress: ${latestLevel}/100`
+          );
         }
 
         if (titleWords[0] == "✨") {
@@ -700,7 +816,7 @@ async function Login(token, Client, guildId) {
 
             if (index !== -1) {
               data[client.user.username].splice(index, 1);
-              log.send(
+              log?.send(
                 new MessageBuilder()
                   .setTitle("Leveling Completed")
                   .setURL(link)
@@ -729,7 +845,8 @@ async function Login(token, Client, guildId) {
                     `: ` +
                     chalk.red(client.user.username) +
                     `: ` +
-                    `${latestName} is level 100! Your levelup list is now empty.`
+                    chalk.magenta.bold(`LEVELING`) +
+                    ` - ${latestName} is level 100! Your levelup list is now empty.`
                 );
               }
             }
@@ -789,18 +906,29 @@ async function Login(token, Client, guildId) {
     }
 
     if (message.channel && message.content) {
+      prefix = `<@${client.user.id}>`;
       if (
         (message.content.startsWith(config.prefix) &&
           config.ownerID.includes(message.author.id) &&
           !message.author.bot) ||
         (message.content.startsWith(config.prefix) &&
           message.author.id == client.user.id &&
+          !message.author.bot) ||
+        (message.content.startsWith(prefix) &&
+          config.ownerID.includes(message.author.id) &&
+          !message.author.bot) ||
+        (message.content.startsWith(prefix) &&
+          message.author.id == client.user.id &&
           !message.author.bot)
       ) {
-        const args = message.content
-          .slice(config.prefix.length)
-          .trim()
-          .split(/ +/g);
+        if (message.content.startsWith(prefix)) {
+          args = message.content.slice(prefix.length).trim().split(/ +/g);
+        } else if (message.content.startsWith(config.prefix)) {
+          args = message.content
+            .slice(config.prefix.length)
+            .trim()
+            .split(/ +/g);
+        }
         const command = args.shift().toLowerCase();
         const commandReceivedTimestamp = Date.now();
 
@@ -998,13 +1126,13 @@ async function Login(token, Client, guildId) {
           );
         } else if (command == "restart") {
           message.reply("Restarting...");
-          if (log)
-            log.send(
-              new MessageBuilder()
-                .setTitle("Restarting...")
-                .setURL("https://github.com/kyan0045/catchtwo")
-                .setColor("#E74C3C")
-            );
+
+          log?.send(
+            new MessageBuilder()
+              .setTitle("Restarting...")
+              .setURL("https://github.com/kyan0045/catchtwo")
+              .setColor("#E74C3C")
+          );
 
           setTimeout(() => {
             exec("node restart.js", (error, stdout, stderr) => {
@@ -1409,6 +1537,7 @@ async function Login(token, Client, guildId) {
         } else if (command == "solved") {
           try {
             isOnBreak = false;
+            captcha = false;
             message.react("✅");
           } catch (err) {
             message.react("❌");
@@ -1739,7 +1868,7 @@ async function Login(token, Client, guildId) {
                 "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
               );
             }
-            webhook.send(
+            await webhook.send(
               new MessageBuilder()
                 .setText(`<@${message.author.id}>`)
                 .setTitle("CatchTwo Levelup")
@@ -1750,6 +1879,7 @@ async function Login(token, Client, guildId) {
                 )
                 .setColor("#f5b3b3")
             );
+            message.channel.send("<@716390085896962058> i");
           }
           if (args[0] && args[0] == "list") {
             try {
@@ -1876,14 +2006,14 @@ async function start() {
   for (var i = 0; i < config.tokens.length; i++) {
     await Login(config.tokens[i].token, Client, config.tokens[i].guildId);
   }
-  if (log)
-    log.send(
-      new MessageBuilder()
-        .setTitle("Started!")
-        .setURL("https://github.com/kyan0045/catchtwo")
-        .setDescription(`Found ${config.tokens.length} token(s).`)
-        .setColor("#7ff889")
-    );
+
+  log?.send(
+    new MessageBuilder()
+      .setTitle("Started!")
+      .setURL("https://github.com/kyan0045/catchtwo")
+      .setDescription(`Found ${config.tokens.length} token(s).`)
+      .setColor("#7ff889")
+  );
 }
 
 process.on("unhandledRejection", (reason, p) => {
