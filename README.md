@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.3.0-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.3.1-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -34,7 +34,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 <h2 align="left">Features</h2>
 
 * [x] Supports Infinite Accounts </br>
-* [x] Can catch EVERY pokemon (Gen 9 included!) </br>
+* [x] Can catch EVERY pokemon (Gen 9 & Event Pokémon included!) </br>
 * [x] Interactive Commands </br>
 * [x] Useful Webhook Logging </br>
 * [x] Levelup System </br>
