@@ -34,7 +34,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 <h2 align="left">Features</h2>
 
 * [x] Supports Infinite Accounts </br>
-* [x] Can catch EVERY pokemon (Gen 9 & Event Pokémon included!) </br>
+* [x] Can catch EVERY pokemon (Gen 9 & All Event Pokémon included!) </br>
 * [x] Interactive Commands </br>
 * [x] Useful Webhook Logging </br>
 * [x] Levelup System </br>
