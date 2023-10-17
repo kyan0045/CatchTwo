@@ -902,6 +902,20 @@ async function Login(token, Client, guildId) {
               `${descriptionArgs[2]} reached level 100!`
           );
         }
+      } else if (
+        message.embeds[0]?.title == "Account Suspended" &&
+        newMessage[1].author.id == client.user.id
+      ) {
+        isOnBreak = true;
+        captcha = true;
+        log?.send(
+          new MessageBuilder()
+            .setText(await getMentions(config.ownerID))
+            .setTitle("Account Suspended")
+            .setURL(message.url)
+            .setDescription("**Account: **" + client.user.tag)
+            .setColor("#FF5600")
+        );
       }
     }
 
