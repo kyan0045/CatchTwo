@@ -1,5 +1,5 @@
-var version = "1.3.0";
-// Version 1.3.0
+var version = "1.3.1";
+// Version 1.3.1
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13");
@@ -339,7 +339,6 @@ async function Login(token, Client, guildId) {
       } else if (message.content.includes("The pokémon is")) {
         const pokemon = await solveHint(message);
         if (pokemon) {
-          await sleep(1000);
           await message.channel.send("<@716390085896962058> c " + pokemon);
           await sleep(5000);
           if (config.reactAfterCatch) {
