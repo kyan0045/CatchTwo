@@ -78,21 +78,23 @@ if (!data) throw new Error(`Unable to find your tokens.`);
 const tokensAndGuildIds = data.split(/\s+/);
 config.tokens = [];
 
-if (tokensAndGuildIds.length % 2 !== 0) {
+/* if (tokensAndGuildIds.length % 2 !== 0) {
   if (!process.env.TOKENS)
     throw new Error(
       `Invalid number of tokens and guild IDs, please check if ./tokens.txt has an empty line, and if so, remove it.`
     );
   throw new Error(`Invalid number of tokens and guild IDs.`);
-}
+} */
 
 for (let i = 0; i < tokensAndGuildIds.length; i += 2) {
+ if (tokensAndGuildIds[i + 1]) {
   const token = tokensAndGuildIds[i].trim();
   const guildId = tokensAndGuildIds[i + 1].trim();
 
-  if (token && guildId) {
+   if (token && guildId) {
     config.tokens.push({ token, guildId });
   }
+ }
 }
 
 if (process.env.REPLIT_DB_URL && (!process.env.TOKENS || !process.env.CONFIG))
