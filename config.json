@@ -1,4 +1,5 @@
 {
+  "sleeping": true,
   "incenseMode": false,
   "reactAfterCatch": false,
   "logCatches": true,
