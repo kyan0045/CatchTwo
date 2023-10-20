@@ -177,7 +177,7 @@ async function Login(token, Client, guildId) {
             spamMessageCount++;
           }
 
-          if (randomInteger(0, 1700) === 400) {
+          if (randomInteger(0, 2500) === 400 && config.sleeping) {
             let sleepTimeInMilliseconds = randomInteger(600000, 4000000);
             isOnBreak = true;
 
@@ -295,7 +295,7 @@ async function Login(token, Client, guildId) {
 
       if (
         message.embeds[0]?.title &&
-        message.embeds[0].title.includes("wild pokémon has appeared")
+        message.embeds[0].title.includes("wild pokémon has appeared") && !captcha
       ) {
         if (
           config.incenseMode == false &&
