@@ -341,6 +341,7 @@ async function Login(token, Client, guildId) {
       } else if (message.content.includes("The pokémon is")) {
         const pokemon = await solveHint(message);
         if (pokemon) {
+          await sleep(500)
           await message.channel.send("<@716390085896962058> c " + pokemon);
           await sleep(5000);
           if (config.reactAfterCatch) {
@@ -375,7 +376,9 @@ async function Login(token, Client, guildId) {
         pokemonCount++;
 
         await sleep(2000);
+        if (config.logCatches) {
         message.channel.send("<@716390085896962058> i l");
+        }
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
