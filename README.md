@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.3.1-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.3.4-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -78,6 +78,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```solved```  | ```none``` | Tells the program that the captcha has been solved. |
 | ```setup```  | ```new``` | Automatically creates and sets up a new server for autocatching. |
 | ```levelup```  | ```add, list``` | This can be used to manage the levelup system. |
+| ```duel```  | ```none``` | This can be used to let the bot display duel pokemon. |
 
 
 ## Installation
@@ -120,6 +121,7 @@ Token2 guildId2
 * In order for the logging to work, your account must have a profile picture different than the standard discord one.
 
 ### Replit
+Replit can't be used anymore: https://gist.github.com/kyan0045/c5867763f9df50a5f54f501c14f3a846
 
 * If you wish to run our autocatcher on Replit, we strongly recommend you to use Replit's secret feature, to prevent people from stealing your tokens and webhook. You can find the steps to creating a secret below.
 * <details><summary>Click to open</summary>
