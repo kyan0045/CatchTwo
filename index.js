@@ -1,5 +1,5 @@
-var version = "1.3.1";
-// Version 1.3.1
+var version = "1.3.4";
+// Version 1.3.4
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13");
@@ -87,14 +87,14 @@ config.tokens = [];
 } */
 
 for (let i = 0; i < tokensAndGuildIds.length; i += 2) {
- if (tokensAndGuildIds[i + 1]) {
-  const token = tokensAndGuildIds[i].trim();
-  const guildId = tokensAndGuildIds[i + 1].trim();
+  if (tokensAndGuildIds[i + 1]) {
+    const token = tokensAndGuildIds[i].trim();
+    const guildId = tokensAndGuildIds[i + 1].trim();
 
-   if (token && guildId) {
-    config.tokens.push({ token, guildId });
+    if (token && guildId) {
+      config.tokens.push({ token, guildId });
+    }
   }
- }
 }
 
 if (process.env.REPLIT_DB_URL && (!process.env.TOKENS || !process.env.CONFIG))
@@ -143,6 +143,9 @@ async function Login(token, Client, guildId) {
       console.log(`Logged in to ` + chalk.red(client.user.tag) + `!`);
       client.user.setStatus("invisible");
       accountCheck = client.user.username;
+      spamMessages = fs
+        .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
+        .split("\n");
 
       async function interval(intervals) {
         if (!isOnBreak && !captcha) {
@@ -167,9 +170,6 @@ async function Login(token, Client, guildId) {
             }
 
             spamChannel = spamChannels.random()*/
-            const spamMessages = fs
-              .readFileSync(__dirname + "/messages/messages.txt", "utf-8")
-              .split("\n");
             const spamMessage =
               spamMessages[Math.floor(Math.random() * spamMessages.length)];
 
@@ -268,11 +268,11 @@ async function Login(token, Client, guildId) {
 
       spamChannel.send("<@716390085896962058> i");
 
-      intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+      intervals = Math.floor(Math.random() * (5000 - 1500 + 1)) + 1500;
       setInterval(() => interval(intervals), intervals);
 
       setInterval(() => {
-        intervals = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+        intervals = Math.floor(Math.random() * (5000 - 1500 + 1)) + 1500;
       }, 15000);
 
       startTime = Date.now();
@@ -294,19 +294,17 @@ async function Login(token, Client, guildId) {
       [...messages.values()];
 
       if (
-        message.embeds[0]?.title &&
-        message.embeds[0].title.includes("wild pokémon has appeared") && !captcha
+        message.embeds[0]?.title?.includes("wild pokémon has appeared") &&
+        !captcha
       ) {
         if (
           config.incenseMode == false &&
-          message.embeds[0]?.footer &&
-          message.embeds[0].footer.text.includes("Incense")
+          message.embeds[0]?.footer?.text?.includes("Incense")
         )
           return;
         if (
           config.incenseMode == true &&
-          message.embeds[0]?.footer &&
-          message.embeds[0].footer.text.includes("Incense")
+          message.embeds[0]?.footer?.text?.includes("Incense")
         ) {
           if (isOnBreak == false) {
             isOnBreak = true;
@@ -338,11 +336,31 @@ async function Login(token, Client, guildId) {
           "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
         );
         spawned_embed = message.embeds[0];
-      } else if (message.content.includes("The pokémon is")) {
+      } else if (message.content.includes("The pokémon is") && !captcha) {
         const pokemon = await solveHint(message);
         if (pokemon) {
-          await sleep(500)
-          await message.channel.send("<@716390085896962058> c " + pokemon);
+          await message.channel.send("<@716390085896962058> c " + pokemon[0]);
+          checkIfWrong = await message.channel
+            .createMessageCollector({ time: 5000 })
+            .on("collect", async (msg) => {
+              if (msg.content.includes("That is the wrong pokémon!")) {
+                checkIfWrong.stop();
+                await msg.channel.send("<@716390085896962058> c " + pokemon[1]);
+
+                checkIfWrong2 = await msg.channel
+                  .createMessageCollector({ time: 5000 })
+                  .on("collect", async (msg) => {
+                    if (msg.content.includes("That is the wrong pokémon!")) {
+                      checkIfWrong2.stop();
+                      let hintMessages = ["h", "hint"];
+                      msg.channel.send(
+                        "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
+                      );
+                    }
+                  });
+              }
+            });
+
           await sleep(5000);
           if (config.reactAfterCatch) {
             const caughtMessages = fs
@@ -367,18 +385,12 @@ async function Login(token, Client, guildId) {
               lastWord
           );
         }
-      } else if (message.content.includes("That is the wrong pokémon!")) {
-        await sleep(8000);
-        message.channel.send("<@716390085896962058> h");
       } else if (
         message.content.includes("Congratulations <@" + client.user.id + ">")
       ) {
         pokemonCount++;
 
-        await sleep(2000);
-        if (config.logCatches) {
         message.channel.send("<@716390085896962058> i l");
-        }
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
@@ -671,7 +683,10 @@ async function Login(token, Client, guildId) {
           " || Rarity: " +
           rarity;
 
-        const contents = fs.readFileSync("./data/catches.txt", "utf-8");
+        const contents = fs.readFileSync(
+          "./data/catches.txt",
+          "utf-8"
+        );
 
         if (contents.includes(caught)) {
           return;
@@ -750,7 +765,10 @@ async function Login(token, Client, guildId) {
         latestLevel = titleWords[1];
 
         if (latestLevel === "100") {
-          let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
+          let levelup = fs.readFileSync(
+            "./data/levelup.json",
+            "utf-8"
+          );
           let data = JSON.parse(levelup);
 
           const index = data[client.user.username].indexOf(parseFloat(number));
@@ -811,7 +829,10 @@ async function Login(token, Client, guildId) {
           if (!titleWords[4]) latestName = titleWords[3];
           latestLevel = titleWords[2];
           if (latestLevel === "100") {
-            let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
+            let levelup = fs.readFileSync(
+              "./data/levelup.json",
+              "utf-8"
+            );
             let data = JSON.parse(levelup);
 
             const index = data[client.user.username].indexOf(
@@ -920,6 +941,25 @@ async function Login(token, Client, guildId) {
             .setDescription("**Account: **" + client.user.tag)
             .setColor("#FF5600")
         );
+      } else if (
+        message.content?.includes("You found a") &&
+        message.content?.includes("Satchel") &&
+        (newMessage[0].content?.includes(client.user.id) ||
+          newMessage[1].content?.includes(client.user.id))
+      ) {
+        if (message.content.includes("Flames")) {
+          await sleep(4000);
+          message.channel.send("<@716390085896962058> ev open flames");
+        } else if (message.content.includes("Shadows")) {
+          await sleep(4000);
+          message.channel.send("<@716390085896962058> ev open shadows");
+        } else if (message.content.includes("Foliage")) {
+          await sleep(4000);
+          message.channel.send("<@716390085896962058> ev open foliage");
+        } else if (message.content.includes("Snaring")) {
+          await sleep(4000);
+          message.channel.send("<@716390085896962058> ev open snaring");
+        }
       }
     }
 
@@ -1259,7 +1299,10 @@ async function Login(token, Client, guildId) {
             );
           }
           if (args[0] == "view") {
-            const config = await fs.readFileSync("./config.json", "utf-8");
+            const config = await fs.readFileSync(
+              "./config.json",
+              "utf-8"
+            );
             try {
               webhooks = await message.channel.fetchWebhooks();
             } catch (err) {
@@ -1370,7 +1413,10 @@ async function Login(token, Client, guildId) {
 
             config[property] = value;
 
-            fs.writeFileSync("./config.json", JSON.stringify(config, null, 2));
+            fs.writeFileSync(
+              "./config.json",
+              JSON.stringify(config, null, 2)
+            );
             message.reply(
               `Property \`${property}\` updated with value \`${value}\`.`
             );
@@ -1833,7 +1879,10 @@ async function Login(token, Client, guildId) {
             args[1].includes(client.user.id) &&
             args[2]
           ) {
-            let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
+            let levelup = fs.readFileSync(
+              "./data/levelup.json",
+              "utf-8"
+            );
             let data = JSON.parse(levelup);
 
             const validNumbers = args.slice(2).filter((arg) => {
