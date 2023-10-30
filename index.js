@@ -2032,11 +2032,11 @@ async function Login(token, Client, guildId) {
 
     await sleep(rateLimitPause);
   });
-  try {
-    client.login(token, (bot = false));
-  } catch (err) {
-    throw new Error(`Unable to login to token ${token}`);
-  }
+  client.login(token).catch((err) => {
+    console.log(
+      `${chalk.redBright("[ERROR]")} Invalid token ${chalk.red(token)}`
+    )
+})
 }
 
 start();
