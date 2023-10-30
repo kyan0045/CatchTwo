@@ -1992,13 +1992,13 @@ async function Login(token, Client, guildId) {
             message.react("✅");
 
             const messages = [
-              "@Pokétwo#8236 p --leg --myt --ub --spdiv 31 --atk >20 --hp >10",
-              "@Pokétwo#8236 p --leg --myt --ub --spdiv 31 --spatk >20 --hp >10",
-              "@Pokétwo#8236 p --leg --myt --ub --iv >70 --spdiv 31",
-              "@Pokétwo#8236 p  --spdiv 31 --atk >20 --def >15 --hp >10",
-              "@Pokétwo#8236 p  --spdiv 31 --spatk >20 --spdef >15 --hp >10",
-              "@Pokétwo#8236 p  --triple 31",
-              "@Pokétwo#8236 p  --iv >90",
+              "<@716390085896962058> p --leg --myt --ub --spdiv 31 --atk >20 --hp >10",
+              "<@716390085896962058> p --leg --myt --ub --spdiv 31 --spatk >20 --hp >10",
+              "<@716390085896962058> p --leg --myt --ub --iv >70 --spdiv 31",
+              "<@716390085896962058> p  --spdiv 31 --atk >20 --def >15 --hp >10",
+              "<@716390085896962058> p  --spdiv 31 --spatk >20 --spdef >15 --hp >10",
+              "<@716390085896962058> p  --triple 31",
+              "<@716390085896962058> p  --iv >90",
             ];
 
             let counter = 0;
