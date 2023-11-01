@@ -63,7 +63,9 @@ axios
                 "**\nPlease update: " +
                 "https://github.com/kyan0045/CatchTwo"
             )
-            .setFooter(`Run "git pull https://github.com/kyan0045/catchtwo" to update.`)
+            .setFooter(
+              `Run "git pull https://github.com/kyan0045/catchtwo" to update.`
+            )
             .setColor("#E74C3C")
         );
       }
@@ -174,8 +176,10 @@ async function Login(token, Client, guildId) {
             const spamMessage =
               spamMessages[Math.floor(Math.random() * spamMessages.length)];
 
-            await spamChannel.send(spamMessage);
-            spamMessageCount++;
+            if (spamMessage?.length > 0) {
+              await spamChannel.send(spamMessage);
+              spamMessageCount++;
+            }
           }
 
           if (randomInteger(0, 2500) === 400 && config.sleeping) {
@@ -339,8 +343,8 @@ async function Login(token, Client, guildId) {
         spawned_embed = message.embeds[0];
       } else if (message.content.includes("The pokémon is") && !captcha) {
         const pokemon = await solveHint(message);
-        if (pokemon) {
-          await sleep(300)
+        if (pokemon[0]) {
+          await sleep(300);
           await message.channel.send("<@716390085896962058> c " + pokemon[0]);
           checkIfWrong = await message.channel
             .createMessageCollector({ time: 5000 })
@@ -356,7 +360,8 @@ async function Login(token, Client, guildId) {
                       checkIfWrong2.stop();
                       let hintMessages = ["h", "hint"];
                       msg.channel.send(
-                        "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
+                        "<@716390085896962058> " +
+                          hintMessages[Math.round(Math.random())]
                       );
                     }
                   });
@@ -370,7 +375,9 @@ async function Login(token, Client, guildId) {
               .split("\n");
             const caughtMessage =
               caughtMessages[Math.floor(Math.random() * caughtMessages.length)];
-            message.channel.send(caughtMessage);
+            if (caughtMessage?.length > 0) {
+              message.channel.send(caughtMessage);
+            }
           }
         } else {
           const words = message.content.split(" ");
@@ -386,13 +393,18 @@ async function Login(token, Client, guildId) {
               `: Could not identify ` +
               lastWord
           );
+          await sleep(8000)
+          let hintMessages = ["h", "hint"];
+          message.channel.send(
+            "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
+          );
         }
       } else if (
         message.content.includes("Congratulations <@" + client.user.id + ">")
       ) {
         pokemonCount++;
         if (config.logCatches) {
-        message.channel.send("<@716390085896962058> i l");
+          message.channel.send("<@716390085896962058> i l");
         }
       } else if (
         message.embeds[0]?.footer &&
@@ -686,10 +698,7 @@ async function Login(token, Client, guildId) {
           " || Rarity: " +
           rarity;
 
-        const contents = fs.readFileSync(
-          "./data/catches.txt",
-          "utf-8"
-        );
+        const contents = fs.readFileSync("./data/catches.txt", "utf-8");
 
         if (contents.includes(caught)) {
           return;
@@ -768,10 +777,7 @@ async function Login(token, Client, guildId) {
         latestLevel = titleWords[1];
 
         if (latestLevel === "100") {
-          let levelup = fs.readFileSync(
-            "./data/levelup.json",
-            "utf-8"
-          );
+          let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
           let data = JSON.parse(levelup);
 
           const index = data[client.user.username].indexOf(parseFloat(number));
@@ -832,10 +838,7 @@ async function Login(token, Client, guildId) {
           if (!titleWords[4]) latestName = titleWords[3];
           latestLevel = titleWords[2];
           if (latestLevel === "100") {
-            let levelup = fs.readFileSync(
-              "./data/levelup.json",
-              "utf-8"
-            );
+            let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
             let data = JSON.parse(levelup);
 
             const index = data[client.user.username].indexOf(
@@ -944,7 +947,8 @@ async function Login(token, Client, guildId) {
             .setDescription("**Account: **" + client.user.tag)
             .setColor("#FF5600")
         );
-      } else if (config.autoSatchel &&
+      } else if (
+        config.autoSatchel &&
         message.content?.includes("You found a") &&
         message.content?.includes("Satchel") &&
         (newMessage[0].content?.includes(client.user.id) ||
@@ -1302,10 +1306,7 @@ async function Login(token, Client, guildId) {
             );
           }
           if (args[0] == "view") {
-            const config = await fs.readFileSync(
-              "./config.json",
-              "utf-8"
-            );
+            const config = await fs.readFileSync("./config.json", "utf-8");
             try {
               webhooks = await message.channel.fetchWebhooks();
             } catch (err) {
@@ -1416,10 +1417,7 @@ async function Login(token, Client, guildId) {
 
             config[property] = value;
 
-            fs.writeFileSync(
-              "./config.json",
-              JSON.stringify(config, null, 2)
-            );
+            fs.writeFileSync("./config.json", JSON.stringify(config, null, 2));
             message.reply(
               `Property \`${property}\` updated with value \`${value}\`.`
             );
@@ -1882,10 +1880,7 @@ async function Login(token, Client, guildId) {
             args[1].includes(client.user.id) &&
             args[2]
           ) {
-            let levelup = fs.readFileSync(
-              "./data/levelup.json",
-              "utf-8"
-            );
+            let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
             let data = JSON.parse(levelup);
 
             const validNumbers = args.slice(2).filter((arg) => {
@@ -2025,6 +2020,11 @@ async function Login(token, Client, guildId) {
   });
 
   client.on(`rateLimit`, async (message) => {
+    console.log(
+      `${chalk.redBright(
+        "[RATELIMIT]"
+      )} Your IP has been ratelimited by Discord.`
+    );
     let rateLimitPauses = [`900000`, `1000000`, `1100000`, `1200000`];
 
     let rateLimitPause =
@@ -2032,11 +2032,12 @@ async function Login(token, Client, guildId) {
 
     await sleep(rateLimitPause);
   });
+
   client.login(token).catch((err) => {
     console.log(
       `${chalk.redBright("[ERROR]")} Invalid token ${chalk.red(token)}`
-    )
-})
+    );
+  });
 }
 
 start();
