@@ -9,6 +9,5 @@
   "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
   "prefix": "!",
   "globalCatch": false,
-  "blacklistedGuilds": [ "716390832034414685", "..." ],
-  "autoSatchel": true
+  "blacklistedGuilds": [ "716390832034414685", "..." ]
 }
