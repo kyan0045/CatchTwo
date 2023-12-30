@@ -1,5 +1,5 @@
-var version = "1.3.5";
-// Version 1.3.5
+var version = "1.3.7";
+// Version 1.3.7
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13");
@@ -947,26 +947,6 @@ async function Login(token, Client, guildId) {
             .setDescription("**Account: **" + client.user.tag)
             .setColor("#FF5600")
         );
-      } else if (
-        config.autoSatchel &&
-        message.content?.includes("You found a") &&
-        message.content?.includes("Satchel") &&
-        (newMessage[0].content?.includes(client.user.id) ||
-          newMessage[1].content?.includes(client.user.id))
-      ) {
-        if (message.content.includes("Flames")) {
-          await sleep(4000);
-          message.channel.send("<@716390085896962058> ev open flames");
-        } else if (message.content.includes("Shadows")) {
-          await sleep(4000);
-          message.channel.send("<@716390085896962058> ev open shadows");
-        } else if (message.content.includes("Foliage")) {
-          await sleep(4000);
-          message.channel.send("<@716390085896962058> ev open foliage");
-        } else if (message.content.includes("Snaring")) {
-          await sleep(4000);
-          message.channel.send("<@716390085896962058> ev open snaring");
-        }
       }
     }
 
