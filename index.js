@@ -1,5 +1,5 @@
-var version = "1.3.7";
-// Version 1.3.7
+var version = "1.3.5";
+// Version 1.3.5
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
 const { Client, Permissions } = require("discord.js-selfbot-v13");
@@ -263,7 +263,7 @@ async function Login(token, Client, guildId) {
             ])
       );
 
-      if (spamChannels.size === 0) {
+      if (spamChannels.size === 0 && !config.globalCatch) {
         throw new Error(
           `Couldn't find a channel called 'spam' in the guild specified for ${client.user.username}. Please create one.`
         );
@@ -406,10 +406,22 @@ async function Login(token, Client, guildId) {
         if (config.logCatches) {
           message.channel.send("<@716390085896962058> i l");
         }
+      } else if (message.content.includes("Please pick a starter pokémon")) {
+          message.channel.send("<@716390085896962058> pick charmander");
+      } else if (
+        message.embeds[0]?.footer &&
+        message.embeds[0].footer.text.includes("Terms") &&
+        newMessage[1].content.includes("pick")
+        && message?.components[0]?.components[0]
+      ) {
+        message.clickButton(message.components[0].components[0])
+        setTimeout(() => {
+          message.channel.send("<@716390085896962058> i")
+        }, 3000)
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
-        message.embeds[0].thumbnail.url.includes(client.user.id) &&
+        (message.embeds[0].thumbnail.url.includes(client.user.id) || newMessage[1].author.id == client.user.id) &&
         newMessage[1].content.includes("i l")
       ) {
         const str = message.embeds[0]?.fields[1].value;
@@ -746,10 +758,11 @@ async function Login(token, Client, guildId) {
           try {
             if (ownerID !== client.user.id) {
               const user = await client.users.fetch(ownerID);
-
+              if (!user.dmChannel.lastMessage?.content?.includes("detected")) {
               user.send(
                 `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
               );
+              }
             }
           } catch (err) {
             console.log(err);
@@ -1579,7 +1592,7 @@ async function Login(token, Client, guildId) {
               )
               .setColor("#f5b3b3")
           );
-        } else if (command == "solved") {
+        } else if (command == "solved" || command == "resume") {
           try {
             isOnBreak = false;
             captcha = false;
