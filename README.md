@@ -15,7 +15,7 @@
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.3.5-000?style=for-the-badge&logo=&color=informational)
+![Version](https://img.shields.io/badge/Version-1.3.8-000?style=for-the-badge&logo=&color=informational)
 [![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
 [![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
 [![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
@@ -78,7 +78,8 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```solved```  | ```none``` | Tells the program that the captcha has been solved. |
 | ```setup```  | ```new``` | Automatically creates and sets up a new server for autocatching. |
 | ```levelup```  | ```add, list``` | This can be used to manage the levelup system. |
-| ```duel```  | ```none``` | This can be used to let the bot display duel pokemon. |
+| ```duel```  | ```none``` | This can be used to let the bot display duel(ish) pokemon. |
+| ```resume```  | ```none``` | This can be used to wake the bot up from sleeping. |
 
 
 ## Installation
