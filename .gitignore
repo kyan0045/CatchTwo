@@ -1,8 +1,7 @@
-*.txt
 /node_modules
-
-*.json
 !package.json
 
+*.json
+*.txt
 *.replit
 *.nix
