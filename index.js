@@ -2,7 +2,7 @@ var version = "1.3.8";
 // Version 1.3.8
 // EVERYTHING can be set up in config.json, no need to change anything here :)!
 
-const { Client, Permissions } = require("discord.js-selfbot-v13");
+const { Client, Permissions } = require("replit-test123");
 const axios = require("axios");
 const date = require("date-and-time");
 const express = require("express");
