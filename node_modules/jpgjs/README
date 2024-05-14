@@ -1,8 +1,0 @@
-Simple JPEG/DCT data decoder in JavaScript. Also this project includes JPEG 2000 and JBIG2 decoders.
-
-Example URL:
-   http://notmasteryet.github.com/jpgjs/example.html
-
-The images decoders are maintained as part of the PDF.js project, please submit patches there.
-
-  https://github.com/mozilla/pdf.js/
