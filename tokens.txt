@@ -1,2 +1,2 @@
-Token1 guildId1
-Token2 guildId2
+TOKEN1 SERVERID1
+TOKEN2 SERVERID2

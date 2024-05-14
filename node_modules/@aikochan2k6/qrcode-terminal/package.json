@@ -1,0 +1,35 @@
+{
+  "name": "@aikochan2k6/qrcode-terminal",
+  "keywords": ["ansi", "ascii", "qrcode", "console"],
+  "version" : "0.12.1",
+  "description" : "QRCodes, in the terminal (Whoa, not cli support)",
+  "homepage": "https://github.com/aiko-chan-ai/qrcode-terminal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aiko-chan-ai/qrcode-terminal"
+  },
+  "contributors": [{
+    "name": "Gord Tanner",
+    "email": "gtanner@gmail.com",
+    "url": "http://github.com/gtanner"
+  }, {
+    "name": "Michael Brooks",
+    "email": "mikeywbrooks@gmail.com",
+    "url": "http://github.com/mwbrooks"
+  }],
+  "licenses": [{
+    "type": "Apache 2.0"
+  }],
+  "main": "./lib/main",
+  "author": "aiko-chan-ai",
+  "preferGlobal": false,
+  "devDependencies": {
+    "sinon": "*",
+    "mocha": "*",
+    "expect.js": "*",
+    "jshint": "*"
+  },
+  "scripts": {
+    "test": "./node_modules/jshint/bin/jshint lib vendor && node example/basic.js && ./node_modules/mocha/bin/mocha -R nyan"
+  }
+}

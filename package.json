@@ -1,40 +1,23 @@
 {
-  "name": "CatchTwo",
-  "description": "This AutoCatcher was designed to automatically catch Pokemon spawned on Discord by Poketwo bot. It also offers other utility functions to automate features to make you rich in Poketwo. Apart from autocatching, the bot extends its features to easy customization with easy setup.",
-  "version": "1.3.9",
+  "name": "catchtwo",
+  "version": "1.4.0",
+  "description": "",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "start": "npm install && npm run git-setup && npm run start-app",
     "git-setup": "if not exist .git (git init && git remote add origin https://github.com/kyan0045/catchtwo.git)",
-    "start-app": "git fetch origin && git checkout -B main origin/main && git pull origin main && node index.js",
+    "start-app": "git fetch origin && git checkout -B main origin/main && git pull origin main && node --no-deprecation index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kyan0045/catchtwo.git"
-  },
-  "keywords": [
-    "catchtwo",
-    "autocatcher",
-    "poketwo-selfbot",
-    "selfbot"
-  ],
-  "author": "kyan0045",
-  "license": "SEE LICENSE IN ./LICENSE",
-  "bugs": {
-    "url": "https://github.com/kyan0045/catchtwo/issues"
-  },
-  "homepage": "https://github.com/kyan0045/catchtwo#readme",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "axios": "^1.4.0",
-    "chalk": "4.1.0",
-    "child_process": "^1.0.2",
-    "date-and-time": "^3.0.2",
-    "discord-webhook-node": "^1.1.8",
-    "discord.js-selfbot-v13": "^2.14.9",
-    "express": "^4.18.2",
-    "fs-extra": "^11.1.1",
-    "pokehint": "^1.3.2"
+    "chalk": "^4.1.0",
+    "date-and-time": "^3.1.1",
+    "discord.js-selfbot-v13": "^3.1.4",
+    "display-image": "^1.1.0",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
+    "pokehint": "^1.3.4"
   }
 }

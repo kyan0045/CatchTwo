@@ -1,13 +1,35 @@
 {
-  "sleeping": true,
-  "incenseMode": false,
-  "reactAfterCatch": false,
-  "logCatches": true,
-  "lowIVLog": "10.00",
-  "highIVLog": "85.00",
-  "logWebhook": "WEBHOOK TO LOG CATCHES",
-  "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
-  "prefix": "!",
-  "globalCatch": false,
-  "blacklistedGuilds": [ "716390832034414685", "..." ]
+  "behavior": {
+    "Sleeping": false,
+    "Catching": true,
+    "Spamming": true
+  },
+  "incense": {
+    "IncenseMode": true,
+    "AutoIncenseBuy": false,
+    "IncenseChannel": ""
+  },
+  "spamming": {
+    "SpamSpeed": "2000",
+    "SpamChannel": ""
+  },
+  "logging": {
+    "LogCatches": true,
+    "LowIVThreshold": "10.00",
+    "HighIVThreshold": "85.00",
+    "LogWebhook": "Webhook"
+  },
+  "ownership": {
+    "OwnerIDs": ["1101294362505269379", "..."],
+    "CommandPrefix": "!"
+  },
+  "globalSettings": {
+    "GlobalCatch": false,
+    "BlacklistedGuilds": ["716390832034414685", "..."]
+  },
+  "shinyHunting": {
+    "HuntPokemons": ["rayquaza", "aerodactyl", "walking wake"],
+    "HuntToken": "HuntToken"
+  },
+  "debug": true
 }
