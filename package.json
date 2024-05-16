@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm install && npm run git-setup && npm run start-app",
     "git-setup": "if not exist .git (git init && git remote add origin https://github.com/kyan0045/catchtwo.git)",
-    "start-app": "git fetch origin && git checkout -B main origin/main && git pull origin main && node --no-deprecation index.js",
+    "start-app": "git fetch origin && git checkout -B v1.4-beta origin/v1.4-beta && git pull origin v1.4-beta && node --no-deprecation index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -18,6 +18,6 @@
     "display-image": "^1.1.0",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.2.0",
-    "pokehint": "^1.3.4"
+    "pokehint": "^1.3.7"
   }
 }

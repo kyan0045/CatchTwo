@@ -1,5 +1,6 @@
 const chalk = require("chalk");
 const spam = require("../functions/spam.js");
+const config = require("../config.json");
 const { sendLog, sendWebhook } = require("../functions/logging.js");
 
 module.exports = async (client) => {
