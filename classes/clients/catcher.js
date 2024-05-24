@@ -20,7 +20,7 @@ class Catcher {
 
   start() {
     const { spam } = require("../../functions/spam.js");
-      this.spamChannel = spam(this.client, this.guildId);
+    this.spamChannel = spam(this.client, this.guildId);
 
     const { eventOpen } = require("../../functions/event.js");
     setTimeout(() => {

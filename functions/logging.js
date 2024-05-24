@@ -90,7 +90,7 @@ function sendLog(username, message, type) {
       );
       break;
     case "debug":
-      if (config?.debug == (false || undefined)) return;
+      if (config?.debug === false || config?.debug === undefined) return;
       console.log(
         chalk.bold.magenta(`[${type.toUpperCase()}]`) +
           ` - ` +
@@ -286,4 +286,10 @@ function sendCatch(username, name, level, iv, gender, shiny, url) {
   });
 }
 
-module.exports = { sendLog, sendCatch, sendWebhook, sendCatchWebhook, getMentions };
+module.exports = {
+  sendLog,
+  sendCatch,
+  sendWebhook,
+  sendCatchWebhook,
+  getMentions,
+};

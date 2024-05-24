@@ -3,11 +3,7 @@ const messages = fs
   .readFileSync("./data/messages/spam.txt", "utf-8")
   .split("\n");
 const { Permissions } = require("discord.js-selfbot-v13");
-const {
-  setSpamming,
-  getSpamming,
-  getWaiting,
-} = require("../utils/states.js");
+const { setSpamming, getSpamming, getWaiting } = require("../utils/states.js");
 const config = require("../config.json");
 const { sendLog } = require("./logging.js");
 
@@ -15,7 +11,7 @@ function spam(client, guildId) {
   if (config.behavior.Spamming == false) return;
   const guild = client.guilds.cache.get(guildId);
   if (!guild) return;
-  channel = guild.channels.cache.get(config.spamming.SpamChannel);
+  let channel = guild.channels.cache.get(config.spamming.SpamChannel);
   if (!channel) {
     channel = guild.channels.cache
       .filter(
@@ -34,14 +30,14 @@ function spam(client, guildId) {
 
   if (!channel) return;
   if (getSpamming() !== false) {
-  setSpamming(true);
+    setSpamming(true);
   } else {
-    return
+    return;
   }
   sendLog(client.user.username, `Action sent: started spamming`, "debug");
 
   setInterval(() => {
-    if (getSpamming() == false || getWaiting == true) return;
+    if (getSpamming() == false || getWaiting() == true) return;
     const message = messages[Math.floor(Math.random() * messages.length)];
     channel.send(message);
   }, config.spamming.SpamSpeed);
