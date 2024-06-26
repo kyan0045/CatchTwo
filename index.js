@@ -1,16 +1,22 @@
+// Importing necessary classes
 const { Catcher } = require("./classes/clients/catcher.js");
 const { ShinyHunter } = require("./classes/clients/shinyHunter.js");
 
+// Importing necessary functions
 const { createCatchers } = require("./functions/createCatchers.js");
-
-const config = require("./config.json");
 const { sendLog, sendWebhook } = require("./functions/logging.js");
 const { logMemoryUsage } = require("./utils/utils.js");
-const chalk = require("chalk");
 
+// Importing necessary modules
+const chalk = require("chalk");
+const config = require("./config.json");
+
+// Main function to initialize and start the application
 async function main() {
+  // Dynamically importing the module to display images
   const displayImage = require("display-image");
 
+  // Displaying the CatchTwo logo and welcome message
   await displayImage.fromFile("./data/logo.png").then((image) => {
     console.log(image);
     console.log(
@@ -19,53 +25,59 @@ async function main() {
         chalk.yellow.bold("Welcome to CatchTwo!")
     );
   });
-    sendWebhook(null, {
-      title: "Welcome to CatchTwo!",
-      description: `If you need any help, please join our [Discord](https://discord.gg/RtnQavFVRq).`,
-      color: "#fecd06",
-      url: "https://github.com/kyan0045/CatchTwo",
-      footer: {
-        text: "CatchTwo by @kyan0045",
-        icon_url:
-          "https://cdn.discordapp.com/icons/1133853334944632832/1cb8326e5b0e60e40c8b830803604a6b.webp?size=96",
-      },
-    });
 
+  // Sending a welcome message via webhook
+  sendWebhook(null, {
+    title: "Welcome to CatchTwo!",
+    description: `If you need any help, please join our [Discord](https://discord.gg/RtnQavFVRq).`,
+    color: "#fecd06",
+    url: "https://github.com/kyan0045/CatchTwo",
+    footer: {
+      text: "CatchTwo by @kyan0045",
+      icon_url:
+        "https://cdn.discordapp.com/icons/1133853334944632832/1cb8326e5b0e60e40c8b830803604a6b.webp?size=96",
+    },
+  });
+
+  // Delayed execution to create catchers and log memory usage
   setTimeout(() => {
     createCatchers();
     logMemoryUsage();
   }, 500);
 }
 
+// Handling unhandled promise rejections
 process.on("unhandledRejection", (reason, p) => {
+  // Ignoring specific errors
   const ignoreErrors = [
     "MESSAGE_ID_NOT_FOUND",
     "INTERACTION_TIMEOUT",
     "BUTTON_NOT_FOUND",
   ];
   if (ignoreErrors.includes(reason.code || reason.message)) return;
-  sendLog(
-    undefined,
-    `Unhandled Rejection`,
-    "error"
-  );
+  // Logging unhandled rejections
+  sendLog(undefined, `Unhandled Rejection`, "error");
   console.log(reason, p);
 });
 
+// Handling uncaught exceptions
 process.on("uncaughtException", (e, o) => {
-  sendLog(undefined, `Uncaught Exception/Catch`, "error")
+  // Logging uncaught exceptions
+  sendLog(undefined, `Uncaught Exception/Catch`, "error");
   console.log(e);
 });
 
-/* process.on("uncaughtExceptionMonitor", (err, origin) => {
+// Handling uncaught exceptions with a monitor (currently commented out)
+/*process.on("uncaughtExceptionMonitor", (err, origin) => {
   sendLog(undefined, `Uncaught Exception/Catch (MONITOR)`, "error")
   console.log(err, origin);
 }); */
 
+// Handling multiple promise resolutions
 process.on("multipleResolves", (type, promise, reason) => {
-  sendLog(undefined, `Multiple Resolves`, "error")
+  // Logging multiple resolutions  sendLog(undefined, `Multiple Resolves`, "error");
   console.log(type, promise, reason);
 });
 
-
+// Executing the main function to start the application
 main();

@@ -1,59 +1,76 @@
-const chalk = require("chalk");
-const { solveHint, getImage } = require("pokehint");
+// Importing necessary modules and configurations
+const chalk = require("chalk"); // Used for styling and coloring console output
+const { solveHint, getImage } = require("pokehint"); // Functions for solving hints and getting images
+const config = require("../config.json"); // Loading configuration from JSON file
 
-const config = require("../config.json");
+// Utility functions and classes
+const { wait, randomInteger } = require("../utils/utils.js"); // Utility functions for waiting and generating random integers
+const { ShinyHunter } = require("../classes/clients/shinyHunter.js"); // ShinyHunter class
+const { sendLog, sendCatch } = require("../functions/logging.js"); // Logging functions
+const {
+  setSpamming,
+  getSpamming,
+  getWaiting,
+  setWaiting,
+} = require("../utils/states.js"); // State management functions
 
-const { wait, randomInteger } = require("../utils/utils.js");
-const { ShinyHunter } = require("../classes/clients/shinyHunter.js");
-const { sendLog, sendCatch } = require("../functions/logging.js");
-const { setSpamming, getSpamming, getWaiting, setWaiting } = require("../utils/states.js");
-
+// The main function that handles new messages
 module.exports = async (client, guildId, message) => {
-
+  // Checking if the message is from a specific user and if the bot is not already waiting
   if (message.author.id == "716390085896962058" && getWaiting == false) {
+    // Handling Easter event messages
     if (message?.embeds[0]?.fields[0]?.name.includes("Easter")) {
+      // Fetching messages around the Easter message to determine if the bot should open boxes
       const messages = await message.channel.messages
         .fetch({ limit: 2, around: message.id })
         .catch(() => null);
       const newMessage = Array.from(messages.values());
-      [...messages.values()];
 
+      // If the bot's message is the one immediately before the Easter message
       if (newMessage[1].author.id == client.user.id) {
-        let boxAmount = parseInt(message.embeds[0].fields[0].name);
+        let boxAmount = parseInt(message.embeds[0].fields[0].name); // Parsing the number of boxes from the message
+        // Setting an interval to open boxes every second
         openInterval = setInterval(async () => {
           if (boxAmount > 0) {
             if (boxAmount >= 15) {
+              // If 15 or more boxes remain, open 15 at a time
               message.channel.send(`<@716390085896962058> easter open 15`);
               boxAmount -= 15;
             } else {
+              // If fewer than 15 boxes remain, open all remaining boxes
               message.channel.send(
                 `<@716390085896962058> easter open ${boxAmount}`
               );
               boxAmount = 0;
-              clearInterval(openInterval);
+              clearInterval(openInterval); // Clearing the interval once all boxes are opened
             }
           }
         }, 1000);
       }
     } else if (
+      // Handling captcha detection
       message.content.includes(
         `https://verify.poketwo.net/captcha/${client.user.id}`
       )
     ) {
-      setWaiting(true);
-      sendLog(client.user.username, "Detected captcha.", "captcha");
+      setWaiting(true); // Setting the bot to a waiting state
+      sendLog(client.user.username, "Detected captcha.", "captcha"); // Logging captcha detection
+      // Notifying all owners about the captcha
       config.ownership.OwnerIDs.forEach((id) => {
-        if (id.length <= 16) return;
+        if (id.length <= 16) return; // Skipping invalid IDs
         client.users.fetch(id).then(async (user) => {
+          // Fetching the DM channel and the last message to the owner
           dmChannel = await client.channels.fetch(user.dmChannel.id);
           lastMessage = await dmChannel.messages.fetch(dmChannel.lastMessageId);
+          // Checking if the last message already informed about a captcha within the last 24 hours
           if (
             lastMessage?.content.includes("captcha") &&
             lastMessage?.author.id == client.user.id &&
             lastMessage?.createdTimestamp > Date.now() - 86400000
           ) {
-            return;
+            return; // Skipping if a recent captcha message was already sent
           } else {
+            // Sending a webhook and a direct message to the owner about the captcha
             sendWebhook(null, {
               title: `Captcha Found!`,
               color: "#FF5600",

@@ -118,7 +118,7 @@ async function sendWebhook(content, embed) {
   const messageData = {
     username: "CatchTwo",
     avatarURL:
-      "https://cdn.discordapp.com/icons/1133853334944632832/1cb8326e5b0e60e40c8b830803604a6b.webp?size=96",
+      "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
   };
 
   if (content !== undefined) {
@@ -167,7 +167,7 @@ async function sendCatchWebhook(
     footer: {
       text: "CatchTwo by @kyan0045",
       icon_url:
-        "https://cdn.discordapp.com/icons/1133853334944632832/1cb8326e5b0e60e40c8b830803604a6b.webp?size=96",
+        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
     },
     thumbnail: {
       url: `${url}`,
@@ -177,7 +177,7 @@ async function sendCatchWebhook(
     await webhook.send({
       username: "CatchTwo",
       avatarURL:
-        "https://cdn.discordapp.com/icons/1133853334944632832/1cb8326e5b0e60e40c8b830803604a6b.webp?size=96",
+        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
       content: `${await getMentions()}`,
       embeds: [embed],
     });
@@ -185,7 +185,7 @@ async function sendCatchWebhook(
     await webhook.send({
       username: "CatchTwo",
       avatarURL:
-        "https://cdn.discordapp.com/icons/1133853334944632832/1cb8326e5b0e60e40c8b830803604a6b.webp?size=96",
+        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
       embeds: [embed],
     });
   }
