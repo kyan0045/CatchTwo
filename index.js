@@ -393,7 +393,7 @@ async function Login(token, Client, guildId) {
               `: Could not identify ` +
               lastWord
           );
-          await sleep(8000)
+          await sleep(8000);
           let hintMessages = ["h", "hint"];
           message.channel.send(
             "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
@@ -407,21 +407,22 @@ async function Login(token, Client, guildId) {
           message.channel.send("<@716390085896962058> i l");
         }
       } else if (message.content.includes("Please pick a starter pokémon")) {
-          message.channel.send("<@716390085896962058> pick charmander");
+        message.channel.send("<@716390085896962058> pick charmander");
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Terms") &&
-        newMessage[1].content.includes("pick")
-        && message?.components[0]?.components[0]
+        newMessage[1].content.includes("pick") &&
+        message?.components[0]?.components[0]
       ) {
-        message.clickButton(message.components[0].components[0])
+        message.clickButton(message.components[0].components[0]);
         setTimeout(() => {
-          message.channel.send("<@716390085896962058> i")
-        }, 3000)
+          message.channel.send("<@716390085896962058> i");
+        }, 3000);
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
-        (message.embeds[0].thumbnail.url.includes(client.user.id) || newMessage[1].author.id == client.user.id) &&
+        (message.embeds[0].thumbnail.url.includes(client.user.id) ||
+          newMessage[1].author.id == client.user.id) &&
         newMessage[1].content.includes("i l")
       ) {
         const str = message.embeds[0]?.fields[1].value;
@@ -733,7 +734,11 @@ async function Login(token, Client, guildId) {
             chalk.bold.red(`CAPTCHA`) +
             ` - Encountered a captcha ( https://verify.poketwo.net/captcha/${client.user.id} )`
         );
-
+        const { logCaptchaMessage } = require("./config.json");
+        if (logCaptchaMessage)
+          log?.send(
+            message.content.length > 0 ? message.content : `Captcha...`
+          );
         log?.send(
           new MessageBuilder()
             .setText(await getMentions(config.ownerID))
@@ -759,9 +764,9 @@ async function Login(token, Client, guildId) {
             if (ownerID !== client.user.id) {
               const user = await client.users.fetch(ownerID);
               if (!user.dmChannel.lastMessage?.content?.includes("detected")) {
-              user.send(
-                `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
-              );
+                user.send(
+                  `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
+                );
               }
             }
           } catch (err) {
