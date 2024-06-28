@@ -1,4 +1,6 @@
 const { Client } = require("discord.js-selfbot-v13");
+const fs = require("fs-extra");
+
 class Catcher {
   constructor(token, guildId) {
     this.token = token;
@@ -8,6 +10,16 @@ class Catcher {
 
   listen() {
     const client = new Client({ checkUpdate: false, readyStatus: false });
+    client.commands = new Map();
+
+    const commandFiles = fs
+      .readdirSync("./commands")
+      .filter((file) => file.endsWith(".js"));
+
+    for (const file of commandFiles) {
+      const command = require(`../../commands/${file}`);
+      client.commands.set(command.name, command);
+    }
     this.client = client;
 
     const { listenEvents } = require("../../functions/listenEvents.js");

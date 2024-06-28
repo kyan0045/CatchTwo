@@ -4,6 +4,9 @@ const spam = require("../functions/spam.js"); // Importing a spam function
 const config = require("../config.json"); // Loading configuration from JSON file
 const { sendLog, sendWebhook } = require("../functions/logging.js"); // Importing logging functions
 
+let accountReadyCount = 0; // Initialize counter
+let timer; // To keep track of the timer
+
 // Exporting an asynchronous function that will be executed when the client is ready
 module.exports = async (client) => {
   // Sending a log message indicating the bot has logged in, with the username styled in red and bold
@@ -12,17 +15,27 @@ module.exports = async (client) => {
     `Logged in to ${chalk.red.bold(`${client.user.username}`)}!`,
     "INFO"
   );
-  // Sending a webhook message indicating the bot has logged in, with additional details
-  sendWebhook(null, {
-    title: `Logged in to ${client.user.username}!`, // Title of the webhook message
-    color: "#60fca4", // Color of the webhook message
-    url: "https://github.com/kyan0045/CatchTwo", // URL associated with the webhook message
-    footer: {
-      text: "CatchTwo by @kyan0045", // Footer text of the webhook message
-      icon_url:
-        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png", // Footer icon URL
-    },
-  });
+
+  // Increment and manage timer
+  accountReadyCount++; // Increment counter when an account is ready
+  if (timer) clearTimeout(timer); // If timer exists, clear it to reset the countdown
+
+  timer = setTimeout(() => {
+    // Start or reset a 5-second timer
+    // This code runs after 5 seconds of the last account becoming ready
+    sendWebhook(null, {
+      title: `Logged into ${accountReadyCount} accounts!`, // Send the count of ready accounts
+      color: "#60fca4",
+      url: "https://github.com/kyan0045/CatchTwo",
+      footer: {
+        text: "CatchTwo by @kyan0045",
+        icon_url:
+          "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+      },
+    });
+    accountReadyCount = 0; // Reset counter after sending the message
+  }, 5000); // Wait for 5 seconds
+
   // Setting the client's status to 'invisible'
   client.user.setStatus("invisible");
   // Checking if auto-buying incense is enabled in the configuration

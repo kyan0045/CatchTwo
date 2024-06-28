@@ -16,8 +16,47 @@ const {
 
 // The main function that handles new messages
 module.exports = async (client, guildId, message) => {
-  // Checking if the message is from a specific user and if the bot is not already waiting
+  // Checking if the message is from Pokétwo and if the bot is not already waiting
   if (message.author.id == "716390085896962058" && getWaiting == false) {
+    // Checking if the account is suspended
+    if (message?.embeds[0]?.title?.includes("Account Suspended")) {
+      const messages = await message.channel.messages
+        .fetch({ limit: 2, around: message.id })
+        .catch(() => null);
+      const newMessage = Array.from(messages.values());
+      [...messages.values()];
+
+      if (newMessage[1].author.id == client.user.id) {
+        sendLog(client.user.username, "Detected suspension.", "suspension");
+        setWaiting(true);
+        config.ownership.OwnerIDs.forEach((id) => {
+          if (id.length <= 16) return;
+          client.users.fetch(id).then(async (user) => {
+            dmChannel = await client.channels.fetch(user.dmChannel.id);
+            lastMessage = await dmChannel.messages.fetch(
+              dmChannel.lastMessageId
+            );
+
+            if (lastMessage?.content.includes("suspended")) {
+              return;
+            } else {
+              sendWebhook(null, {
+                title: `Account ${client.user.username} Suspended!`,
+                color: "#FF0000",
+                footer: {
+                  text: "CatchTwo by @kyan0045",
+                  icon_url:
+                    "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+                },
+              });
+              return user.send(
+                `## ACCOUNT SUSPENDED\n> Your account has been suspended. The autocatcher has been paused. Please check your account for more information.`
+              );
+            }
+          });
+        });
+      }
+    }
     // Handling Easter event messages
     if (message?.embeds[0]?.fields[0]?.name.includes("Easter")) {
       // Fetching messages around the Easter message to determine if the bot should open boxes
