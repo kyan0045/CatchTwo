@@ -90,7 +90,7 @@ function sendLog(username, message, type) {
       );
       break;
     case "debug":
-      if (config?.debug === false || config?.debug === undefined) return;
+      if (config?.debug == (false || undefined)) return;
       console.log(
         chalk.bold.magenta(`[${type.toUpperCase()}]`) +
           ` - ` +
@@ -114,6 +114,27 @@ function sendLog(username, message, type) {
 
 async function sendWebhook(content, embed) {
   const webhook = new WebhookClient({ url: config.logging.LogWebhook });
+
+  const messageData = {
+    username: "CatchTwo",
+    avatarURL:
+      "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+  };
+
+  if (content !== undefined) {
+    messageData.content = content;
+  }
+
+  if (embed !== undefined) {
+    messageData.embeds = [embed];
+  }
+
+  await webhook.send(messageData);
+  webhook.destroy();
+}
+
+async function sendCommandWebhook(webhookURL, content, embed) {
+  const webhook = new WebhookClient({ url: webhookURL });
 
   const messageData = {
     username: "CatchTwo",
@@ -290,6 +311,7 @@ module.exports = {
   sendLog,
   sendCatch,
   sendWebhook,
+  sendCommandWebhook,
   sendCatchWebhook,
   getMentions,
 };
