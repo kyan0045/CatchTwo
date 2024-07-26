@@ -32,7 +32,7 @@
     "child_process": "^1.0.2",
     "date-and-time": "^3.0.2",
     "discord-webhook-node": "^1.1.8",
-    "discord.js-selfbot-v13": "^2.14.9",
+    "discord.js-selfbot-v13": "^3.3.0",
     "express": "^4.18.2",
     "fs-extra": "^11.1.1",
     "pokehint": "^1.4.2"
