@@ -12,7 +12,7 @@
 
 <!-- Header Top img  -->
 <img src="https://media.discordapp.net/attachments/1033334586966552666/1054896887842488422/image.png" lt="poketwo autocatcher logo" align="left" height="170"><h1>CatchTwo; Pokétwo Autocatcher</h1>
-[v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4) based on AI catching is currently in development
+[v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4) based on AI catching is currently in development and is not finished, this branch should however be stable.
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
@@ -33,22 +33,11 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 
 <h2 align="left">Features</h2>
 
-* [x] Supports Infinite Accounts </br>
-* [x] Can catch EVERY pokemon (Gen 9 & All Event Pokémon included!) </br>
-* [x] Interactive Commands </br>
-* [x] Useful Webhook Logging </br>
-* [x] Levelup System </br>
-* [x] Spams Random Messages </br>
-* [x] Stores & Logs Catches </br>
-* [x] Alerts on Low IV, High IV & Shiny, Legendaries, Mythicals, and Ultra Beasts</br>
-* [x] Tracks catches and calculates catch rates per hour </br>
-* [x] Pauses and alerts on captcha </br>
-* [ ] Useful Webpage </br>
-* [ ] Market Sniper </br>
+Will be listed soon, see the Discord.
 
 <h2 align="left">Configurations</h2>
 
-
+Outdated, will be updated at a later time
 | Name  | Type | Default Value | Description |
 | ------------- | ------------- | ------------- | ------------- |
 | ```incenseMode```  | ```Boolean``` | ```False```  | Tells the program whether or not to interact with incenses. |
@@ -63,6 +52,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ```blacklistedGuilds```  | ```Array``` | ```716390832034414685```  | The server IDs of servers you do not want the bot to catch in. |
 
 <h2 align="left">Commands</h2>
+Not all commands have been added yet
 
 | Name  | Options | Description |
 | ------------- | ------------- | ------------- |
@@ -87,10 +77,10 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 - Download [NodeJS](https://nodejs.org/en/download)
 - Download [Git](https://git-scm.com/downloads)
   
-- Run the following commands in your shell/console:
+- Run the following commands in your terminal:
 
 ```bash
-git clone https://github.com/kyan0045/catchtwo.git
+git clone -b v1.4-beta --single-branch https://github.com/kyan0045/catchtwo.git
 ```
 Note: You can also download the files using other methods.
 
@@ -104,6 +94,10 @@ npm i
 - Now enter the correct values in [config.json](./config.json) & [tokens.txt](./tokens.txt).
 
 To start the selfbot, run the following command in your shell/console:
+```javascript
+npm start 
+```
+or
 ```javascript
 node .
 ```
