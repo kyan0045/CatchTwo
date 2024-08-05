@@ -10,7 +10,7 @@ const { sendLog } = require("./logging.js");
 async function eventOpen(client, channel_id) {
     const channel = client.channels.cache.get(channel_id);
     sendLog(client.user.username, `Action sent: attempting to play archery.`, "debug");
-    channel.send(`<@716390085896962058> event play archery");
+    channel.send(`<@716390085896962058> event play archery`);
 }
 
 module.exports = { eventOpen };
