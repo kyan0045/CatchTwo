@@ -48,7 +48,7 @@ module.exports = async (client, guildId, message) => {
     // Checking if the message is from Pokétwo and if the bot is not already waiting
 
     if (message.author.id == "716390085896962058" && getWaiting() == false) {
-        console.log(message.content)
+
         // Checking if the account is suspended
 
         if (message?.embeds[0]?.title?.includes("Account Suspended")) {
