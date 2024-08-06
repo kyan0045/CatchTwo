@@ -48,7 +48,6 @@ module.exports = async (client, guildId, message) => {
     // Checking if the message is from Pokétwo and if the bot is not already waiting
 
     if (message.author.id == "716390085896962058" && getWaiting() == false) {
-
         // Checking if the account is suspended
 
         if (message?.embeds[0]?.title?.includes("Account Suspended")) {
@@ -129,6 +128,8 @@ module.exports = async (client, guildId, message) => {
 
             const embed = message.embeds[0];
 
+ if (embed.title && embed.title.includes('Archery') && embed.image) {
+
             const messages = await message.channel.messages
 
             .fetch({
@@ -140,10 +141,8 @@ module.exports = async (client, guildId, message) => {
             const newMessage = Array.from(messages.values());
 
             [...messages.values()];
-
-            if (newMessage[1].author.id == client.user.id) {
-
-                if (embed.title && embed.title.includes('Archery') && embed.image) {
+            
+            if (newMessage[1].author.id == "716390085896962058") {
 
                     const url = embed.image.url;
 
@@ -158,7 +157,7 @@ module.exports = async (client, guildId, message) => {
                         const dartPositions = await processImage(imageBuffer);
 
                         const positionsStr = dartPositions.join(' ').toLowerCase();
-
+                        
                         const evSleep = [5.8,
                             5.4,
                             6.9,
