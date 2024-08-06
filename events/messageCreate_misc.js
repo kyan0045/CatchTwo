@@ -47,8 +47,8 @@ module.exports = async (client, guildId, message) => {
 
     // Checking if the message is from Pokétwo and if the bot is not already waiting
 
-    if (message.author.id == "716390085896962058" && getWaiting == false) {
-
+    if (message.author.id == "716390085896962058" && getWaiting() == false) {
+        console.log(message.content)
         // Checking if the account is suspended
 
         if (message?.embeds[0]?.title?.includes("Account Suspended")) {
@@ -176,14 +176,32 @@ module.exports = async (client, guildId, message) => {
                     } catch (error) {
 
                         console.error('Error processing image:', error);
+                        
 
                     }
 
                 }
+                }
+            }
 
 
 
                 if (message.content.includes('briefly shown 5')) {
+                  
+                    
+                    const messages = await message.channel.messages
+
+            .fetch({
+                limit: 2, around: message.id
+            })
+
+            .catch(() => null);
+
+            const newMessage = Array.from(messages.values());
+
+            [...messages.values()];
+
+            if (newMessage[1].author.id == client.user.id) {
 
                     if (message.components && message.components.length > 0) {
 
@@ -192,9 +210,9 @@ module.exports = async (client, guildId, message) => {
                         const button = component.components[0];
 
                         const buttonSleep = [3.3,
-                            4.2,
+                            3.4,
                             2.7,
-                            3.9,
+                            2.4,
                             2.9][Math.floor(Math.random() * 3)];
 
                         await new Promise(resolve => setTimeout(resolve, buttonSleep * 1000));
@@ -203,7 +221,6 @@ module.exports = async (client, guildId, message) => {
 
                     }
                 }
-            }
         }
 
         if (
