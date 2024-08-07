@@ -9,13 +9,22 @@ function listenEvents(client, guildId) {
 
       const event = require(`../events/${file}`);
 
-      if (file.includes("_")) eventName = file.split("_")[0];
-      else eventName = file.split(".")[0];
+      if (
+        file.includes("catching") ||
+        file.includes("commands") ||
+        file.includes("misc")
+      ) {
+        eventName = "messageCreate";
+      } else eventName = file.split(".")[0];
 
       if (typeof event === "function") {
         client.on(eventName, event.bind(null, client, guildId));
         eventName = file.split(".")[0];
-        sendLog(null, `Listening for event: ${chalk.yellow.bold(eventName)}`, "debug")
+        sendLog(
+          null,
+          `Listening for event: ${chalk.yellow.bold(eventName)}`,
+          "debug"
+        );
       } else {
         console.log(
           `${chalk.redBright(`[EVENT]`)} Invalid event: ${eventName}`

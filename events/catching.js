@@ -67,7 +67,9 @@ module.exports = async (client, guildId, message) => {
               "Incense ran out, buying next one.",
               "auto-incense"
             );
-            return message.channel.send("<@716390085896962058> buy incense");
+            return message.channel.send(
+              "<@716390085896962058> incense buy 30m 10s --y"
+            );
           }
           setSpamming(true);
           sendLog(
@@ -147,7 +149,7 @@ module.exports = async (client, guildId, message) => {
       await wait(3000);
       message.channel.send("<@716390085896962058> i");
       await wait(2000);
-      message.channel.send("<@716390085896962058> sh eevee");
+      message.channel.send("<@716390085896962058> sh solosis");
       await wait(2000);
       message.channel.send("<@716390085896962058> order iv");
     } else if (
@@ -228,7 +230,9 @@ module.exports = async (client, guildId, message) => {
 
   // Handle messages from the bot itself for special cases like chocolate box opening
   if (message.author.id == "716390085896962058") {
-    if (message?.embeds[0]?.fields[0]?.name.includes("Chocolate")) {
+    
+    // Handle chocolate box opening (past valentines event)
+    /*if (message?.embeds[0]?.fields[0]?.name.includes("Chocolate")) {
       const messages = await message.channel.messages
         .fetch({ limit: 2, around: message.id })
         .catch(() => null);
@@ -252,7 +256,7 @@ module.exports = async (client, guildId, message) => {
           }
         }, 1000);
       }
-    } else if (
+    } else*/ if (
       message.content.includes(
         `https://verify.poketwo.net/captcha/${client.user.id}`
       )

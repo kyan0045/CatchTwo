@@ -49,12 +49,17 @@ module.exports = async (client, guildId, message) => {
       }
     }
     // If no webhooks exist, create a new one for CatchTwo commands
-    if (webhook.size <= 0) {
+    if (webhook?.size <= 0 || !webhook) {
+      try {
       webhook[0] = await message.channel.createWebhook("CatchTwo", {
         avatar:
           "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
         reason: "CatchTwo Commands",
       });
+    } catch (error) {
+      message.reply("I don't have permission to create a webhook, a webhook is necessary for this particular command to work.");
+      throw new Error("No webhook found and unable to create one.");
+    }
     } else {
       // If webhooks exist, map the collection to their URLs
       if (webhook[0]?.url) webhook = webhook.map((w) => w.url);

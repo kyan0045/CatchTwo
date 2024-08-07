@@ -19,7 +19,7 @@ class ShinyHunter {
     );
     if (!channel)
       return console.error(
-        "Your main account does not have access to every channel/server."
+        "Your main/shinyHunter account does not have access to every channel/server."
       );
     
     let catchMessage = ["c", "catch"];
