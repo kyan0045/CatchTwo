@@ -7,8 +7,22 @@ const { getSpamming, setSpamming } = require("../utils/states.js");
 const config = require("../config.json");
 const { sendLog } = require("./logging.js");
 
-async function eventOpen(client, channel_id) {
-  const channel = client.channels.cache.get(channel_id);
+async function eventOpen(client, guildId) {
+  const guild = client.guilds.cache.get(guildId);
+  if (!guild) return;
+  const channel = guild.channels.cache
+    .filter(
+      (channel) =>
+        channel.type === "GUILD_TEXT" &&
+        channel.name.includes("spam") &&
+        channel
+          .permissionsFor(guild.members.me)
+          .has([
+            Permissions.FLAGS.VIEW_CHANNEL,
+            Permissions.FLAGS.SEND_MESSAGES,
+          ])
+    )
+    .first();
   sendLog(
     client.user.username,
     `Action sent: attempting to play archery.`,
