@@ -35,13 +35,13 @@ class Catcher {
     this.spamChannel = spam(this.client, this.guildId);
 
     const { eventOpen } = require("../../functions/event.js");
-    setTimeout(() => {
+    /*setTimeout(() => {
       eventOpen(this.client, this.guildId);
     }, 5000);
 
     setInterval(() => {
       eventOpen(this.client, this.guildId);
-    }, 1000 * 60 * 30);
+    }, 1000 * 60 * 30);*/
   }
 }
 
