@@ -268,7 +268,10 @@ module.exports = async (client, guildId, message) => {
       config.ownership.OwnerIDs.forEach((id) => {
         if (id.length <= 16) return;
         client.users.fetch(id).then(async (user) => {
-          dmChannel = await client.channels.fetch(user.dmChannel.id);
+          dmChannel = await client.channels.fetch(user?.dmChannel?.id);
+          if (!dmChannel) {
+            dmChannel = await user.createDM();
+          }
           lastMessage = await dmChannel.messages.fetch(dmChannel.lastMessageId);
           if (
             lastMessage?.content.includes("captcha") &&
