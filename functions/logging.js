@@ -89,6 +89,17 @@ function sendLog(username, message, type) {
           message
       );
       break;
+    case "quest":
+      console.log(
+        chalk.rgb(247, 166, 59).bold(`[${type.toUpperCase()}]`) +
+          ` - ` +
+          chalk.white.bold(date.format(now, "HH:mm")) +
+          `: ` +
+          chalk.bold.red(username) +
+          `: ` +
+          message
+      );
+      break;
     case "debug":
       if (config?.debug == (false || undefined)) return;
       console.log(
@@ -96,6 +107,7 @@ function sendLog(username, message, type) {
           ` - ` +
           chalk.white.bold(date.format(now, "HH:mm")) +
           `: ` +
+          (username ? `${chalk.bold.red(username)}: ` : '') +
           message
       );
       break;
