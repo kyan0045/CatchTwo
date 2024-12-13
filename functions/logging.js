@@ -1,6 +1,6 @@
 const chalk = require("chalk");
 const date = require("date-and-time");
-const config = require("../config.json");
+const config = require("../config");
 const { checkRarity } = require("pokehint");
 const { WebhookClient } = require("discord.js-selfbot-v13");
 

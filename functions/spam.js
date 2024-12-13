@@ -4,7 +4,7 @@ const messages = fs
   .split("\n");
 const { Permissions } = require("discord.js-selfbot-v13");
 const { setSpamming, getSpamming, getWaiting } = require("../utils/states.js");
-const config = require("../config.json");
+const config = require("../config.js");
 const { sendLog } = require("./logging.js");
 
 function spam(client, guildId) {
@@ -29,15 +29,15 @@ function spam(client, guildId) {
   }
 
   if (!channel) return;
-  if (getSpamming() !== false) {
-    setSpamming(true);
+  if (getSpamming(client.user.username) !== false) {
+    setSpamming(client.user.username, true);
   } else {
     return;
   }
   sendLog(client.user.username, `Action sent: started spamming`, "debug");
 
   setInterval(() => {
-    if (getSpamming() == false || getWaiting() == true) return;
+    if (getSpamming(client.user.username) == false || getWaiting(client.user.username) == true) return;
     const message = messages[Math.floor(Math.random() * messages.length)];
     channel.send(message);
   }, config.spamming.SpamSpeed);

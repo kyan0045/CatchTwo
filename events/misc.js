@@ -1,30 +1,20 @@
 // Importing necessary modules and configurations
 
 const chalk = require("chalk"); // Used for styling and coloring console output
-
 const { solveHint, getImage } = require("pokehint"); // Functions for solving hints and getting images
-
-const config = require("../config.json"); // Loading configuration from JSON file
-
+const config = require("../config.js"); // Loading configuration from JSON file
 const axios = require("axios"); // Used for fetching the archery image
-
 const sharp = require("sharp"); // Used for processing the archery image
 
 // Utility functions and classes
 
 const { wait, randomInteger } = require("../utils/utils.js"); // Utility functions for waiting and generating random integers
-
 const { ShinyHunter } = require("../classes/clients/shinyHunter.js"); // ShinyHunter class
-
 const { sendLog, sendCatch } = require("../functions/logging.js"); // Logging functions
-
 const {
   setSpamming,
-
   getSpamming,
-
   getWaiting,
-
   setWaiting,
 } = require("../utils/states.js"); // State management functions
 
@@ -35,7 +25,7 @@ module.exports = async (client, guildId, message) => {
 
   if (
     message.author.id == "716390085896962058" &&
-    getWaiting() == false &&
+    getWaiting(client.user.username) == false &&
     message.guild.id == guildId
   ) {
     // Checking if the account is suspended
@@ -57,7 +47,7 @@ module.exports = async (client, guildId, message) => {
       if (newMessage[1].author.id == client.user.id) {
         sendLog(client.user.username, "Detected suspension.", "suspension");
 
-        setWaiting(true);
+        setWaiting(client.user.username, true);
 
         config.ownership.OwnerIDs.forEach((id) => {
           if (id.length <= 16) return;
@@ -95,75 +85,13 @@ module.exports = async (client, guildId, message) => {
     }
 
     if (
-      message.embeds.length > 0 &&
-      message.embeds[0]?.title?.includes("Archery") &&
-      message.embeds[0]?.image
-    ) {
-      referenceMessage = await client.channels.cache
-        .get(message?.reference.channelId)
-        .messages.fetch(message?.reference?.messageId);
-
-      if (referenceMessage.author.id == client.user.id) {
-        const url = message.embeds[0].image.url;
-
-        try {
-          const response = await axios.get(url, {
-            responseType: "arraybuffer",
-          });
-
-          const imageBuffer = Buffer.from(response.data, "binary");
-
-          const dartPositions = await processImage(imageBuffer);
-
-          const positionsStr = dartPositions.join(" ").toLowerCase();
-
-          const evSleep = Math.random() * 2 + 4.5;
-
-          await new Promise((resolve) => setTimeout(resolve, evSleep * 1000));
-
-          await message.channel.send(
-            `<@716390085896962058> ev m shoot ${positionsStr}`
-          );
-
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-
-          await message.channel.send(`<@716390085896962058> ev play archery`);
-        } catch (error) {
-          console.error("Error processing image:", error);
-        }
-      }
-    }
-
-    if (message.content.includes("briefly shown 5")) {
-      referenceMessage = await client.channels.cache
-        .get(message?.reference.channelId)
-        .messages.fetch(message?.reference?.messageId);
-
-      if (referenceMessage.author.id == client.user.id) {
-        if (message.components && message.components.length > 0) {
-          const component = message.components[0];
-
-          const button = component.components[0];
-
-          const buttonSleep = Math.random() * 2 + 2;
-
-          await new Promise((resolve) =>
-            setTimeout(resolve, buttonSleep * 1000)
-          );
-
-          await message.clickButton(button.customId);
-        }
-      }
-    }
-
-    if (
       // Handling captcha detection
 
       message.content.includes(
         `https://verify.poketwo.net/captcha/${client.user.id}`
       )
     ) {
-      setWaiting(true); // Setting the bot to a waiting state
+      setWaiting(client.user.username, true); // Setting the bot to a waiting state
 
       sendLog(client.user.username, "Detected captcha.", "captcha"); // Logging captcha detection
 
@@ -214,48 +142,3 @@ module.exports = async (client, guildId, message) => {
     }
   }
 };
-
-function processImage(imageBuffer) {
-  return sharp(imageBuffer)
-    .raw()
-    .toBuffer({
-      resolveWithObject: true,
-    })
-    .then(({ data, info }) => {
-      const { width, height, channels } = info;
-      const gridSize = 6;
-      const headerSize = 1;
-
-      const tileHeight = Math.floor(height / gridSize);
-      const tileWidth = Math.floor(width / gridSize);
-
-      const dartPositions = [];
-      for (let row = headerSize; row < gridSize; row++) {
-        for (let col = headerSize; col < gridSize; col++) {
-          let sum = 0;
-          let count = 0;
-          for (let y = row * tileHeight; y < (row + 1) * tileHeight; y++) {
-            for (let x = col * tileWidth; x < (col + 1) * tileWidth; x++) {
-              for (let c = 0; c < channels; c++) {
-                sum += data[y * width * channels + x * channels + c];
-                count++;
-              }
-            }
-          }
-          const meanValue = sum / count;
-          if (meanValue > 128) {
-            dartPositions.push(
-              indexToLabel(row - headerSize, col - headerSize)
-            );
-          }
-        }
-      }
-      return dartPositions;
-    });
-}
-
-function indexToLabel(row, col) {
-  const columns = "ABCDE";
-  const rows = "12345";
-  return columns[col] + rows[row];
-}

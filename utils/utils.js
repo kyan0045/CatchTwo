@@ -1,4 +1,4 @@
-const config = require("../config.json");
+const config = require("../config.js");
 const { sendLog } = require("../functions/logging.js");
 
 function wait(timeInMs) {

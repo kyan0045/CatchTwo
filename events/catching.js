@@ -1,7 +1,7 @@
 // Import necessary modules and functions
 const chalk = require("chalk");
 const { solveHint, getImage, getName } = require("pokehint");
-const config = require("../config.json");
+const config = require("../config.js");
 const { wait, randomInteger } = require("../utils/utils.js");
 const { ShinyHunter } = require("../classes/clients/shinyHunter.js");
 const {
@@ -20,7 +20,7 @@ const {
 // Main function to handle message creation events
 module.exports = async (client, guildId, message) => {
   // Return if the bot is set to waiting
-  if (getWaiting() == true) return;
+  if (getWaiting(client.user.username) == true) return;
 
   // Check if the message is from the bot itself in the specified guild or if global catch is enabled and the guild is not blacklisted
   if (
@@ -52,8 +52,8 @@ module.exports = async (client, guildId, message) => {
         message.embeds[0]?.footer?.text?.includes("Incense")
       ) {
         // Log and manage spamming state based on incense detection
-        if (getSpamming() == true) {
-          setSpamming(false);
+        if (getSpamming(client.user.username) == true) {
+          setSpamming(client.user.username, false);
           sendLog(client.user.username, "Detected incense.", "incense");
         }
         // Handle the end of incense and possibly buy a new one
@@ -71,7 +71,7 @@ module.exports = async (client, guildId, message) => {
               "<@716390085896962058> incense buy 30m 10s --y"
             );
           }
-          setSpamming(true);
+          setSpamming(client.user.username, true);
           sendLog(
             client.user.username,
             "Detected the end of the incense.",
@@ -262,8 +262,8 @@ module.exports = async (client, guildId, message) => {
       )
     ) {
       // Handle captcha detection and notification
-      if (getWaiting() == true) return;
-      setWaiting(true);
+      if (getWaiting(client.user.username) == true) return;
+      setWaiting(client.user.username, true);
       sendLog(client.user.username, "Detected captcha.", "captcha");
       config.ownership.OwnerIDs.forEach((id) => {
         if (id.length <= 16) return;

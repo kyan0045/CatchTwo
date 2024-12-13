@@ -27,7 +27,9 @@ class Catcher {
   }
 
   login() {
-    this.client.login(this.token);
+    this.client.login(this.token).catch((error) => {
+      sendLog(null, `Failed to login to token: ${this.token}\n\t\t ${error}`, "error");
+    });
   }
 
   start() {

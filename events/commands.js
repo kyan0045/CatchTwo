@@ -1,6 +1,6 @@
 // Importing necessary modules and configurations
 const chalk = require("chalk"); // Used for styling and coloring console output
-const config = require("../config.json"); // Loading configuration from JSON file
+const config = require("../config.js"); // Loading configuration from JSON file
 
 // Importing utility functions and classes
 const { wait, randomInteger } = require("../utils/utils.js"); // Utility functions for waiting and generating random integers

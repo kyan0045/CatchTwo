@@ -1,20 +1,25 @@
-let spamming = true;
-let waiting = false;
+const accountStates = {};
 
-function setSpamming(value) {
-  spamming = value;
+function setSpamming(username, value) {
+  if (!accountStates[username]) {
+    accountStates[username] = { spamming: true, waiting: false };
+  }
+  accountStates[username].spamming = value;
 }
 
-function setWaiting(value) {
-  waiting = value;
+function setWaiting(username, value) {
+  if (!accountStates[username]) {
+    accountStates[username] = { spamming: true, waiting: false };
+  }
+  accountStates[username].waiting = value;
 }
 
-function getSpamming() {
-  return spamming;
+function getSpamming(username) {
+  return accountStates[username] ? accountStates[username].spamming : true;
 }
 
-function getWaiting() {
-  return waiting;
+function getWaiting(username) {
+  return accountStates[username] ? accountStates[username].waiting : false;
 }
 
-module.exports = { setSpamming, getSpamming, setWaiting, getWaiting};
+module.exports = { setSpamming, getSpamming, setWaiting, getWaiting };

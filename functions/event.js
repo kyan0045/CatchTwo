@@ -4,7 +4,7 @@ const messages = fs
   .split("\n");
 const { Permissions } = require("discord.js-selfbot-v13");
 const { getSpamming, setSpamming } = require("../utils/states.js");
-const config = require("../config.json");
+const config = require("../config.js");
 const { sendLog } = require("./logging.js");
 
 async function eventOpen(client, guildId) {

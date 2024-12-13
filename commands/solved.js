@@ -9,7 +9,7 @@ module.exports = {
   // The asynchronous function that executes when the command or its aliases are called
   async execute(client, message, args) {
     // Set the waiting state to false
-    setWaiting(false);
+    setWaiting(client.user.username, false);
     // React to the command message with a checkmark emoji to indicate successful execution
     await message.react("✅");
   },
