@@ -63,10 +63,16 @@ const commandHelp = {
     examples: [`${config.ownership.CommandPrefix}ping`],
     category: "System"
   },
-  solved: {
-    description: "Resume bot operation after completing a captcha",
-    usage: `${config.ownership.CommandPrefix}solved`,
-    examples: [`${config.ownership.CommandPrefix}solved`],
+  resume: {
+    description: "Resume bot operation after completing a captcha/pausing",
+    usage: `${config.ownership.CommandPrefix}resume [user]`,
+    examples: [`${config.ownership.CommandPrefix}resume @user`],
+    category: "System"
+  },
+  pause: {
+    description: "Pause the bot",
+    usage: `${config.ownership.CommandPrefix}pause [user]`,
+    examples: [`${config.ownership.CommandPrefix}pause @user`],
     category: "System"
   },
   setup: {
@@ -151,9 +157,14 @@ module.exports = {
             inline: true,
           },
           {
-            name: `${config.ownership.CommandPrefix}solved`,
+            name: `${config.ownership.CommandPrefix}resume [user]`,
             value:
-              "This can be used to resume the bot after completing a captcha.",
+              "This can be used to resume the bot after completing a captcha/pausing.",
+            inline: true,
+          },
+          {
+            name: `${config.ownership.CommandPrefix}pause [user]`,
+            value: "This can be used to pause the bot.",
             inline: true,
           },
           {

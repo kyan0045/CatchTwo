@@ -1,6 +1,6 @@
 const { Client } = require("discord.js-selfbot-v13");
 const fs = require("fs-extra");
-
+const clients = [];
 class Catcher {
   constructor(token, guildId) {
     this.token = token;
@@ -30,6 +30,7 @@ class Catcher {
     this.client.login(this.token).catch((error) => {
       sendLog(null, `Failed to login to token: ${this.token}\n\t\t ${error}`, "error");
     });
+    clients.push(this.client);
   }
 
   start() {
@@ -47,4 +48,4 @@ class Catcher {
   }
 }
 
-module.exports = { Catcher };
+module.exports = { Catcher, clients };
