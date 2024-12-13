@@ -11,7 +11,7 @@
 <meta name="og:description" content="Simplest automation autocatcher and Hack for Poketwo with Market Commands and Poketwo Guide and it is Best and Poketwo command with automation. This bot or selfbot automatically catches Pokemon known as Autocatch on Discord. Several other Features to Easily Get Rich in Poketwo."/>
 
 <!-- Header Top img  -->
-<img src="https://media.discordapp.net/attachments/1033334586966552666/1054896887842488422/image.png" lt="poketwo autocatcher logo" align="left" height="170"><h1>CatchTwo; Pokétwo Autocatcher</h1>
+<img src="https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png" lt="poketwo autocatcher logo" align="left" height="170"><h1>CatchTwo; Pokétwo Autocatcher</h1>
 [v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4) based on AI catching is currently in development and is not finished, this branch should however be stable.
 
 Simple and free pokétwo selfbot</br>
