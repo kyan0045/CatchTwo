@@ -1,5 +1,5 @@
 const { setWaiting } = require("../utils/states");
-const { clients } = require("../classes/clients");
+const { clients } = require("../classes/clients/catcher.js");
 
 // Exporting a module with command details and an asynchronous function to be used in CatchTwo
 module.exports = {
