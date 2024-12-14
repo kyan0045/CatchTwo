@@ -9,7 +9,7 @@ const { logMemoryUsage } = require("./utils/utils.js");
 
 // Importing necessary modules
 const chalk = require("chalk");
-const config = require("./config.json");
+const config = require("./config.js");
 
 // Main function to initialize and start the application
 async function main() {
