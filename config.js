@@ -15,14 +15,14 @@ const config = {
   },
   // Spamming settings
   spamming: {
-    SpamSpeed: "2500", // Speed of spamming in milliseconds
+    SpamSpeed: "1500", // Speed of spamming in milliseconds
     SpamChannel: "" // Channel ID for spamming messages (CURRENTLY GLOBAL)
   },
   // Logging settings
   logging: {
     LogCatches: true, // Enable or disable logging of catches
-    LowIVThreshold: "10.00", // Threshold for low IV logging
-    HighIVThreshold: "85.00", // Threshold for high IV logging
+    LowIVThreshold: 15.00, // Threshold for low IV logging
+    HighIVThreshold: 85.00, // Threshold for high IV logging
     LogWebhook: "Webhook" // Webhook URL for logging
   },
   // Ownership settings

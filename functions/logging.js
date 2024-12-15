@@ -246,7 +246,7 @@ function sendCatch(username, name, level, iv, gender, shiny, url) {
     return;
   }
 
-  if (iv >= config.logging.HighIVThreshold) {
+  if (parseFloat(iv) >= config.logging.HighIVThreshold) {
     sendLog(
       username,
       `Caught a ${genderEmoji} High IV ${name} (Level ${level}) with ${iv} IV!`,
@@ -256,7 +256,7 @@ function sendCatch(username, name, level, iv, gender, shiny, url) {
     return;
   }
 
-  if (iv <= config.logging.LowIVThreshold) {
+  if (parseFloat(iv) <= config.logging.LowIVThreshold) {
     sendLog(
       username,
       `Caught a ${genderEmoji} Low IV ${name} (Level ${level}) with ${iv} IV!`,
