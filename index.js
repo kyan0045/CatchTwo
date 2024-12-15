@@ -10,11 +10,18 @@ const { logMemoryUsage } = require("./utils/utils.js");
 // Importing necessary modules
 const chalk = require("chalk");
 const config = require("./config.js");
+const fs = require("fs");
 
 // Main function to initialize and start the application
 async function main() {
   // Dynamically importing the module to display images
   const displayImage = require("display-image");
+
+  // Read package.json file
+  const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+
+  // Extract version
+  const version = packageJson.version;
 
   // Displaying the CatchTwo logo and welcome message
   await displayImage.fromFile("./data/logo.png").then((image) => {
@@ -22,7 +29,15 @@ async function main() {
     console.log(
       chalk.bold.yellow(`[${"WELCOME".toUpperCase()}]`) +
         ` - ` +
-        chalk.yellow.bold("Welcome to CatchTwo!")
+        chalk.yellow.bold(`Welcome to CatchTwo!`)
+    );
+    // Log the current version with a nicer color
+    console.log(
+      chalk.bold.cyan(`[VERSION]`) +
+        ` - ` +
+        chalk.cyan(
+          `Version ${chalk.bold(version)}, by ${chalk.bold(`@kyan0045`)}`
+        )
     );
   });
 
@@ -33,7 +48,7 @@ async function main() {
     color: "#fecd06",
     url: "https://github.com/kyan0045/CatchTwo",
     footer: {
-      text: "CatchTwo by @kyan0045",
+      text: "CatchTwo by @kyan0045, version " + version,
       icon_url:
         "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
     },
