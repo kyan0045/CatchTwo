@@ -1,124 +1,165 @@
-<meta name="description" content="This AutoCatcher was designed to automatically catch Pokemon spawned on Discord by Poketwo bot. It also offers other utility functions to automate features to make you rich in Poketwo. Apart from autocatching, the bot extends its features to easy customization with easy setup."/>
-
-<meta name="keywords" content="Poketwo, Poketwo AutoCatcher, Poketwo Hack, poketwo selfbot, Poketwo vote, poketwo discord bot, poketwo bot, premium, poketwo commands, Safe autocatcher, catch pokemon, poketwo-hack, poketwo-autocatcher, youtube, poketwo free, poketwo paid, mass trade, github, mass-release, auto-vote, accurate,poketwo official server, poketwo auto catcher, poketwo helper bot, poketwo hack, poketwo rich, poketwo cheat, download,poketwo coins, poketwo shiny, online, how-to-get-rich-in-poketwo , kyan, Fuzzy, AI, Poketwo , latest, 2021, working, 2022"/>
-
-<meta name="author" content="kyan0045"/>
-<meta name="url" content="https://github.com/kyan0045/CatchTwo" />
-<meta name="og:title" content="CatchTwo; Pokétwo Autocatcher"/>
-<meta name="google-site-verification" content="premium best" />
-<meta name="og:url" content="https://github.com/kyan0045/CatchTwo" />
-<meta name="og:image" content="https://i.imgur.com/85PNo2N.png" />
-<meta name="og:description" content="Simplest automation autocatcher and Hack for Poketwo with Market Commands and Poketwo Guide and it is Best and Poketwo command with automation. This bot or selfbot automatically catches Pokemon known as Autocatch on Discord. Several other Features to Easily Get Rich in Poketwo."/>
-
-<!-- Header Top img  -->
-<img src="https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png" lt="poketwo autocatcher logo" align="left" height="170"><h1>CatchTwo; Pokétwo Autocatcher</h1>
-[v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4) based on AI catching is currently in development and is not finished, this branch should however be stable.
-
-Simple and free pokétwo selfbot</br>
-[![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.3.8-000?style=for-the-badge&logo=&color=informational)
-[![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
-[![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
-[![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/pulls)
+      
+<!-- Badges (Top) -->
+<p align="center">
+  <a href="https://kyan.space"><img width="200px" src="https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png" alt="Logo"></a>
+  <h1 align="center">CatchTwo</h1>
+</p>
 
 
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#installation">How To Use</a> •
+  <a href="#configurations">Configurations</a> •
+  <a href="#commands">Commands</a> •
+  <a href="#support">Support</a> •
+  <a href="#related">Related</a>
+</p>
 
-<img src="https://poketwo.net/_next/image?url=%2Fassets%2Flogo.png&w=256&q=75" alt="poketwo logo" align="right" height="120px"><h2>About</h2>
-CatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!
-
-<h2 align="left">Support</h2>
-
-If you need any support, please join [our Discord server](https://discord.gg/tXa2Hw5jHy): https://discord.gg/tXa2Hw5jHy
-
-<h2 align="left">Features</h2>
-
-Will be listed soon, see the Discord.
-
-<h2 align="left">Configurations</h2>
-
-Outdated, will be updated at a later time
-| Name  | Type | Default Value | Description |
-| ------------- | ------------- | ------------- | ------------- |
-| ```incenseMode```  | ```Boolean``` | ```False```  | Tells the program whether or not to interact with incenses. |
-| ```reactAfterCatch```  | ```Boolean``` | ```False```  | Tells the program whether or not to react after catching something. |
-| ```logCatches```  | ```String``` | ```True```  | Tells the program whether or not to log all catches. |
-| ```lowIVLog```  | ```String``` | ```15.00```  | Tells the program when to log a pokemon as low IV. |
-| ```highIVLog```  | ```String``` | ```85.00```  | Tells the program when to log a pokemon as high IV. |
-| ```logWebhook```  | ```String``` | ```undefined```  | Tells the program which webhook to log to. |
-| ```ownerID```  | ```Array``` | ```undefined```  | The userID of your main account. |
-| ```prefix```  | ```String``` | ```undefined```  | The prefix to use for the selfbot. |
-| ```globalCatch```  | ```Boolean``` | ```False```  | Tells the program whether to catch just in the specified guild, or in all (unblacklisted) guilds. |
-| ```blacklistedGuilds```  | ```Array``` | ```716390832034414685```  | The server IDs of servers you do not want the bot to catch in. |
-
-<h2 align="left">Commands</h2>
-Not all commands have been added yet
-
-| Name  | Options | Description |
-| ------------- | ------------- | ------------- |
-| ```help```  | ```none```  | Gives a list of these available commands. |
-| ```say```  | ```content``` | Can be used to make the selfbot repeat after you. |
-| ```click```  | ```messageID``` | Can be used to click a button in Discord. |
-| ```react```  | ```messageID``` | Can be used to make the selfbot react to the first emoji on a message. |
-| ```restart```  | ```none``` | Can be used to restart the selfbot. |
-| ```support```  | ```none``` | Gives a link to our support server. |
-| ```config```  | ```view, set```  | Can be used to view and change the config through Discord. |
-| ```stats```  | ```pokemon``` | Gives an overview with useful statistics. |
-| ```ping```  | ```none``` | Gives the selfbot's response time. |
-| ```solved```  | ```none``` | Tells the program that the captcha has been solved. |
-| ```setup```  | ```new``` | Automatically creates and sets up a new server for autocatching. |
-| ```levelup```  | ```add, list``` | This can be used to manage the levelup system. |
-| ```duel```  | ```none``` | This can be used to let the bot display duel(ish) pokemon. |
-| ```resume```  | ```none``` | This can be used to wake the bot up from sleeping. |
+  <p align="center">
+  <a href="https://discord.gg/tXa2Hw5jHy"><img src="https://img.shields.io/discord/1133853334944632832?label=Discord&logo=discord&logoColor=white&style=for-the-badge" alt="Discord"></a>
+  <a href="https://github.com/kyan0045/CatchTwo/stargazers"><img src="https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=github&color=blue" alt="Stars"></a>
+  <a href="https://github.com/kyan0045/CatchTwo/releases"><img src="https://img.shields.io/github/v/release/kyan0045/CatchTwo?style=for-the-badge&logo=github" alt="Release"></a>
+  <a href="https://www.nodejs.org/"><img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white" alt="made-with-python"></a>
+</p>
 
 
-## Installation
+<p align="center">
+  <b>Enjoying CatchTwo? Give this project a ⭐ on GitHub to show your support!</b>
+</p>
+
+<!-- Title & Subtitle -->
+<p align="center">
+  <i>The Revolutionary, Open-Source Autocatcher That Puts You in Control</i>
+</p>
+
+<img src="https://res.cloudinary.com/dppthk8lt/image/upload/v1734823547/image_fx__4_cacczd.png">
+
+<!-- About Section -->
+<h2 align="">About CatchTwo</h2>
+<p align="">
+  CatchTwo is not just another Pokétwo bot. It's a <b>cutting-edge, AI-powered autocatcher</b> designed to give you the ultimate advantage. Built with contributions from the community, for the community, CatchTwo is <b>completely free and open-source</b>. Run it on <b>multiple accounts</b>, customize it to your liking, and watch your Pokédex grow faster than ever before.
+</p>
+
+<!-- Features Section -->
+<h2 align="">Key Features</h2>
+<p align="">
+  <ul>
+    <li>⚡ <b>Blazing Fast AI Catching:</b> Catch more Pokémon with fewer captchas.</li>
+    <li>🔧 <b>Fully Customizable:</b> Tailor every aspect of the bot to your needs.</li>
+    <li>👥 <b>Multi-Account Support:</b> Run CatchTwo on as many accounts as you want.</li>
+    <li>💖 <b>Open-Source & Free:</b> No hidden costs, no premium features, just pure Pokétwo domination.</li>
+    <li>📈 <b>Detailed Statistics:</b> Keep track of your progress with in-depth stats.</li>
+    <li>🤖 <b>Advanced Commands:</b> Control every aspect of your catching experience.</li>
+    <li>🛡️ <b>Safe & Reliable:</b> Designed to avoid detection and keep your accounts secure.</li>
+  </ul>
+</p>
+
+<!-- Installation Section -->
+<h2 align="">Installation</h2>
+<p align="">
+  Getting started with CatchTwo is easy! Follow our detailed guides for your preferred platform, (and star the Github!):
+</p>
+<p align="">
+  <a href="https://youtu.be/Zfy2OQjAX3g">
+    <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Installation Guide">
+  </a>
+  <a href="https://discord.gg/tXa2Hw5jHy">
+    <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android Installation Guide">
+  </a>
+ <!-- <a href="[LINK_TO_REPLIT_GUIDE]">
+    <img src="https://img.shields.io/badge/Replit-F26207?style=for-the-badge&logo=replit&logoColor=white" alt="Replit Installation Guide">
+  </a> -->
+</p>
+<p align="">Or, for the experienced users, follow these quick steps:</p>
 
 - Download [NodeJS](https://nodejs.org/en/download)
 - Download [Git](https://git-scm.com/downloads)
-  
-- Run the following commands in your terminal:
 
 ```bash
+# 1. Clone the repository (v1.4-beta branch)
 git clone -b v1.4-beta --single-branch https://github.com/kyan0045/catchtwo.git
-```
-Note: You can also download the files using other methods.
 
-```bash
+# 2. Navigate to the directory
 cd catchtwo
-```
 
-```bash
-npm i
-```
-- Now enter the correct values in [config.json](./config.json) & [tokens.txt](./tokens.txt).
+# 3. Install dependencies
+npm install
 
-To start the selfbot, run the following command in your shell/console:
-```javascript
+# 4. Configure the bot (config.json & tokens.txt)
+
+# 5. Start CatchTwo
 npm start 
-```
-or
-```javascript
+# OR
 node .
 ```
+<!-- Support Section -->
+<h2 align="">Support</h2>
+<p align="">
+Need help? Join our <a href="https://discord.gg/tXa2Hw5jHy">Discord community</a> for support, updates, and feature requests.<br>
+Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/discussions">Discussions</a> tab!
+</p>
 
-- More detailed installation guides (pc, phone, replit) are available in our Discord server.
+<!-- Configurations Section -->
+<h2 align="">Configurations</h2>
+<p align="">
+  Customize CatchTwo to your liking with these powerful configuration options. All options are to be set in <code>config.json</code>:
+</p>
 
-### Token Format
-```
-Token1 guildId1
-Token2 guildId2
-``` 
-- Use a space to seperate the guildId from the token.
+| Name             | Type      | Default Value        | Description                                                                                                                   |
+| :--------------- | :-------- | :------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| `incenseMode`    | `Boolean` | `false`              | Tells the program whether or not to interact with incenses.                                                                   |
+| `logCatches`     | `Boolean` | `true`               | Tells the program whether or not to log all catches.                                                                          |
+| `lowIVLog`       | `Number`  | `15.00`              | Tells the program when to log a pokemon as low IV.                                                                            |
+| `highIVLog`      | `Number`  | `85.00`              | Tells the program when to log a pokemon as high IV.                                                                           |
+| `logWebhook`     | `String`  | `undefined`          | Tells the program which webhook to log to.                                                                                    |
+| `ownerID`        | `Array`   | `[]`                 | The userID of your main account. Add multiple user ID's by separating them with a comma (,).                                  |
+| `prefix`         | `String`  | `!` | The prefix to use for the selfbot. Make sure this prefix is not used by any other bot. |
+| `globalCatch`    | `Boolean` | `false`              | Tells the program whether to catch just in the specified guild, or in all (unblacklisted) guilds.                             |
+| `blacklistedGuilds` | `Array`   | `[716390832034414685]` | The server IDs of servers you do not want the bot to catch in.                                                              |
 
-### Important
+<!-- Commands Section -->
+<h2 align="">Commands</h2>
+<p align="">
+  Take control of CatchTwo with these powerful commands:
+</p>
 
-* In order for the logging to work, your account must have a profile picture different than the standard discord one.
+| Command   | Options         | Description                                                                  |
+| :-------- | :-------------- | :--------------------------------------------------------------------------- |
+| `help`    | `<command>`          | Gives a list of these available commands.                                    |
+| `say`     | `<content>`     | Can be used to make the selfbot repeat after you.                             |
+| `click`   | `<messageID>`   | Can be used to click a button in Discord.                                     |
+| `react`   | `<messageID>`   | Can be used to make the selfbot react to the first emoji on a message.        |
+| `restart` | `none`          | Can be used to restart the selfbot.                                           |
+| `support` | `none`          | Gives a link to our support server.                                          |
+| `ping`    | `none`          | Gives the selfbot's response time.                                            |
+| `resume`  | `<account>`          | This can be used to resume the bot                        |
+| `pause`  | `<account>`          | This can be used to pause the bot.                     |
 
-## Contributing
-Pull requests & suggestions are always welcome! For major changes, please open an issue/DM me on Discord first (@kyan0045) to discuss what you would like to change and to what extend.
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+<!-- Contributing Section -->
+<h2 align="">Contributing</h2>
+<p align="">
+CatchTwo is a community-driven project, and we welcome contributions of all kinds! Whether you're a seasoned developer or a passionate Pokétwo player, you can help make CatchTwo even better. Check out our <a href="[LINK_TO_CONTRIBUTING_GUIDE]">Contributing Guide</a> to get started.
+</p>
 
-# catchtwo-development
+<!-- Related -->
+<h2>Related</h2>
+<p align="">
+  At the heart of multiple Pokétwo autocatchers lies <b>PokeHint</b>, an efficient open-source package created by <a href="https://github.com/kyan0045"> @kyan0045</a>:
+</p>
+
+- **[PokeHint](https://github.com/kyan0045/pokehint):** The <b>industry-standard</b>, open-source library for Pokétwo hint solving and rarity checking. This powerful package provides the underlying logic and comprehensive database that powers numerous autocatchers, including CatchTwo. If you're building a Pokétwo bot, you need PokeHint.
+
+<p align="">
+  Other projects by me you might be interested in:
+</p>
+
+- **[Spammer](https://github.com/kyan0045/spammer):** A versatile Discord spammer. Use with caution! (or maybe don't, who am I to judge?)
+- **[And More!](https://github.com/kyan0045?tab=repositories)** Explore <a href="https://github.com/kyan0045"> @kyan0045</a>'s GitHub profile for a variety of other projects, including experimental tools, utilities, and who knows what else!
+
+
+<!-- License -->
+<h2 align="">License</h2>
+<p align="">
+CatchTwo is released under a <a href="https://github.com/kyan0045/CatchTwo/blob/main/LICENSE">custom license</a>.
+</p>
