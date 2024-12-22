@@ -1,18 +1,19 @@
 {
   "name": "catchtwo",
-  "version": "1.4.0-beta.1",
+  "version": "1.4.0-beta.2",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "start.bat", 
+    "start": "start.bat",
     "setup": "npm install && npm run git-setup && npm run start-app",
     "git-setup": "if not exist .git (git init && git remote add origin https://github.com/kyan0045/catchtwo.git)",
-    "start-app": "git fetch origin && git checkout -B v1.4-beta origin/v1.4-beta && git pull origin v1.4-beta && node --no-deprecation index.js",
+    "start-app": "git fetch origin && git checkout -B main origin/main && git pull origin main && node --no-deprecation index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow/tfjs-node": "^4.20.0",
     "axios": "^1.7.3",
     "chalk": "^4.1.0",
     "date-and-time": "^3.1.1",
@@ -20,7 +21,8 @@
     "display-image": "^1.1.0",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.2.0",
-    "pokehint": "^1.4.2",
-    "sharp": "^0.33.4"
+    "os": "^0.1.2",
+    "pokehint": "^1.4.6",
+    "sharp": "^0.33.5"
   }
 }
