@@ -148,7 +148,7 @@ CatchTwo is a community-driven project, and we welcome contributions of all kind
   At the heart of multiple Pokétwo autocatchers lies <b>PokeHint</b>, an efficient open-source package created by <a href="https://github.com/kyan0045"> @kyan0045</a>:
 </p>
 
-- **[PokeHint](https://github.com/kyan0045/pokehint):** The <b>industry-standard</b>, open-source library for Pokétwo hint solving and rarity checking. This powerful package provides the underlying logic and comprehensive database that powers numerous autocatchers, including CatchTwo. If you're building a Pokétwo bot, you need PokeHint.
+- **[PokeHint](https://github.com/kyan0045/pokehint):** The <b>industry-standard</b>, open-source library for Pokétwo hint solving and rarity checking. This efficient package provides the underlying logic and comprehensive database that powers multiple autocatchers, including CatchTwo. If you're building a Pokétwo bot, you need PokeHint.
 
 <p align="">
   Other projects by me you might be interested in:
