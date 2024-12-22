@@ -85,7 +85,7 @@ cd catchtwo
 # 3. Install dependencies
 npm install
 
-# 4. Configure the bot (config.json & tokens.txt)
+# 4. Configure the bot (config.js & tokens.txt)
 
 # 5. Start CatchTwo
 npm start 
@@ -105,17 +105,27 @@ Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/di
   Customize CatchTwo to your liking with these powerful configuration options. All options are to be set in <code>config.json</code>:
 </p>
 
-| Name             | Type      | Default Value        | Description                                                                                                                   |
-| :--------------- | :-------- | :------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| `incenseMode`    | `Boolean` | `false`              | Tells the program whether or not to interact with incenses.                                                                   |
-| `logCatches`     | `Boolean` | `true`               | Tells the program whether or not to log all catches.                                                                          |
-| `lowIVLog`       | `Number`  | `15.00`              | Tells the program when to log a pokemon as low IV.                                                                            |
-| `highIVLog`      | `Number`  | `85.00`              | Tells the program when to log a pokemon as high IV.                                                                           |
-| `logWebhook`     | `String`  | `undefined`          | Tells the program which webhook to log to.                                                                                    |
-| `ownerID`        | `Array`   | `[]`                 | The userID of your main account. Add multiple user ID's by separating them with a comma (,).                                  |
-| `prefix`         | `String`  | `!` | The prefix to use for the selfbot. Make sure this prefix is not used by any other bot. |
-| `globalCatch`    | `Boolean` | `false`              | Tells the program whether to catch just in the specified guild, or in all (unblacklisted) guilds.                             |
-| `blacklistedGuilds` | `Array`   | `[716390832034414685]` | The server IDs of servers you do not want the bot to catch in.                                                              |
+| Category          | Name                | Type      | Default Value                                         | Description                                                                                                                                                                |
+| :---------------- | :------------------ | :-------- | :---------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Behavior**      | `AI`                | `Boolean` | `true`| Enables or disables the use of AI in the autocatcher. When set to `true`, the autocatcher will use AI logic for improved catching.                                    |
+|                   | `Catching`          | `Boolean` | `true`| Enables or disables catching behavior globally. When set to `true`, the bot will attempt to catch Pokémon in specified channels or guilds.                          |
+|                   | `Spamming`          | `Boolean` | `true`| Enables or disables spamming behavior globally. When set to `true`, the bot will send messages at a set interval in the designated spam channel.                      |
+| **Incense**       | `IncenseMode`       | `Boolean` | `true`| Enables or disables incense mode. When set to `true`, the bot will use incense when available, as specified by the Incense Channel.                                     |
+|                   | `AutoIncenseBuy`    | `Boolean` | `false`| Enables or disables automatic incense buying. When set to `true`, the bot will automatically purchase incense when it runs out.                                           |
+|                   | `IncenseChannel`    | `String`  | `""`| Specifies the channel ID where the bot will use incense. (Optional)|
+| **Spamming**      | `SpamSpeed`         | `Number`  | `1500`| Sets the speed of spamming in milliseconds (e.g., 1500 = 1.5 seconds between each message).                                                                            |
+|                   | `SpamChannel`       | `String`  | `""`| Specifies the channel ID where the bot will send spam messages. (Optional)|
+| **Logging**       | `LogCatches`        | `Boolean` | `true`| Enables or disables logging of catches. When set to `true`, the bot will log all caught Pokémon.                                                                       |
+|                   | `LowIVThreshold`    | `Number`  | `15.00`| Sets the threshold for logging a Pokémon as low IV (e.g., 15.00 means Pokémon with IV below 15% will be logged as low IV).                                                |
+|                   | `HighIVThreshold`   | `Number`  | `85.00`| Sets the threshold for logging a Pokémon as high IV (e.g., 85.00 means Pokémon with IV above 85% will be logged as high IV).                                               |
+|                   | `LogWebhook`        | `String`  | `""` | Specifies the webhook URL where logs will be sent.|
+| **Ownership**     | `OwnerIDs`          | `Array`   | `["1101294362505269379", ""]`| Lists the user IDs that have owner-level control over the bot. You can add more user IDs, separated by commas.|
+|                   | `CommandPrefix`     | `String`  | `"!` | Sets the prefix for bot commands (e.g., !help, !stats). Make sure this prefix is not used by any other bot in the same server!|
+| **Global Settings** | `GlobalCatch`       | `Boolean` | `false`| Enables or disables global catching. When set to `true`, the bot will attempt to catch Pokémon in all channels it has access to, except those in the blacklisted guilds. |
+|                   | `BlacklistedGuilds` | `Array`   | `["716390832034414685", ""]`| Lists the server (guild) IDs where the bot should not catch Pokémon.|
+| **Hunting** | `HuntPokemons`      | `Array`   | `["rayquaza", "solosis"]`| Lists the names of Pokémon to hunt, this means your HuntToken will catch these pokemon.|
+|                   | `HuntToken`         | `String`  | `""`| Specifies the token to use for hunting. This should be a different token than your main bot token.|
+| **Debug**         | `debug`             | `Boolean` | `true`| Enables or disables debug mode. When set to `true`, the bot will output additional information for debugging purposes.     
 
 <!-- Commands Section -->
 <h2 align="">Commands</h2>
@@ -123,17 +133,17 @@ Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/di
   Take control of CatchTwo with these powerful commands:
 </p>
 
-| Command   | Options         | Description                                                                  |
-| :-------- | :-------------- | :--------------------------------------------------------------------------- |
-| `help`    | `<command>`          | Gives a list of these available commands.                                    |
-| `say`     | `<content>`     | Can be used to make the selfbot repeat after you.                             |
-| `click`   | `<messageID>`   | Can be used to click a button in Discord.                                     |
-| `react`   | `<messageID>`   | Can be used to make the selfbot react to the first emoji on a message.        |
-| `restart` | `none`          | Can be used to restart the selfbot.                                           |
-| `support` | `none`          | Gives a link to our support server.                                          |
-| `ping`    | `none`          | Gives the selfbot's response time.                                            |
-| `resume`  | `<account>`          | This can be used to resume the bot                        |
-| `pause`  | `<account>`          | This can be used to pause the bot.                     |
+
+| Command   | Options         | Description                                                                                     |
+| :-------- | :-------------- | :---------------------------------------------------------------------------------------------- |
+| `help`    | `[command]`     | Provides a list of available commands. Use `help [command]` for details on a specific command. |
+| `say`     | `<content>`     | Makes the bot repeat the given text.                                                            |
+| `click`   | `<messageId>`   | Simulates a button click on the specified message.                                                |
+| `pause`   | `[account]`     | Pauses the bot's operations. If an account is specified, it pauses only that account.         |
+| `react`   | `<messageId>`   | Reacts to the specified message with the first available emoji.                               |
+| `restart` |                 | Restarts the bot.                                                                                |
+| `resume`  | `[account]`     | Resumes the bot's operations. If an account is specified, it resumes only that account.      |
+| `alias`   | `[command]`     | List all the aliases for commands.     
 
 
 <!-- Contributing Section -->
