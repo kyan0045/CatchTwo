@@ -38,7 +38,7 @@ async function predict(url) {
 
   //console.log(`Predicted class name: ${name}`);
   sendLog(
-    client.user.username,
+    null,
     "AI prediction took " + (new Date().getTime() - startTime) + "ms.",
     "debug"
   );
