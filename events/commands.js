@@ -34,40 +34,34 @@ module.exports = async (client, guildId, message) => {
         (cmd) => cmd.aliases && cmd.aliases.includes(command)
       );
 
-    // Attempting to fetch existing webhooks in the channel
+    let webhookUrl;
     try {
-      webhook = await message.channel.fetchWebhooks();
-    } catch (err) {
-      // Handling errors, specifically the lack of permissions
-      if (err.code == "50013") {
-        // If the bot lacks permissions, use a predefined webhook from the config
-        webhook = [];
-        webhook[0] = config.logging.LogWebhook;
+      // Attempting to fetch existing webhooks in the channel
+      const webhooks = await message.channel.fetchWebhooks();
+      if (webhooks.size > 0) {
+        // Using the first webhook found
+        webhookUrl = webhooks.first().url;
       } else {
-        // Log any other errors
+        // Creating a new webhook if none exist
+        const newWebhook = await message.channel.createWebhook("CatchTwo", {
+          avatar:
+            "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+          reason: "CatchTwo Commands",
+        });
+        webhookUrl = newWebhook.url;
+      }
+    } catch (err) {
+      // Handling errors, specifically the lack of permissions to create webhooks
+      if (err.code == "50013") {
+        webhookUrl = config.logging.LogWebhook;
+      } else {
         console.log(err);
       }
     }
-    // If no webhooks exist, create a new one for CatchTwo commands
-    if (webhook?.size <= 0 || !webhook) {
-      try {
-      webhook[0] = await message.channel.createWebhook("CatchTwo", {
-        avatar:
-          "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-        reason: "CatchTwo Commands",
-      });
-    } catch (error) {
-      message.reply("I don't have permission to create a webhook, a webhook is necessary for this particular command to work.");
-      throw new Error("No webhook found and unable to create one.");
-    }
-    } else {
-      // If webhooks exist, map the collection to their URLs
-      if (webhook[0]?.url) webhook = webhook.map((w) => w.url);
-    }
 
-    // If a command file is found, execute the command with the provided arguments and webhook
-    if (commandFile) {
-      commandFile.execute(client, message, args, webhook[0]);
+    // If a command file & webhookUrl is found, execute the command with the provided arguments and webhook
+    if (commandFile && webhookUrl) {
+      commandFile.execute(client, message, args, webhookUrl);
     }
   }
 };
