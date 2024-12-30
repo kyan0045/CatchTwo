@@ -40,6 +40,9 @@ const config = {
     HuntPokemons: ["rayquaza", "solosis"], // List of Pokémon to hunt for shiny versions
     HuntToken: "HuntToken" // Token for shiny hunting
   },
+  captchaSolving: {
+    key: "", // API key for captcha solving, leave empty to disable, can be bought at @meneerplee or at https://catchtwo.online (SOON)
+  },
   // Debug mode
   debug: true // Enable or disable debug mode
 };
