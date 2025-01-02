@@ -5,5 +5,5 @@
 *.txt
 *.replit
 *.nix
-config.json
+config.js
 tokens.txt
