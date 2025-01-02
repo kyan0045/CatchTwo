@@ -12,7 +12,7 @@
 
 <!-- Header Top img  -->
 <!-- <img src="https://media.discordapp.net/attachments/1033334586966552666/1054896887842488422/image.png" lt="poketwo autocatcher logo" align="left" height="170">--><h1>CatchTwo; Pokétwo Autocatcher</h1>
-[v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4) based on AI catching is currently in development
+[v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4-beta) based on AI catching is currently in development
 
 Simple and free pokétwo selfbot</br>
 [![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
