@@ -43,6 +43,6 @@ module.exports = async (client) => {
     // If enabled, sending a command in the specified channel to buy incense
     client.channels.cache
       .get(config.incense.IncenseChannel)
-      .send(`<@716390085896962058> incense buy 30m 10s --y`);
+      .send(`<@716390085896962058> incense buy 30m 10s -y`);
   }
 };
