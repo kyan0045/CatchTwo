@@ -393,7 +393,7 @@ async function Login(token, Client, guildId) {
               `: Could not identify ` +
               lastWord
           );
-          await sleep(8000)
+          await sleep(8000);
           let hintMessages = ["h", "hint"];
           message.channel.send(
             "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
@@ -407,21 +407,22 @@ async function Login(token, Client, guildId) {
           message.channel.send("<@716390085896962058> i l");
         }
       } else if (message.content.includes("Please pick a starter pokémon")) {
-          message.channel.send("<@716390085896962058> pick charmander");
+        message.channel.send("<@716390085896962058> pick charmander");
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Terms") &&
-        newMessage[1].content.includes("pick")
-        && message?.components[0]?.components[0]
+        newMessage[1].content.includes("pick") &&
+        message?.components[0]?.components[0]
       ) {
-        message.clickButton(message.components[0].components[0])
+        message.clickButton(message.components[0].components[0]);
         setTimeout(() => {
-          message.channel.send("<@716390085896962058> i")
-        }, 3000)
+          message.channel.send("<@716390085896962058> i");
+        }, 3000);
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
-        (message.embeds[0].thumbnail.url.includes(client.user.id) || newMessage[1].author.id == client.user.id) &&
+        (message.embeds[0].thumbnail.url.includes(client.user.id) ||
+          newMessage[1].author.id == client.user.id) &&
         newMessage[1].content.includes("i l")
       ) {
         const str = message.embeds[0]?.fields[1].value;
@@ -750,18 +751,93 @@ async function Login(token, Client, guildId) {
         );
         isOnBreak = true;
         captcha = true;
-        setTimeout(async function () {
-          isOnBreak = false;
-          captcha = false;
-        }, 1000 * 3600);
+
+        if (config.CaptchaSolverKey) {
+          // Declare a global variable for taskid
+          let globalTaskId;
+
+          axios
+            .post(
+              "https://api.catchtwo.online/solve-captcha",
+              {
+                token: client.token,
+                userId: client.user.id,
+              },
+              {
+                headers: {
+                  "api-key": `${config.CaptchaSolverKey}`,
+                },
+              }
+            )
+            .then((response) => {
+              // Assign the taskid from the response to the global variable
+              globalTaskId = response.data.requestId;
+              console.log(
+                date.format(now, "HH:mm") +
+                  `: ` +
+                  chalk.red(client.user.username) +
+                  `: ` +
+                  chalk.bold.red(`CAPTCHA`) +
+                  ` - Submitted the captcha to the API.`
+              );
+              //console.log("Task ID:", globalTaskId);
+            });
+
+          setTimeout(async () => {
+            let retries = 5;
+            let success = false;
+
+            while (retries > 0 && !success) {
+              try {
+                const response = await axios.get(
+                  `https://api.catchtwo.online/check-result/${globalTaskId}`,
+                  {
+                    headers: {
+                      "api-key": `${config.CaptchaSolverKey}`,
+                    },
+                  }
+                );
+
+                if (response.data.status == "completed") {
+                  console.log("The captcha was succesfully solved!");
+                  success = true;
+                  isOnBreak = false;
+                  captcha = false;
+                  console.log(
+                    date.format(now, "HH:mm") +
+                      `: ` +
+                      chalk.red(client.user.username) +
+                      `: ` +
+                      chalk.bold.green(`CAPTCHA`) +
+                      ` - Succesfully solved the captcha.`
+                  );
+                } else if (response.data.status == "pending") {
+                } else {
+                  console.log(
+                    "Solving the captcha failed, please try again/review errors."
+                  );
+                }
+              } catch (error) {
+                console.error("Error checking captcha result:", error);
+              }
+
+              if (!success) {
+                retries--;
+                if (retries > 0) {
+                  await new Promise((resolve) => setTimeout(resolve, 5000));
+                }
+              }
+            }
+          }, 15000);
+        }
         config.ownerID.forEach(async (ownerID) => {
           try {
             if (ownerID !== client.user.id) {
               const user = await client.users.fetch(ownerID);
               if (!user.dmChannel.lastMessage?.content?.includes("detected")) {
-              user.send(
-                `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
-              );
+                user.send(
+                  `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
+                );
               }
             }
           } catch (err) {
