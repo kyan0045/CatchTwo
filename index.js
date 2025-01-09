@@ -435,18 +435,15 @@ async function Login(token, Client, guildId) {
         number = footerWords[2].substring(0, footerWords[2].length - 5);
 
         const titleStr = message.embeds[0]?.title;
-        const titleWords = titleStr.split(" ");
-        if (titleWords[3]) latestName = titleWords[2] + " " + titleWords[3];
-        if (!titleWords[3]) latestName = titleWords[2];
-        latestLevel = titleWords[1];
+        const latestName = titleStr.match(/\d+\s+(.*)/)[1];
+        const latestLevel = titleStr.match(/\d+/)[0];
+        const shiny = titleStr.includes("✨") ? true : false;
+
         link = message.url;
         now = new Date();
 
-        if (titleWords[0] == "✨" && config.logCatches) {
+        if (shiny && config.logCatches) {
           shinyCount++;
-          if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4];
-          if (!titleWords[4]) latestName = titleWords[3];
-          latestLevel = titleWords[2];
           message.channel.send(
             `<@716390085896962058> market search --n ${latestName} --sh --o price`
           );
@@ -860,11 +857,10 @@ async function Login(token, Client, guildId) {
         number = footerWords[2].substring(0, footerWords[2].length - 5);
 
         const titleStr = message.embeds[0]?.title;
-        const titleWords = titleStr.split(" ");
-        if (titleWords[3]) latestName = titleWords[2] + " " + titleWords[3];
-        if (!titleWords[3]) latestName = titleWords[2];
-        latestLevel = titleWords[1];
-
+        const latestName = titleStr.match(/\d+\s+(.*)/)[1];
+        const latestLevel = titleStr.match(/\d+/)[0];
+        const shiny = titleStr.includes("✨") ? true : false;
+        
         if (latestLevel === "100") {
           let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
           let data = JSON.parse(levelup);
@@ -922,10 +918,7 @@ async function Login(token, Client, guildId) {
           );
         }
 
-        if (titleWords[0] == "✨") {
-          if (titleWords[4]) latestName = titleWords[3] + " " + titleWords[4];
-          if (!titleWords[4]) latestName = titleWords[3];
-          latestLevel = titleWords[2];
+        if (shiny) {
           if (latestLevel === "100") {
             let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
             let data = JSON.parse(levelup);
