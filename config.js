@@ -11,12 +11,11 @@ const config = {
   incense: {
     IncenseMode: true, // Enable or disable incense mode
     AutoIncenseBuy: false, // Enable or disable automatic incense buying
-    IncenseChannel: "" // Channel ID for incense-related messages (CURRENTLY GLOBAL)
+    IncenseChannel: "ChannelID", // Channel ID for incense mode *WILL BE REMOVED IN FUTURE*
   },
   // Spamming settings
   spamming: {
     SpamSpeed: "1500", // Speed of spamming in milliseconds
-    SpamChannel: "" // Channel ID for spamming messages (CURRENTLY GLOBAL)
   },
   // Logging settings
   logging: {
@@ -35,13 +34,13 @@ const config = {
     GlobalCatch: false, // Enable or disable global catching
     BlacklistedGuilds: ["716390832034414685", "..."] // List of blacklisted guild IDs
   },
-  // Shiny hunting settings
-  shinyHunting: {
-    HuntPokemons: ["rayquaza", "solosis"], // List of Pokémon to hunt for shiny versions
-    HuntToken: "HuntToken" // Token for shiny hunting
+  // Hunting settings
+  hunting: {
+    HuntPokemons: ["rayquaza", "solosis"], // List of Pokémon to hunt on your hunt account
+    HuntToken: "HuntToken" // Token for hunting
   },
   captchaSolving: {
-    key: "", // API key for captcha solving, leave empty to disable, can be bought at @meneerplee or at https://catchtwo.online (SOON)
+    key: "", // CatchTwo Captchasolving API key, leave empty to disable, can be bought at @meneerplee or at https://catchtwo.online/captchasolver
   },
   // Debug mode
   debug: true // Enable or disable debug mode

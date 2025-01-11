@@ -1,45 +1,58 @@
-// Importing necessary classes
-const { Catcher } = require("./classes/clients/catcher.js");
-const { ShinyHunter } = require("./classes/clients/shinyHunter.js");
 
 // Importing necessary functions
-const { createCatchers } = require("./functions/createCatchers.js");
-const { sendLog, sendWebhook } = require("./functions/logging.js");
-const { logMemoryUsage } = require("./utils/utils.js");
+const tf = require("@tensorflow/tfjs-node");
+const { createCatchers } = require("./src/functions/createCatchers.js");
+const { sendLog, sendWebhook } = require("./src/functions/logging.js");
+const { logMemoryUsage, memoryUsage } = require("./src/utils/utils.js");
 
 // Importing necessary modules
 const chalk = require("chalk");
-const config = require("./config.js");
-const fs = require("fs");
+const fs = require("fs-extra");
+
+// Importing package.json
+const package = require("./package.json");
 
 // Main function to initialize and start the application
 async function main() {
-  // Dynamically importing the module to display images
-  const displayImage = require("display-image");
+  const figlet = require("figlet");
+  const gradient = require("gradient-string");
 
-  // Read package.json file
-  const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+  // Displaying the CatchTwo logo
+  await figlet.text(
+    "CatchTwo",
+    {
+      font: "standard",
+      horizontalLayout: "fitted",
+      verticalLayout: "default",
+    },
+    async function (err, data) {
+      if (err) {
+        console.log("Something went wrong...");
+        console.dir(err);
+        return;
+      } 
+      console.log(gradient.fruit(data));
+    } 
+  );  
 
   // Extract version
-  const version = packageJson.version;
+  const version = package.version;
 
   // Displaying the CatchTwo logo and welcome message
-  await displayImage.fromFile("./data/logo.png").then((image) => {
-    console.log(image);
-    console.log(
-      chalk.bold.yellow(`[${"WELCOME".toUpperCase()}]`) +
-        ` - ` +
-        chalk.yellow.bold(`Welcome to CatchTwo!`)
-    );
-    // Log the current version with a nicer color
-    console.log(
-      chalk.bold.cyan(`[VERSION]`) +
-        ` - ` +
-        chalk.cyan(
-          `Version ${chalk.bold(version)}, by ${chalk.bold(`@kyan0045`)}`
-        )
-    );
-  });
+  console.log(
+    chalk.bold.yellow(`[${"WELCOME".toUpperCase()}]`) +
+      ` - ` +
+      chalk.yellow.bold(`Welcome to CatchTwo!`)
+  );
+
+  // Log the current version with a nicer color
+  console.log(
+    chalk.bold.cyan(`[VERSION]`) +
+      ` - ` +
+      chalk.cyan(
+        `Version ${chalk.bold(version)}, by ${chalk.bold(`@kyan0045`)}`
+      )
+  );
 
   // Sending a welcome message via webhook
   sendWebhook(null, {
@@ -50,8 +63,11 @@ async function main() {
     footer: {
       text: "CatchTwo by @kyan0045, version " + version,
       icon_url:
-        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+        "https://res.cloudinary.com/dppthk8lt/image/upload/ar_1.0,c_lpad/v1719331169/catchtwo_bjvlqi.png",
     },
+    thumbnail: {
+      url: "https://res.cloudinary.com/dppthk8lt/image/upload/c_scale,h_50,w_64/v1719331169/catchtwo_bjvlqi.png",
+    },  
   });
 
   // Delayed execution to create catchers and log memory usage
