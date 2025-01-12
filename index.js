@@ -15,13 +15,13 @@ const package = require("./package.json");
 // Main function to initialize and start the application
 async function main() {
   const figlet = require("figlet");
-  const gradient = require("gradient-string");
+  const gradient = await import('gradient-string').then(({default: gradient}) => gradient);
 
   // Displaying the CatchTwo logo
   await figlet.text(
     "CatchTwo",
     {
-      font: "standard",
+      font: "Standard",
       horizontalLayout: "fitted",
       verticalLayout: "default",
     },
