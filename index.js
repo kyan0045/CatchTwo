@@ -831,7 +831,7 @@ async function Login(token, Client, guildId) {
           try {
             if (ownerID !== client.user.id) {
               const user = await client.users.fetch(ownerID);
-              if (!user.dmChannel.lastMessage?.content?.includes("detected")) {
+              if (!user?.dmChannel?.lastMessage?.content?.includes("detected")) {
                 user.send(
                   `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.prefix}solved\`\` to continue catching.`
                 );
