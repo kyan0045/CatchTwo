@@ -749,7 +749,7 @@ async function Login(token, Client, guildId) {
         isOnBreak = true;
         captcha = true;
 
-        if (config.CaptchaSolverKey) {
+        if (config.captchaSolvingKey) {
           // Declare a global variable for taskid
           let globalTaskId;
 
@@ -762,7 +762,7 @@ async function Login(token, Client, guildId) {
               },
               {
                 headers: {
-                  "api-key": `${config.CaptchaSolverKey}`,
+                  "api-key": `${config.captchaSolvingKey}`,
                 },
               }
             )
@@ -790,7 +790,7 @@ async function Login(token, Client, guildId) {
                   `https://api.catchtwo.online/check-result/${globalTaskId}`,
                   {
                     headers: {
-                      "api-key": `${config.CaptchaSolverKey}`,
+                      "api-key": `${config.captchaSolvingKey}`,
                     },
                   }
                 );
