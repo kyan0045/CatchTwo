@@ -114,8 +114,7 @@ module.exports = async (client, guildId, message) => {
                 .createMessageCollector({ time: 5000 })
                 .on("collect", async (msg) => {
                   if (
-                    msg.content.includes("That is the wrong pokémon!") &&
-                    getSpamming(client.user.username) == true
+                    msg.content.includes("That is the wrong pokémon!")
                   ) {
                     checkIfWrong.stop();
                     setTimeout(async () => {
