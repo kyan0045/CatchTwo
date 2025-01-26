@@ -8,7 +8,12 @@ const config = require("../../config.js");
 const { wait, randomInteger } = require("../utils/utils.js");
 const { ShinyHunter } = require("../classes/shinyHunter.js");
 const { sendLog, sendCatch } = require("../functions/logging.js");
-const { setSpamming, setWaiting, getSpamming, getWaiting } = require("../utils/states.js");
+const {
+  setSpamming,
+  setWaiting,
+  getSpamming,
+  getWaiting,
+} = require("../utils/states.js");
 const tf = require("@tensorflow/tfjs-node");
 const sharp = require("sharp");
 const data = require("../data/ai.json");
@@ -16,7 +21,7 @@ const axios = require("axios");
 
 // Define global variables
 let model;
-let hintMessages = [ "h", "hint" ];
+let hintMessages = ["h", "hint"];
 
 async function predict(url) {
   if (!model) {
@@ -108,7 +113,10 @@ module.exports = async (client, guildId, message) => {
               checkIfWrong = await message.channel
                 .createMessageCollector({ time: 5000 })
                 .on("collect", async (msg) => {
-                  if (msg.content.includes("That is the wrong pokémon!")) {
+                  if (
+                    msg.content.includes("That is the wrong pokémon!") &&
+                    getSpamming(client.user.username) == true
+                  ) {
                     checkIfWrong.stop();
                     setTimeout(async () => {
                       msg.channel.send(
@@ -163,17 +171,28 @@ module.exports = async (client, guildId, message) => {
               "Incense ran out, buying next one.",
               "auto-incense"
             );
-            return message.channel.send(
+            message.channel.send(
               "<@716390085896962058> incense buy 30m 10s -y"
             );
+            await message.channel
+              .createMessageCollector({ time: 5000 })
+              .on("collect", async (msg) => {
+                if (
+                  msg.content.includes("You don't have enough shards for that!")
+                ) {
+                  setSpamming(client.user.username, true);
+                  setWaiting(client.user.username, false);
+                }
+              });
+          } else {
+            setSpamming(client.user.username, true);
+            setWaiting(client.user.username, false);
+            sendLog(
+              client.user.username,
+              "Detected the end of the incense.",
+              "incense"
+            );
           }
-          setSpamming(client.user.username, true);
-          setWaiting(client.user.username, false);
-          sendLog(
-            client.user.username,
-            "Detected the end of the incense.",
-            "incense"
-          );
         }
       }
     } else if (message.content.includes("The pokémon is")) {
@@ -181,7 +200,11 @@ module.exports = async (client, guildId, message) => {
       const pokemon = await solveHint(message);
       if (pokemon[0] && typeof pokemon[0] === "string") {
         // Check if the Pokémon is in the shiny hunting list
-        if (config.hunting.HuntPokemons.includes(pokemon[0] || pokemon[1])) {
+        if (
+          config.hunting.HuntPokemons.map((huntName) =>
+            huntName.toLowerCase()
+          ).includes(pokemon[0]?.toLowerCase() || pokemon[1]?.toLowerCase())
+        ) {
           const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
           shinyHunter.login();
           shinyHunter.catch(message.guild.id, message.channel.id, pokemon[0]);
@@ -209,7 +232,10 @@ module.exports = async (client, guildId, message) => {
               checkIfWrong2 = await msg.channel
                 .createMessageCollector({ time: 5000 })
                 .on("collect", async (msg) => {
-                  if (msg.content.includes("That is the wrong pokémon!")) {
+                  if (
+                    msg.content.includes("That is the wrong pokémon!") &&
+                    getSpamming(client.user.username) == true
+                  ) {
                     checkIfWrong2.stop();
 
                     msg.channel.send(
@@ -249,7 +275,9 @@ module.exports = async (client, guildId, message) => {
       message.channel.send("<@716390085896962058> order iv");
     } else if (
       config.logging.LogCatches &&
-      message.content.includes("Congratulations <@" + client.user.id + ">! You caught")
+      message.content.includes(
+        "Congratulations <@" + client.user.id + ">! You caught"
+      )
     ) {
       // Log successful catches
       if (config.logging.LogCatches) {

@@ -43,9 +43,24 @@ module.exports = async (client) => {
     client.channels.cache
       .get(config.incense.IncenseChannel)
       .send(`<@716390085896962058> incense buy 30m 10s -y`);
+    await message.channel
+      .createMessageCollector({ time: 5000 })
+      .on("collect", async (msg) => {
+        if (msg.content.includes("You don't have enough shards for that!")) {
+          setSpamming(client.user.username, true);
+          setWaiting(client.user.username, false);
+        } else if (
+          msg.content.includes(
+            "This channel already has an incense active! Please wait for it to end before purchasing another one."
+          )
+        ) {
+          setSpamming(client.user.username, false);
+          setWaiting(client.user.username, false);
+        }
+      });
   }
 
   const { catchers } = require("../functions/createCatchers.js"); // Importing the catchers
-  const catcher = catchers.find(catcher => catcher.token === client.token) // Finding the correct catcher
+  const catcher = catchers.find((catcher) => catcher.token === client.token); // Finding the correct catcher
   catcher.start(); // Starting the catcher
 };

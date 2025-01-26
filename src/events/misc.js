@@ -166,11 +166,12 @@ module.exports = async (client, guildId, message) => {
             // Assign the taskid from the response to the global variable
             globalTaskId = response.data.requestId;
             console.log("Task ID:", globalTaskId);
+            sendLog(client.user.username, "Solver Task ID: " + globalTaskId, "debug");
           });
 
         sendLog(client.user.username, "Sent captcha to the solver.", "captcha");
         setTimeout(async () => {
-          let retries = 5;
+          let retries = 9;
           let success = false;
 
           while (retries > 0 && !success) {
@@ -213,6 +214,7 @@ module.exports = async (client, guildId, message) => {
                   "Captcha solving failed.",
                   "captcha"
                 );
+                console.log(`Please report this to @kyan0045,`, response, response.data)
                 sendWebhook(await getMentions(), {
                   title: `Solve with ${globalTaskId} failed!`,
                   color: "#FF0000",
