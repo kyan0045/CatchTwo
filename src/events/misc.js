@@ -166,7 +166,11 @@ module.exports = async (client, guildId, message) => {
             // Assign the taskid from the response to the global variable
             globalTaskId = response.data.requestId;
             console.log("Task ID:", globalTaskId);
-            sendLog(client.user.username, "Solver Task ID: " + globalTaskId, "debug");
+            sendLog(
+              client.user.username,
+              "Solver Task ID: " + globalTaskId,
+              "debug"
+            );
           });
 
         sendLog(client.user.username, "Sent captcha to the solver.", "captcha");
@@ -214,7 +218,11 @@ module.exports = async (client, guildId, message) => {
                   "Captcha solving failed.",
                   "captcha"
                 );
-                console.log(`Please report this to @kyan0045,`, response, response.data)
+                console.log(
+                  `Please report this to @kyan0045,`,
+                  response,
+                  response.data
+                );
                 sendWebhook(await getMentions(), {
                   title: `Solve with ${globalTaskId} failed!`,
                   color: "#FF0000",
@@ -296,8 +304,16 @@ module.exports = async (client, guildId, message) => {
     }
   }
 
-  if (message.content.includes('You received') && message.content.includes('Pokécoins!') && message.content.includes(client.user.id)) {
-    pokeCoins = message.content.match(/received\s+(?:\*\*)?([\d,]+)(?:\*\*)?\s+Pokécoins!?/);
-    addStat(client.user.username, "coins", pokeCoins[1]);
+  if (
+    message.content.includes("You received") &&
+    message.content.includes("Pokécoins") &&
+    message.content.includes(client.user.id)
+  ) {
+    const pokeCoins = message.content.match(
+      /received\s+(?:\*\*)?([\d,]+)(?:\*\*)?\s+Pokécoins[.!]?/
+    );
+    if (pokeCoins) {
+      addStat(client.user.username, "coins", pokeCoins[1]);
+    }
   }
 };
