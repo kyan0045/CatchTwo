@@ -1128,16 +1128,15 @@ async function Login(token, Client, guildId) {
                 buttonId = +parseInt(args[1]) - +1;
               }
               if (!isNaN(buttonId) && buttonId >= 0) {
-                let button = msg.components[0].components[buttonId];
-                await button.click(msg).then(async (e) => {
-                  if (config.reactOnSuccess === true) message.react(`👊`);
-                });
+                await msg.clickButton({ X: buttonId, Y: 0 })
               } else if (!isNaN(buttonId) && buttonId < 0) {
-                let button = msg.components[0].components[0];
-                await button.click(msg);
+                await msg.clickButton({ X: 0, Y: 0 });
               }
               message.react("✅");
             } catch (err) {
+              if (err.toString().includes("INTERACTION_FAILED")) {
+                message.reply("The button is not available. It's likely been too long since the message was sent.");
+              }
               message.react("❌");
             }
           }
