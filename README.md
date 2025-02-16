@@ -52,6 +52,7 @@ If you need any support, please join [our Discord server](https://discord.gg/tXa
 | ------------- | ------------- | ------------- | ------------- |
 | ```incenseMode```  | ```Boolean``` | ```False```  | Tells the program whether or not to interact with incenses. |
 | ```reactAfterCatch```  | ```Boolean``` | ```False```  | Tells the program whether or not to react after catching something. |
+| ```daycare```  | ```Boolean``` | ```False```  | Tells the program whether or not to add back pokemons to daycare after they lay an egg. |
 | ```logCatches```  | ```String``` | ```True```  | Tells the program whether or not to log all catches. |
 | ```lowIVLog```  | ```String``` | ```15.00```  | Tells the program when to log a pokemon as low IV. |
 | ```highIVLog```  | ```String``` | ```85.00```  | Tells the program when to log a pokemon as high IV. |
