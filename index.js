@@ -399,7 +399,7 @@ async function Login(token, Client, guildId) {
             "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
           );
         }
-      } else if (config.daycare && message.content.includes("in the datcare have produced a")) {
+      } else if (config.daycare && message.content.includes("in the daycare have produced a")) {
   try {
     const words = message.content.split(" ");
     let pokemonNumbers = [];
