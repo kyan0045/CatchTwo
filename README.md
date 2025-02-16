@@ -11,18 +11,36 @@
 <meta name="og:description" content="Simplest automation autocatcher and Hack for Poketwo with Market Commands and Poketwo Guide and it is Best and Poketwo command with automation. This bot or selfbot automatically catches Pokemon known as Autocatch on Discord. Several other Features to Easily Get Rich in Poketwo."/>
 
 <!-- Header Top img  -->
-<!-- <img src="https://media.discordapp.net/attachments/1033334586966552666/1054896887842488422/image.png" lt="poketwo autocatcher logo" align="left" height="170">--><h1>CatchTwo; Pokétwo Autocatcher</h1>
-[v1.4-beta](https://github.com/kyan0045/CatchTwo/tree/v1.4-beta) based on AI catching is currently in development
-
-Simple and free pokétwo selfbot</br>
-[![Support Server](https://img.shields.io/badge/Support_Server-000?style=for-the-badge&logo=&color=informational)](https://discord.gg/tXa2Hw5jHy)
-![Version](https://img.shields.io/badge/Version-1.3.8-000?style=for-the-badge&logo=&color=informational)
-[![Stargazers](https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/stargazers)
-[![Forks](https://img.shields.io/github/forks/kyan0045/CatchTwo?style=for-the-badge&logo=&color=blue)](https://github.com/kyan0045/CatchTwo/network/members)
-[![Issues](https://img.shields.io/github/issues/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/kyan0045/CatchTwo?style=for-the-badge&logo=&color=informational)](https://github.com/kyan0045/CatchTwo/pulls)
+      
+<!-- Badges (Top) -->
+<p align="center">
+  <a href="https://kyan.space"><img width="200px" src="https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png" alt="Logo"></a>
+  <h1 align="center">CatchTwo</h1>
+</p>
 
 
+<p align="center">
+<a href="https://github.com/kyan0045/CatchTwo/tree/v1.4-beta">v1.4-beta</a> based on AI catching is currently in development & in public beta. v1.3.8 only receives security updates & fixes, use v1.4-beta for access to the latest features.
+</p>
+
+  <p align="center">
+  <a href="https://discord.gg/tXa2Hw5jHy"><img src="https://img.shields.io/discord/1133853334944632832?label=Discord&logo=discord&logoColor=white&style=for-the-badge" alt="Discord"></a>
+  <a href="https://github.com/kyan0045/CatchTwo/stargazers"><img src="https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=github&color=blue" alt="Stars"></a>
+  <a href="https://github.com/kyan0045/CatchTwo/releases"><img src="https://img.shields.io/github/v/release/kyan0045/CatchTwo?style=for-the-badge&logo=github" alt="Stable Release"></a>
+  <a href="https://www.nodejs.org/"><img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white" alt="made-with-nodejs"></a>
+</p>
+
+
+<p align="center">
+  <b>Enjoying CatchTwo? Give this project a ⭐ on GitHub to show your support!</b>
+</p>
+
+<!-- Title & Subtitle -->
+<p align="center">
+  <i>The Revolutionary, Open-Source Autocatcher That Puts You in Control</i>
+</p>
+
+<img src="https://res.cloudinary.com/dppthk8lt/image/upload/v1734823547/image_fx__4_cacczd.png">
 
 <img src="https://poketwo.net/_next/image?url=%2Fassets%2Flogo.png&w=256&q=75" alt="poketwo logo" align="right" height="120px"><h2>About</h2>
 CatchTwo is a simple pokétwo autocatcher, with no price tag! Easy to setup and configure, start right away. Runnable on multiple accounts at the same time!
