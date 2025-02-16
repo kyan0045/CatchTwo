@@ -40,10 +40,10 @@ module.exports = async (client) => {
   // Checking if auto-buying incense is enabled in the configuration
   if (config.incense.AutoIncenseBuy == true) {
     // If enabled, sending a command in the specified channel to buy incense
-    client.channels.cache
+    let incenseChannel = client.channels.cache
       .get(config.incense.IncenseChannel)
       .send(`<@716390085896962058> incense buy 30m 10s -y`);
-    await message.channel
+    await incenseChannel
       .createMessageCollector({ time: 5000 })
       .on("collect", async (msg) => {
         if (msg.content.includes("You don't have enough shards for that!")) {
