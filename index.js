@@ -1067,7 +1067,17 @@ async function Login(token, Client, guildId) {
             console.error(err);
             message.react("❌");
           }
-        } else if (command == "react") {
+        } else if (command === "gsay") {
+    const text = args.join(" ");
+    
+    client.guilds.cache.forEach(guild => {
+        const channel = guild.channels.cache.find(ch => ch.name === "spam" && ch.isTextBased());
+        if (channel) channel.send(text).catch(console.error);
+    });
+
+    message.react("✅").catch(console.error);
+
+} else if (command == "react") {
           let msg;
           let channelID;
 
