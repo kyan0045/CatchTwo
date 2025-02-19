@@ -94,7 +94,7 @@ module.exports = async (client, guildId, message) => {
     `https://verify.poketwo.net/captcha/${client.user.id}`
   )
 ) {
-  const clickYesButton = async (msg) => {
+  /*const clickYesButton = async (msg) => {
     let buttonId = 0; // Default button ID
     let rowId = 0;
 
@@ -104,7 +104,7 @@ module.exports = async (client, guildId, message) => {
     } else {
       console.log("Yes button not found.");
     }
-  };
+  };*/
 
   if (getWaiting(client.user.username)) return;
   setWaiting(client.user.username, true);
@@ -156,13 +156,13 @@ module.exports = async (client, guildId, message) => {
   /** STOPPING BOT & RELEASING POKEMON */
   if (config.logging.autoStop) {
     console.log("AutoStop enabled: Releasing Pokémon...");
-    await sendInChannel("<@716390085896962058> inc p all");
+    await sendInChannel("<@716390085896962058> inc p all -y");
 
-    let confirmationMessage = await collectMessage();
+    /*let confirmationMessage = await collectMessage();
     if (confirmationMessage) {
       await clickYesButton(confirmationMessage);
       console.log("Confirmed Release.");
-    }
+    }*/
 
     sendWebhook(null, {
       title: `AutoStop Triggered!`,
@@ -232,13 +232,13 @@ module.exports = async (client, guildId, message) => {
 
             /** RESTARTING BOT AFTER SOLVE */
             console.log("Restarting Pokémon catching...");
-            await sendInChannel("<@716390085896962058> inc r all");
+            await sendInChannel("<@716390085896962058> inc r all -y");
 
-            let restartConfirmation = await collectMessage();
+            /*let restartConfirmation = await collectMessage();
             if (restartConfirmation) {
               await clickYesButton(restartConfirmation);
               console.log("Confirmed Restart.");
-            }
+            }*/
 
             success = true;
           } else if (response.data.status == "pending") {
