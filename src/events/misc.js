@@ -90,164 +90,185 @@ module.exports = async (client, guildId, message) => {
 
     // Handling captcha detection
     if (
-      message.content.includes(
-        `https://verify.poketwo.net/captcha/${client.user.id}`
-      )
-    ) {
-      if (getWaiting(client.user.username) == true) return;
-      setWaiting(client.user.username, true); // Setting the bot to a waiting state
-      sendLog(client.user.username, "Detected captcha.", "captcha"); // Logging captcha detection
-      // Sending a webhook and a direct message to the owner about the captcha
-      sendWebhook(null, {
-        title: `Captcha Found!`,
-        color: "#FF5600",
-        url: `https://verify.poketwo.net/captcha/${client.user.id}`,
-        footer: {
-          text: "CatchTwo by @kyan0045",
-          icon_url:
-            "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+  message.content.includes(
+    `https://verify.poketwo.net/captcha/${client.user.id}`
+  )
+) {
+  const clickYesButton = async (msg) => {
+    let buttonId = 0; // Default button ID
+    let rowId = 0;
+
+    if (msg.content.includes("Are you sure you want to")) {
+      console.log("Clicking the Yes button...");
+      await msg.clickButton({ X: isNaN(buttonId) ? 0 : buttonId, Y: rowId });
+    } else {
+      console.log("Yes button not found.");
+    }
+  };
+
+  if (getWaiting(client.user.username)) return;
+  setWaiting(client.user.username, true);
+
+  sendLog(client.user.username, "Detected captcha.", "captcha");
+
+  sendWebhook(null, {
+    title: `Captcha Found!`,
+    color: "#FF5600",
+    url: `https://verify.poketwo.net/captcha/${client.user.id}`,
+    footer: {
+      text: "CatchTwo by @kyan0045",
+      icon_url:
+        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+    },
+  });
+
+  config.ownership.OwnerIDs.forEach((id) => {
+    if (id?.length && id.length <= 16) return;
+    client.users.fetch(id).then(async (user) => {
+      dmChannel = await client.channels
+        .fetch(user.dmChannel?.id)
+        .catch(() => null);
+      if (!dmChannel) dmChannel = await user.createDM();
+      lastMessage = await dmChannel.messages.fetch(dmChannel.lastMessageId);
+
+      if (
+        lastMessage?.content?.includes("captcha") &&
+        lastMessage?.author?.id == client.user.id &&
+        lastMessage?.createdTimestamp > Date.now() - 86400000
+      ) {
+        return;
+      } else {
+        return user
+          .send(
+            `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.ownership.CommandPrefix}solved\`\` to continue catching.`
+          )
+          .catch((error) => {
+            sendLog(
+              client.user.username,
+              `Error sending message to ${user.username}: ${error}`,
+              "error"
+            );
+          });
+      }
+    });
+  });
+
+  /** STOPPING BOT & RELEASING POKEMON */
+  if (config.logging.autoStop) {
+    console.log("AutoStop enabled: Releasing Pokémon...");
+    await sendInChannel("<@716390085896962058> inc p all");
+
+    let confirmationMessage = await collectMessage();
+    if (confirmationMessage) {
+      await clickYesButton(confirmationMessage);
+      console.log("Confirmed Release.");
+    }
+
+    sendWebhook(null, {
+      title: `AutoStop Triggered!`,
+      color: "#FF0000",
+      description: "The bot has been paused and Pokémon were released.",
+      footer: {
+        text: "CatchTwo by @kyan0045",
+        icon_url:
+          "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+      },
+    });
+
+    setWaiting(client.user.username, false);
+    return;
+  }
+
+  if (config.captchaSolving.key) {
+    let globalTaskId;
+
+    axios
+      .post(
+        "https://api.catchtwo.online/solve-captcha",
+        {
+          token: client.token,
+          userId: client.user.id,
         },
-      });
-      // Notifying all owners about the captcha
-      config.ownership.OwnerIDs.forEach((id) => {
-        if (id?.length && id.length <= 16) return; // Skipping invalid IDs
-        client.users.fetch(id).then(async (user) => {
-          let dmChannel = await client.channels
-            .fetch(user.dmChannel?.id)
-            .catch(() => null);
-          if (!dmChannel) {
-            dmChannel = await user.createDM();
-          }
-          let lastMessage = await dmChannel.messages.fetch(
-            dmChannel.lastMessageId
-          );
-
-          // Checking if the last message already informed about a captcha within the last 24 hours
-          if (
-            lastMessage?.content?.includes("captcha") &&
-            lastMessage?.author?.id == client.user.id &&
-            lastMessage?.createdTimestamp > Date.now() - 86400000
-          ) {
-            return; // Skipping if a recent captcha message was already sent
-          } else {
-            return user
-              .send(
-                `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.ownership.CommandPrefix}solved\`\` to continue catching.`
-              )
-              .catch((error) => {
-                sendLog(
-                  client.user.username,
-                  `Error sending message to ${user.username}: ${error}`,
-                  "error"
-                );
-              });
-          }
-        });
+        {
+          headers: {
+            "api-key": `${config.captchaSolving.key}`,
+          },
+        }
+      )
+      .then((response) => {
+        globalTaskId = response.data.requestId;
+        console.log("Task ID:", globalTaskId);
       });
 
-      if (config.captchaSolving.key) {
-        // Declare a global variable for taskid
-        let globalTaskId;
+    sendLog(client.user.username, "Sent captcha to the solver.", "captcha");
 
-        axios
-          .post(
-            "https://api.catchtwo.online/solve-captcha",
-            {
-              token: client.token,
-              userId: client.user.id,
-            },
+    setTimeout(async () => {
+      let retries = 5;
+      let success = false;
+
+      while (retries > 0 && !success) {
+        try {
+          const response = await axios.get(
+            `https://api.catchtwo.online/check-result/${globalTaskId}`,
             {
               headers: {
                 "api-key": `${config.captchaSolving.key}`,
               },
             }
-          )
-          .then((response) => {
-            // Assign the taskid from the response to the global variable
-            globalTaskId = response.data.requestId;
-            console.log("Task ID:", globalTaskId);
-            sendLog(
-              client.user.username,
-              "Solver Task ID: " + globalTaskId,
-              "debug"
-            );
-          });
+          );
 
-        sendLog(client.user.username, "Sent captcha to the solver.", "captcha");
-        setTimeout(async () => {
-          let retries = 9;
-          let success = false;
+          if (response.data.status == "completed") {
+            setWaiting(client.user.username, false);
+            sendLog(client.user.username, "Successfully solved the captcha!", "captcha");
+            sendWebhook(await getMentions(), {
+              title: `Captcha Solved!`,
+              color: "#00FF00",
+              footer: {
+                text: "CatchTwo by @kyan0045",
+                icon_url:
+                  "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+              },
+            });
 
-          while (retries > 0 && !success) {
-            try {
-              const response = await axios.get(
-                `https://api.catchtwo.online/check-result/${globalTaskId}`,
-                {
-                  headers: {
-                    "api-key": `${config.captchaSolving.key}`,
-                  },
-                }
-              );
+            /** RESTARTING BOT AFTER SOLVE */
+            console.log("Restarting Pokémon catching...");
+            await sendInChannel("<@716390085896962058> inc r all");
 
-              if (response.data.status == "completed") {
-                setWaiting(client.user.username, false);
-                sendLog(
-                  client.user.username,
-                  "Successfully solved the captcha!",
-                  "captcha"
-                );
-                sendWebhook(await getMentions(), {
-                  title: `Captcha Solved!`,
-                  color: "#00FF00",
-                  footer: {
-                    text: "CatchTwo by @kyan0045",
-                    icon_url:
-                      "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-                  },
-                });
-                success = true;
-              } else if (response.data.status == "pending") {
-                sendLog(
-                  client.user.username,
-                  "Captcha solve pending.",
-                  "debug"
-                );
-              } else {
-                sendLog(
-                  client.user.username,
-                  "Captcha solving failed.",
-                  "captcha"
-                );
-                console.log(
-                  `Please report this to @kyan0045,`,
-                  response,
-                  response.data
-                );
-                sendWebhook(await getMentions(), {
-                  title: `Solve with ${globalTaskId} failed!`,
-                  color: "#FF0000",
-                  footer: {
-                    text: "CatchTwo by @kyan0045",
-                    icon_url:
-                      "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-                  },
-                });
-              }
-            } catch (error) {
-              console.error("Error checking captcha result:", error);
+            let restartConfirmation = await collectMessage();
+            if (restartConfirmation) {
+              await clickYesButton(restartConfirmation);
+              console.log("Confirmed Restart.");
             }
 
-            if (!success) {
-              retries--;
-              if (retries > 0) {
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-              }
-            }
+            success = true;
+          } else if (response.data.status == "pending") {
+            sendLog(client.user.username, "Captcha solve pending.", "debug");
+          } else {
+            sendLog(client.user.username, "Captcha solving failed.", "captcha");
+            sendWebhook(await getMentions(), {
+              title: `Solve with ${globalTaskId} failed!`,
+              color: "#FF0000",
+              footer: {
+                text: "CatchTwo by @kyan0045",
+                icon_url:
+                  "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+              },
+            });
           }
-        }, 15000);
+        } catch (error) {
+          console.error("Error checking captcha result:", error);
+        }
+
+        if (!success) {
+          retries--;
+          if (retries > 0) {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          }
+        }
       }
-    }
+    }, 15000);
   }
+}
 
   // Handling quest completion
   if (message.content.includes(`You have completed`)) {
