@@ -156,7 +156,7 @@ module.exports = async (client, guildId, message) => {
   /** STOPPING BOT & RELEASING POKEMON */
   if (config.logging.autoStop) {
     console.log("AutoStop enabled: Releasing Pokémon...");
-    await sendInChannel("<@716390085896962058> inc p all -y");
+    await message.channel.send("<@716390085896962058> inc p all -y");
 
     /*let confirmationMessage = await collectMessage();
     if (confirmationMessage) {
@@ -232,7 +232,7 @@ module.exports = async (client, guildId, message) => {
 
             /** RESTARTING BOT AFTER SOLVE */
             console.log("Restarting Pokémon catching...");
-            await sendInChannel("<@716390085896962058> inc r all -y");
+            await message.channel.send("<@716390085896962058> inc r all -y");
 
             /*let restartConfirmation = await collectMessage();
             if (restartConfirmation) {
