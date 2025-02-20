@@ -24,7 +24,8 @@ const config = {
     LowIVThreshold: 15.00, // Threshold for low IV logging
     HighIVThreshold: 85.00, // Threshold for high IV logging
     daycareID: "channel id", //channel id to send daycare cmds in
-    LogWebhook: "Webhook" // Webhook URL for logging
+    LogWebhook: "Webhook", // Webhook URL for logging
+    autoStop: true
   },
   // Ownership settings
   ownership: {
