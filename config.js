@@ -5,6 +5,7 @@ const config = {
     AI: true, // Enable or disable AI behavior
     Sleeping: false, // Enable or disable sleeping behavior
     Catching: true, // Enable or disable catching behavior (CURRENTLY GLOBAL)
+    Daycare: true, //Enable or disable daycare
     Spamming: true // Enable or disable spamming behavior (CURRENTLY GLOBAL)
   },
   // Incense settings
@@ -22,7 +23,9 @@ const config = {
     LogCatches: true, // Enable or disable logging of catches
     LowIVThreshold: 15.00, // Threshold for low IV logging
     HighIVThreshold: 85.00, // Threshold for high IV logging
-    LogWebhook: "Webhook" // Webhook URL for logging
+    daycareID: "channel id", //channel id to send daycare cmds in
+    LogWebhook: "Webhook", // Webhook URL for logging
+    autoStop: true
   },
   // Ownership settings
   ownership: {
@@ -33,6 +36,10 @@ const config = {
   globalSettings: {
     GlobalCatch: false, // Enable or disable global catching
     BlacklistedGuilds: ["716390832034414685", "..."] // List of blacklisted guild IDs
+  },
+//daycare
+daycare: {
+    pokemon: "oddish" //pokemon u want to add to day care
   },
   // Hunting settings
   hunting: {
