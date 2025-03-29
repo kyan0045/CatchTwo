@@ -145,6 +145,7 @@ Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/di
 | `resume`  | `[account]`     | Resumes the bot's operations. If an account is specified, it resumes only that account.      |
 | `alias`   | `[command]`     | List all the aliases for commands.      |     
 | `stats`   | `[general, pokemon] [account]`     | List the stats, whether general or catch-related. If an account is specified, it lists the stats for that account.      |     
+| `join`   | `<invite/invitecode>`     | Attempts to join the invite(code) you specified.      |     
 
 
 
