@@ -286,6 +286,7 @@ module.exports = async (client, guildId, message) => {
         const [, level, unTrimmedName, gender, iv] = match;
         const name = unTrimmedName.trim();
         const shiny = message.content.includes("✨");
+        const gigantamax = message.content.includes("Gigantamax");
 
         sendCatch(
           client.user.username,
@@ -294,7 +295,8 @@ module.exports = async (client, guildId, message) => {
           iv,
           gender,
           shiny,
-          await getImage(name, shiny)
+          gigantamax,
+          await getImage(name, shiny, gigantamax)
         );
       }
     }

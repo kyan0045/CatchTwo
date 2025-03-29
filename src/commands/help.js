@@ -6,83 +6,86 @@ const commandHelp = {
   help: {
     description: "Shows information about available commands",
     usage: `${config.ownership.CommandPrefix}help [command]`,
-    examples: [`${config.ownership.CommandPrefix}help`, `${config.ownership.CommandPrefix}help ping`],
-    category: "General"
+    examples: [
+      `${config.ownership.CommandPrefix}help`,
+      `${config.ownership.CommandPrefix}help ping`,
+    ],
+    category: "General",
   },
   say: {
     description: "Makes the bot repeat a specified message",
     usage: `${config.ownership.CommandPrefix}say <message>`,
     examples: [`${config.ownership.CommandPrefix}say Hello World!`],
-    category: "Utility"
+    category: "Utility",
   },
   click: {
     description: "Makes the bot click a specified button",
     usage: `${config.ownership.CommandPrefix}click <button>`,
     examples: [`${config.ownership.CommandPrefix}click 1`],
-    category: "Utility"
+    category: "Utility",
   },
   react: {
     description: "Makes the bot react to a specified message",
     usage: `${config.ownership.CommandPrefix}react <messageID> <emoji>`,
     examples: [`${config.ownership.CommandPrefix}react 123456789 👍`],
-    category: "Utility"
+    category: "Utility",
   },
   restart: {
     description: "Restarts the selfbot",
     usage: `${config.ownership.CommandPrefix}restart`,
     examples: [`${config.ownership.CommandPrefix}restart`],
-    category: "System"
+    category: "System",
   },
   support: {
     description: "Provides a link to the support server",
     usage: `${config.ownership.CommandPrefix}support`,
     examples: [`${config.ownership.CommandPrefix}support`],
-    category: "General"
+    category: "General",
   },
   config: {
     description: "View and modify configuration settings",
     usage: `${config.ownership.CommandPrefix}config <view|set> [setting] [value]`,
     examples: [
       `${config.ownership.CommandPrefix}config view`,
-      `${config.ownership.CommandPrefix}config set Catching true`
+      `${config.ownership.CommandPrefix}config set Catching true`,
     ],
-    category: "Settings"
+    category: "Settings",
   },
   stats: {
     description: "View statistics about catches and Pokemon",
-    usage: `${config.ownership.CommandPrefix}stats [pokemon]`,
+    usage: `${config.ownership.CommandPrefix}stats [pokemon/general] [@user]`,
     examples: [
       `${config.ownership.CommandPrefix}stats`,
-      `${config.ownership.CommandPrefix}stats pikachu`
+      `${config.ownership.CommandPrefix}stats pokemon [@user]`,
     ],
-    category: "Information"
+    category: "Information",
   },
   ping: {
     description: "Check the bot's response time",
     usage: `${config.ownership.CommandPrefix}ping`,
     examples: [`${config.ownership.CommandPrefix}ping`],
-    category: "System"
+    category: "System",
   },
   resume: {
     description: "Resume bot operation after completing a captcha/pausing",
-    usage: `${config.ownership.CommandPrefix}resume [user]`,
+    usage: `${config.ownership.CommandPrefix}resume [@user]`,
     examples: [`${config.ownership.CommandPrefix}resume @user`],
-    category: "System"
+    category: "System",
   },
   pause: {
     description: "Pause the bot",
-    usage: `${config.ownership.CommandPrefix}pause [user]`,
+    usage: `${config.ownership.CommandPrefix}pause [@user]`,
     examples: [`${config.ownership.CommandPrefix}pause @user`],
-    category: "System"
+    category: "System",
   },
   setup: {
     description: "Set up a new CatchTwo server automatically",
     usage: `${config.ownership.CommandPrefix}setup [new]`,
     examples: [
       `${config.ownership.CommandPrefix}setup`,
-      `${config.ownership.CommandPrefix}setup new`
+      `${config.ownership.CommandPrefix}setup new`,
     ],
-    category: "Setup"
+    category: "Setup",
   },
   levelup: {
     description: "Manage your levelup Pokemon list",
@@ -90,10 +93,18 @@ const commandHelp = {
     examples: [
       `${config.ownership.CommandPrefix}levelup list`,
       `${config.ownership.CommandPrefix}levelup add pikachu`,
-      `${config.ownership.CommandPrefix}levelup remove pikachu`
+      `${config.ownership.CommandPrefix}levelup remove pikachu`,
     ],
-    category: "Pokemon"
-  }
+    category: "Utility",
+  },
+  join: {
+    description: "Join a server using an invite link",
+    usage: `${config.ownership.CommandPrefix}join <invite>`,
+    examples: [
+      `${config.ownership.CommandPrefix}join https://discord.gg/invite`,
+    ],
+    category: "Utility",
+  },
 };
 
 module.exports = {
@@ -176,6 +187,12 @@ module.exports = {
           {
             name: `${config.ownership.CommandPrefix}levelup [add, remove, list]`,
             value: "This can be used to manage your levelup list.",
+            inline: true,
+          },
+          {
+            name: `${config.ownership.CommandPrefix}join`,
+            value:
+              "This can be used to join a server using an invite link.",
             inline: true,
           },
         ],

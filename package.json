@@ -1,6 +1,6 @@
 {
   "name": "catchtwo",
-  "version": "1.4.0-beta.3",
+  "version": "1.4.0-beta.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "figlet": "^1.8.0",
     "fs-extra": "^11.2.0",
     "gradient-string": "^3.0.0",
-    "pokehint": "^1.4.10",
+    "pokehint": "^1.4.13",
     "sharp": "^0.33.5"
   }
 }

@@ -97,6 +97,10 @@ module.exports = async (client, guildId, message) => {
       if (getWaiting(client.user.username) == true) return;
       setWaiting(client.user.username, true); // Setting the bot to a waiting state
       sendLog(client.user.username, "Detected captcha.", "captcha"); // Logging captcha detection
+      if (config.incense.IncenseMode == true) {
+        message.reply(`<@716390085896962058> incense pause all -y`)
+      }
+
       // Sending a webhook and a direct message to the owner about the captcha
       sendWebhook(null, {
         title: `Captcha Found!`,
@@ -181,7 +185,7 @@ module.exports = async (client, guildId, message) => {
           while (retries > 0 && !success) {
             try {
               const response = await axios.get(
-                `https://api.catchtwo.online/check-result/${globalTaskId}`,
+                `https://api.catchtwo.online/results/${globalTaskId}`,
                 {
                   headers: {
                     "api-key": `${config.captchaSolving.key}`,
@@ -206,6 +210,9 @@ module.exports = async (client, guildId, message) => {
                   },
                 });
                 success = true;
+                if (config.incense.IncenseMode == true) {
+                  message.reply(`<@716390085896962058> incense resume all -y`)
+                }
               } else if (response.data.status == "pending") {
                 sendLog(
                   client.user.username,

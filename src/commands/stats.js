@@ -79,6 +79,11 @@ module.exports = {
             value: `${stats.catches.regional}`,
             inline: true,
           },
+          {
+            name: "Total Gigantamax",
+            value: `${stats.catches.gigantamax}`,
+            inline: true,
+          },
         ],
         color: "#fecd06",
         thumbnail: {

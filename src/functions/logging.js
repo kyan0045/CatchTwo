@@ -259,7 +259,7 @@ async function sendCatchWebhook(
   }
 }
 
-function sendCatch(username, name, level, iv, gender, shiny, url) {
+function sendCatch(username, name, level, iv, gender, shiny, gigantamax, url) {
   if (gender.includes("female")) {
     genderEmoji = "♂️";
     genderEmoji = "♀️";
@@ -277,6 +277,17 @@ function sendCatch(username, name, level, iv, gender, shiny, url) {
     );
     sendCatchWebhook(username, name, level, iv, gender, "Shiny", url);
     addStat(username, "shiny");
+    return;
+  }
+
+  if (gigantamax) {
+    sendLog(
+      username,
+      `Caught a Gigantamax ${name} (Level ${level}) with ${iv} IV!`,
+      "special catch"
+    );  
+    sendCatchWebhook(username, name, level, iv, gender, "Gigantamax", url);
+    addStat(username, "gigantamax");
     return;
   }
 

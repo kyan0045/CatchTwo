@@ -7,6 +7,8 @@ function getAccountStat(username, stat) {
   switch (stat) {
     case "shiny":
       return accountStats[username].catches.shiny;
+    case "gigantamax":
+      return accountStats[username].catches.gigantamax;
     case "legendary":
       return accountStats[username].catches.legendary;
     case "mythical":
@@ -34,6 +36,7 @@ function getTotalStats() {
   const totalStat = {
     catches: {
       shiny: 0,
+      gigantamax: 0,
       legendary: 0,
       mythical: 0,
       ultrabeast: 0,
@@ -49,6 +52,7 @@ function getTotalStats() {
     return accountStats[Object.keys(accountStats)[0]];
   Object.values(accountStats).forEach((account) => {
     totalStat.catches.shiny += account.catches.shiny;
+    totalStat.catches.gigantamax += account.catches.gigantamax;
     totalStat.catches.legendary += account.catches.legendary;
     totalStat.catches.mythical += account.catches.mythical;
     totalStat.catches.ultrabeast += account.catches.ultrabeast;
@@ -74,6 +78,11 @@ function addStat(username, stat, amount) {
   switch (stat) {
     case "shiny":
       accountStats[username].catches.shiny += amount;
+      accountStats[username].catches.total += amount;
+      accountStats[username].general.lastCatch = Date.now();
+      break;
+    case "gigantamax":
+      accountStats[username].catches.gigantamax += amount;
       accountStats[username].catches.total += amount;
       accountStats[username].general.lastCatch = Date.now();
       break;
@@ -122,6 +131,7 @@ function createAccountStats(username) {
   accountStats[username] = {
     catches: {
       shiny: 0,
+      gigantamax: 0,
       legendary: 0,
       mythical: 0,
       ultrabeast: 0,
