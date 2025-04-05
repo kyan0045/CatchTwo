@@ -226,6 +226,12 @@ module.exports = async (client, guildId, message) => {
           .on("collect", async (msg) => {
             if (msg.content.includes("That is the wrong pokémon!")) {
               checkIfWrong.stop();
+              if (!pokemon[1]) {
+                return msg.channel.send(
+                  "<@716390085896962058> " +
+                    hintMessages[Math.round(Math.random())]
+                );
+              }
               await msg.channel.send("<@716390085896962058> c " + pokemon[1]);
 
               checkIfWrong2 = await msg.channel

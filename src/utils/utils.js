@@ -1,5 +1,6 @@
 const config = require("../../config.js");
 const { sendLog } = require("../functions/logging.js");
+const chalk = require("chalk");
 
 function wait(timeInMs) {
   return new Promise((resolve) => {
@@ -15,12 +16,25 @@ function randomInteger(min, max) {
 }
 
 function logMemoryUsage() {
+  if (!config.debug) return;
   function bytesToMB(bytes) {
     return (bytes / 1024 / 1024).toFixed(2) + " MB";
   }
-  const memoryUsage = process.memoryUsage.rss();
-  setTimeout(logMemoryUsage, 60000);
-  sendLog(null, `Memory Usage: ${bytesToMB(memoryUsage)}`, "debug");
-}
 
+  const memoryData = process.memoryUsage();
+  const rss = memoryData.rss;
+  const heapUsed = memoryData.heapUsed;
+  const external = memoryData.external;
+
+  setTimeout(logMemoryUsage, 60000);
+
+  sendLog(
+    null,
+    chalk.bold.underline(`Memory Usage\n`) +
+      `                 Total (RSS): ${bytesToMB(rss)}\n` +
+      `                 JavaScript Heap: ${bytesToMB(heapUsed)}\n` +
+      `                 C++ Objects: ${bytesToMB(external)}`,
+    "debug"
+  );
+}
 module.exports = { wait, randomInteger, logMemoryUsage };

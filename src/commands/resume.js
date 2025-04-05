@@ -12,7 +12,7 @@ module.exports = {
     if (!args.length) {
       // No arguments provided, set all accounts to resume
       clients.forEach((client) => {
-        setWaiting(client.user.username, false);
+        setWaiting(client?.user?.username, false);
       });
     } else {
       // Argument provided, check if it's a user ID or mention
