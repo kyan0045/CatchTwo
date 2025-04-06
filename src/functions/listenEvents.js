@@ -12,7 +12,8 @@ function listenEvents(client, guildId) {
       if (
         file.includes("catching") ||
         file.includes("commands") ||
-        file.includes("misc")
+        file.includes("misc") ||
+        file.includes("event")
       ) {
         eventName = "messageCreate";
       } else eventName = file.split(".")[0];
