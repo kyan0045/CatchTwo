@@ -21,7 +21,7 @@ module.exports = async (client, guildId, message) => {
   if (
     message.author.id == "716390085896962058" &&
     getWaiting(client.user.username) == false &&
-    message.guild.id == guildId
+    (config.globalSettings.GlobalCatch || message.guild.id == guildId)
   ) {
     // Checking if the account is suspended
 
