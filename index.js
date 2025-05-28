@@ -341,7 +341,7 @@ async function Login(token, Client, guildId) {
           "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
         );
         spawned_embed = message.embeds[0];
-      } else if (message.content.includes("The pokémon is") && !captcha) {
+      } else if (message?.content.includes("The pokémon is") && !captcha) {
         const pokemon = await solveHint(message);
         if (pokemon[0]) {
           await sleep(300);
@@ -349,14 +349,14 @@ async function Login(token, Client, guildId) {
           checkIfWrong = await message.channel
             .createMessageCollector({ time: 5000 })
             .on("collect", async (msg) => {
-              if (msg.content.includes("That is the wrong pokémon!")) {
+              if (msg?.content.includes("That is the wrong pokémon!")) {
                 checkIfWrong.stop();
                 await msg.channel.send("<@716390085896962058> c " + pokemon[1]);
 
                 checkIfWrong2 = await msg.channel
                   .createMessageCollector({ time: 5000 })
                   .on("collect", async (msg) => {
-                    if (msg.content.includes("That is the wrong pokémon!")) {
+                    if (msg?.content.includes("That is the wrong pokémon!")) {
                       checkIfWrong2.stop();
                       let hintMessages = ["h", "hint"];
                       msg.channel.send(
@@ -380,7 +380,7 @@ async function Login(token, Client, guildId) {
             }
           }
         } else {
-          const words = message.content.split(" ");
+          const words = message?.content.split(" ");
           let lastWord = words[words.length - 1];
           if (words[3].includes("_") && words[4]) {
             lastWord = words[3] + " " + words[4];
@@ -400,18 +400,18 @@ async function Login(token, Client, guildId) {
           );
         }
       } else if (
-        message.content.includes("Congratulations <@" + client.user.id + ">")
+        message?.content.includes("Congratulations <@" + client.user.id + ">")
       ) {
         pokemonCount++;
         if (config.logCatches) {
           message.channel.send("<@716390085896962058> i l");
         }
-      } else if (message.content.includes("Please pick a starter pokémon")) {
+      } else if (message?.content.includes("Please pick a starter pokémon")) {
         message.channel.send("<@716390085896962058> pick charmander");
       } else if (
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Terms") &&
-        newMessage[1].content.includes("pick") &&
+        newMessage[1]?.content.includes("pick") &&
         message?.components[0]?.components[0]
       ) {
         message.clickButton(message.components[0].components[0]);
@@ -423,7 +423,7 @@ async function Login(token, Client, guildId) {
         message.embeds[0].footer.text.includes("Displaying") &&
         (message.embeds[0].thumbnail.url.includes(client.user.id) ||
           newMessage[1].author.id == client.user.id) &&
-        newMessage[1].content.includes("i l")
+        newMessage[1]?.content.includes("i l")
       ) {
         const str = message.embeds[0]?.fields[1].value;
         const words = str.split(" ");
@@ -718,7 +718,7 @@ async function Login(token, Client, guildId) {
           if (err) throw err;
         });
       } else if (
-        message.content.includes(
+        message?.content.includes(
           `https://verify.poketwo.net/captcha/${client.user.id}`
         )
       ) {
@@ -845,7 +845,7 @@ async function Login(token, Client, guildId) {
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
         message.embeds[0].thumbnail.url.includes(client.user.id) &&
-        newMessage[1].content == "<@716390085896962058> i"
+        newMessage[1]?.content == "<@716390085896962058> i"
       ) {
         const str = message.embeds[0]?.fields[1].value;
         const words = str.split(" ");
@@ -969,11 +969,11 @@ async function Login(token, Client, guildId) {
           }
         }
       } else if (
-        message.content.includes(`Couldn't find that pokemon!`) &&
+        message?.content.includes(`Couldn't find that pokemon!`) &&
         newMessage[1].author.id == client.user.id &&
-        newMessage[1].content.includes(`<@716390085896962058> s`)
+        newMessage[1]?.content.includes(`<@716390085896962058> s`)
       ) {
-        selectedNumber = newMessage[1].content.split(" ");
+        selectedNumber = newMessage[1]?.content.split(" ");
         let levelup = fs.readFileSync("./data/levelup.json", "utf-8");
         let data = JSON.parse(levelup);
 
@@ -1035,23 +1035,23 @@ async function Login(token, Client, guildId) {
     if (message.channel && message.content) {
       prefix = `<@${client.user.id}>`;
       if (
-        (message.content.startsWith(config.prefix) &&
+        (message?.content.startsWith(config.prefix) &&
           config.ownerID.includes(message.author.id) &&
           !message.author.bot) ||
-        (message.content.startsWith(config.prefix) &&
+        (message?.content.startsWith(config.prefix) &&
           message.author.id == client.user.id &&
           !message.author.bot) ||
-        (message.content.startsWith(prefix) &&
+        (message?.content.startsWith(prefix) &&
           config.ownerID.includes(message.author.id) &&
           !message.author.bot) ||
-        (message.content.startsWith(prefix) &&
+        (message?.content.startsWith(prefix) &&
           message.author.id == client.user.id &&
           !message.author.bot)
       ) {
-        if (message.content.startsWith(prefix)) {
-          args = message.content.slice(prefix.length).trim().split(/ +/g);
-        } else if (message.content.startsWith(config.prefix)) {
-          args = message.content
+        if (message?.content.startsWith(prefix)) {
+          args = message?.content.slice(prefix.length).trim().split(/ +/g);
+        } else if (message?.content.startsWith(config.prefix)) {
+          args = message?.content
             .slice(config.prefix.length)
             .trim()
             .split(/ +/g);
