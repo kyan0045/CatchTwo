@@ -239,6 +239,9 @@ module.exports = async (client, guildId, message) => {
                       "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
                   },
                 });
+               setTimeout(() => {
+                setWaiting(client.user.username, false);
+               }, 30 * 60 * 1000)
               }
             } catch (error) {
               console.error("Error checking captcha result:", error);
