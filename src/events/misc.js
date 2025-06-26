@@ -21,7 +21,7 @@ module.exports = async (client, guildId, message) => {
   if (
     message?.author.id == "716390085896962058" &&
     getWaiting(client.user.username) == false &&
-    message.guild.id == guildId
+    (config.globalSettings.GlobalCatch || message.guild.id == guildId)
   ) {
     // Checking if the account is suspended
 
@@ -239,6 +239,9 @@ module.exports = async (client, guildId, message) => {
                       "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
                   },
                 });
+               setTimeout(() => {
+                setWaiting(client.user.username, false);
+               }, 30 * 60 * 1000)
               }
             } catch (error) {
               console.error("Error checking captcha result:", error);
