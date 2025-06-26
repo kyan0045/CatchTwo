@@ -287,9 +287,9 @@ async function Login(token, Client, guildId) {
   client.on("messageCreate", async (message) => {
     if (
       (message.guild?.id == guildId &&
-        message.author.id == "716390085896962058") ||
+        message?.author.id == "716390085896962058") ||
       (config.globalCatch &&
-        message.author.id == "716390085896962058" &&
+        message?.author.id == "716390085896962058" &&
         !config.blacklistedGuilds.includes(message.guild?.id))
     ) {
       const messages = await message.channel.messages
@@ -422,7 +422,7 @@ async function Login(token, Client, guildId) {
         message.embeds[0]?.footer &&
         message.embeds[0].footer.text.includes("Displaying") &&
         (message.embeds[0].thumbnail.url.includes(client.user.id) ||
-          newMessage[1].author.id == client.user.id) &&
+          newMessage[1]?.author.id == client.user.id) &&
         newMessage[1]?.content.includes("i l")
       ) {
         const str = message.embeds[0]?.fields[1].value;
@@ -813,6 +813,18 @@ async function Login(token, Client, guildId) {
                   console.log(
                     "Solving the captcha failed, please try again/review errors."
                   );
+                  setTimeout(() => {
+                    isOnBreak = false;
+                    captcha = false;
+                    console.log(
+                      date.format(now, "HH:mm") +
+                        `: ` +
+                        chalk.red(client.user.username) +
+                        `: ` +
+                        chalk.bold.red(`CAPTCHA`) +
+                        ` - Automatic retry.`
+                    );
+                  }, 30 * 60 * 1000);
                 }
               } catch (error) {
                 console.error("Error checking captcha result:", error);
@@ -970,7 +982,7 @@ async function Login(token, Client, guildId) {
         }
       } else if (
         message?.content.includes(`Couldn't find that pokemon!`) &&
-        newMessage[1].author.id == client.user.id &&
+        newMessage[1]?.author.id == client.user.id &&
         newMessage[1]?.content.includes(`<@716390085896962058> s`)
       ) {
         selectedNumber = newMessage[1]?.content.split(" ");
@@ -1017,7 +1029,7 @@ async function Login(token, Client, guildId) {
         }
       } else if (
         message.embeds[0]?.title == "Account Suspended" &&
-        newMessage[1].author.id == client.user.id
+        newMessage[1]?.author.id == client.user.id
       ) {
         isOnBreak = true;
         captcha = true;
@@ -1036,17 +1048,17 @@ async function Login(token, Client, guildId) {
       prefix = `<@${client.user.id}>`;
       if (
         (message?.content.startsWith(config.prefix) &&
-          config.ownerID.includes(message.author.id) &&
-          !message.author.bot) ||
+          config.ownerID.includes(message?.author.id) &&
+          !message?.author.bot) ||
         (message?.content.startsWith(config.prefix) &&
-          message.author.id == client.user.id &&
-          !message.author.bot) ||
+          message?.author.id == client.user.id &&
+          !message?.author.bot) ||
         (message?.content.startsWith(prefix) &&
-          config.ownerID.includes(message.author.id) &&
-          !message.author.bot) ||
+          config.ownerID.includes(message?.author.id) &&
+          !message?.author.bot) ||
         (message?.content.startsWith(prefix) &&
-          message.author.id == client.user.id &&
-          !message.author.bot)
+          message?.author.id == client.user.id &&
+          !message?.author.bot)
       ) {
         if (message?.content.startsWith(prefix)) {
           args = message?.content.slice(prefix.length).trim().split(/ +/g);
@@ -1176,7 +1188,7 @@ async function Login(token, Client, guildId) {
           }
           webhook.send(
             new MessageBuilder()
-              .setText(`<@${message.author.id}>`)
+              .setText(`<@${message?.author.id}>`)
               .setTitle("CatchTwo Command Help")
               .setFooter("©️ CatchTwo ~ @kyan0045")
               .setURL(`https://github.com/kyan0045/CatchTwo`)
@@ -1310,7 +1322,7 @@ async function Login(token, Client, guildId) {
           }
           webhook.send(
             new MessageBuilder()
-              .setText(`<@${message.author.id}> https://discord.gg/tXa2Hw5jHy`)
+              .setText(`<@${message?.author.id}> https://discord.gg/tXa2Hw5jHy`)
               .setTitle("CatchTwo Support Server")
               .setFooter("©️ CatchTwo ~ @kyan0045")
               .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1356,7 +1368,7 @@ async function Login(token, Client, guildId) {
             }
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Config Help")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1379,7 +1391,7 @@ async function Login(token, Client, guildId) {
             }
             if (!webhooks)
               return message.reply(
-                `<@${message.author.id}>\n\`\`\`json\n${config}\n\`\`\``
+                `<@${message?.author.id}>\n\`\`\`json\n${config}\n\`\`\``
               );
             if (webhooks.size > 0) {
               webhook = new Webhook(webhooks?.first().url);
@@ -1407,7 +1419,7 @@ async function Login(token, Client, guildId) {
             }
             if (webhook)
               webhook.send(
-                `<@${message.author.id}>\n\`\`\`json\n${config}\n\`\`\``
+                `<@${message?.author.id}>\n\`\`\`json\n${config}\n\`\`\``
               );
           }
           if (args[0] == "set" && !args[1]) {
@@ -1446,7 +1458,7 @@ async function Login(token, Client, guildId) {
             }
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Config Help")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1541,7 +1553,7 @@ async function Login(token, Client, guildId) {
           if (!args[0]) {
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Stats")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1568,7 +1580,7 @@ async function Login(token, Client, guildId) {
           } else if (args[0] && args[0] == "pokemon") {
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Pokemon Stats")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1649,7 +1661,7 @@ async function Login(token, Client, guildId) {
 
           webhook.send(
             new MessageBuilder()
-              .setText(`<@${message.author.id}>`)
+              .setText(`<@${message?.author.id}>`)
               .setTitle("CatchTwo Ping")
               .setFooter("©️ CatchTwo ~ @kyan0045")
               .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1706,7 +1718,7 @@ async function Login(token, Client, guildId) {
             webhook.send(
               new MessageBuilder()
                 .setText(
-                  `<@${message.author.id}> https://discord.gg/tXa2Hw5jHy`
+                  `<@${message?.author.id}> https://discord.gg/tXa2Hw5jHy`
                 )
                 .setTitle("CatchTwo Setup Information")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
@@ -1822,7 +1834,7 @@ async function Login(token, Client, guildId) {
             }
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Levelup Information")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1872,7 +1884,7 @@ async function Login(token, Client, guildId) {
             }
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Levelup Error")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1924,7 +1936,7 @@ async function Login(token, Client, guildId) {
             }
             webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Levelup Error")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
@@ -1996,7 +2008,7 @@ async function Login(token, Client, guildId) {
             }
             await webhook.send(
               new MessageBuilder()
-                .setText(`<@${message.author.id}>`)
+                .setText(`<@${message?.author.id}>`)
                 .setTitle("CatchTwo Levelup")
                 .setFooter("©️ CatchTwo ~ @kyan0045")
                 .setURL(`https://discord.gg/tXa2Hw5jHy`)
