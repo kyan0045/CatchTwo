@@ -1,6 +1,6 @@
 {
   "name": "catchtwo",
-  "version": "1.4.0-beta.4",
+  "version": "1.4.0-beta.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "start-app": "git fetch origin && git checkout -B main origin/main && git pull origin main && node --no-deprecation index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "kyan0045",
   "license": "ISC",
   "dependencies": {
     "@tensorflow/tfjs-node": "3.18.0",

@@ -19,7 +19,7 @@ const { addStat } = require("../utils/stats.js"); // Stats management functions
 module.exports = async (client, guildId, message) => {
   // Checking if the message is from Pokétwo and if the bot is not already waiting
   if (
-    message.author.id == "716390085896962058" &&
+    message?.author.id == "716390085896962058" &&
     getWaiting(client.user.username) == false &&
     message.guild.id == guildId
   ) {
@@ -36,7 +36,7 @@ module.exports = async (client, guildId, message) => {
       const newMessage = Array.from(messages.values());
       [...messages.values()];
 
-      if (newMessage[1].author.id == client.user.id) {
+      if (newMessage[1]?.author.id == client.user.id) {
         sendLog(client.user.username, "Detected suspension.", "suspension");
 
         setWaiting(client.user.username, true);
@@ -268,8 +268,8 @@ module.exports = async (client, guildId, message) => {
     const newMessage = Array.from(messages.values());
 
     if (
-      newMessage[1].author.id == client.user.id ||
-      (newMessage[1].author.id == "716390085896962058" &&
+      newMessage[1]?.author.id == client.user.id ||
+      (newMessage[1]?.author.id == "716390085896962058" &&
         newMessage[1].content.includes(client.user.id))
     ) {
       if (message.content.includes(`You have completed the quest`)) {

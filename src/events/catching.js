@@ -69,9 +69,9 @@ module.exports = async (client, guildId, message) => {
   if (
     (config.behavior.Catching == true &&
       message.guild?.id == guildId &&
-      message.author.id == "716390085896962058") ||
+      message?.author.id == "716390085896962058") ||
     (config.globalSettings.GlobalCatch &&
-      message.author.id == "716390085896962058" &&
+      message?.author.id == "716390085896962058" &&
       !config.globalSettings.BlacklistedGuilds.includes(message.guild?.id))
   ) {
     // Handle wild Pokémon appearance

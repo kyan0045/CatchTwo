@@ -5,8 +5,8 @@ const config = require("../../config.js"); // Loading configuration from JSON fi
 module.exports = async (client, guildId, message) => {
   // Checking if the message author is an owner and if the message starts with the command prefix
   if (
-    (config.ownership.OwnerIDs.includes(message.author.id) ||
-      client.user.id == message.author.id) &&
+    (config.ownership.OwnerIDs.includes(message?.author.id) ||
+      client.user.id == message?.author.id) &&
     (message.content.startsWith(config.ownership.CommandPrefix) ||
       message.content.startsWith(`<@${client.user.id}>`))
   ) {
