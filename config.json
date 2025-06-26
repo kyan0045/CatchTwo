@@ -9,6 +9,7 @@
   "ownerID": [ "ID OF MAIN ACCOUNT", "..." ],
   "prefix": "!",
   "globalCatch": false,
+  "p2assCatch": true,
   "blacklistedGuilds": [ "716390832034414685", "..." ],
   "captchaSolvingKey": "CATCHTWO CAPTCHASOLVING API KEY"
 }
