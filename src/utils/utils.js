@@ -37,4 +37,14 @@ function logMemoryUsage() {
     "debug"
   );
 }
-module.exports = { wait, randomInteger, logMemoryUsage };
+
+function getMentions(ownerIDs) {
+  const mentions = ownerIDs
+    .filter((ownerID) => ownerID.length >= 18)
+    .map((ownerID) => `<@${ownerID}>`)
+    .join(", ");
+
+  return `${mentions}`;
+}
+
+module.exports = { wait, randomInteger, logMemoryUsage, getMentions };

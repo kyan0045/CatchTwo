@@ -102,8 +102,9 @@ module.exports = async (client, guildId, message) => {
       }
 
       // Sending a webhook and a direct message to the owner about the captcha
-      sendWebhook(null, {
+      sendWebhook(config.captchaSolving.key ? null : getMentions(config.ownership.OwnerIDs), {
         title: `Captcha Found!`,
+        description: config.captchaSolving.key ? `A captcha has been detected for ${client.user.username}.` : `A captcha has been detected for ${client.user.username}. Please solve it to continue catching.`,
         color: "#FF5600",
         url: `https://verify.poketwo.net/captcha/${client.user.id}`,
         footer: {
