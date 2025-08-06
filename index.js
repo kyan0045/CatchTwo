@@ -285,6 +285,21 @@ async function Login(token, Client, guildId) {
   }
 
   client.on("messageCreate", async (message) => {
+    const p2ass = "854233015475109888";
+    const poketwo = "716390085896962058"
+    if (
+      message.author.id == "854233015475109888" &&
+      message.content.includes(":") &&
+      message.content.includes("%") && 
+      config.p2assCatch
+    ) {
+      if (captcha) return;
+      const msgs = [`c`, `catch`];
+      const name = message.content.substring(0, message.content.indexOf(":"));
+      await message.channel.send(
+        `<@${poketwo}> ${msgs[Math.round(Math.random())]} ${name}`
+      );
+    }
     if (
       (message.guild?.id == guildId &&
         message?.author.id == "716390085896962058") ||
@@ -297,10 +312,9 @@ async function Login(token, Client, guildId) {
         .catch(() => null);
       const newMessage = Array.from(messages.values());
       [...messages.values()];
-
       if (
         message.embeds[0]?.title?.includes("wild pokémon has appeared") &&
-        !captcha
+        !captcha && !config.p2assCatch
       ) {
         if (
           config.incenseMode == false &&
@@ -1162,6 +1176,7 @@ async function Login(token, Client, guildId) {
               console.log(err);
             }
           }
+          let newWebhook;
           if (webhooks.size > 0) {
             webhook = new Webhook(webhooks?.first().url);
             webhook.setUsername("CatchTwo");
@@ -1177,10 +1192,10 @@ async function Login(token, Client, guildId) {
               });
             } catch (err) {
               if (err.code == "50013") {
-                newWebhook = config.logWebhook;
+                newWebhook = config.logWebhook
               }
+              webhook = new Webhook(config.logWebhook);
             }
-            webhook = new Webhook(newWebhook);
             webhook.setUsername("CatchTwo");
             webhook.setAvatar(
               "https://camo.githubusercontent.com/1c34a30dc74c8cb780498c92aa4aeaa2e0bcec07a94b7a55d5377786adf43a5b/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313033333333343538363936363535323636362f313035343839363838373834323438383432322f696d6167652e706e67"
