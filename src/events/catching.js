@@ -23,6 +23,30 @@ const axios = require("axios");
 let model;
 let hintMessages = ["h", "hint"];
 
+async function preprocessImage(url) {
+  const response = await axios({
+    url,
+    responseType: "arraybuffer",
+  });
+  const imageBuffer = await sharp(Buffer.from(response.data))
+    .resize(64, 64)
+    .toBuffer();
+
+  return tf.tidy(() => {
+    // Decode the image buffer into a tensor
+    const decodedImage = tf.node.decodeImage(imageBuffer, 3); // 3 channels (RGB)
+
+    // Normalize the image tensor (e.g., to [0, 1] range)
+    // Using tf.scalar for the divisor is good practice for type consistency.
+    // tf.divNoNan was used in your original, so we keep it. If 0/0 is not a concern, tf.div is also fine.
+    const normalizedImage = tf.divNoNan(decodedImage, tf.scalar(255.0));
+
+    // Expand dimensions to add the batch dimension (e.g., [64, 64, 3] -> [1, 64, 64, 3])
+    const expandedTensor = tf.expandDims(normalizedImage, 0);
+
+    return expandedTensor;
+  });
+}
 async function predict(url) {
   if (!model) {
     model = await tf.loadLayersModel("file://./src/data/model/model.json");
@@ -44,22 +68,6 @@ async function predict(url) {
   return name;
 }
 
-async function preprocessImage(url) {
-  const response = await axios({
-    url,
-    responseType: "arraybuffer",
-  });
-  const imageBuffer = await sharp(Buffer.from(response.data))
-    .resize(64, 64)
-    .toBuffer();
-
-  const imageTensor = tf.divNoNan(tf.node.decodeImage(imageBuffer, 3), 255);
-
-  const expandedTensor = tf.expandDims(imageTensor, 0);
-
-  return expandedTensor;
-}
-
 // Main function to handle message creation events
 module.exports = async (client, guildId, message) => {
   // Return if the bot is set to waiting
@@ -75,11 +83,11 @@ module.exports = async (client, guildId, message) => {
       !config.globalSettings.BlacklistedGuilds.includes(message.guild?.id))
   ) {
     // Handle wild Pokémon appearance
-    if (message.embeds[0]?.title?.includes("wild pokémon has appeared")) {
+    if (message?.embeds[0]?.title?.includes("wild pokémon has appeared")) {
       // Return if IncenseMode is off and the message includes "Incense"
       if (
         config.incense.IncenseMode == false &&
-        message.embeds[0]?.footer?.text?.includes("Incense")
+        message?.embeds[0]?.footer?.text?.includes("Incense")
       )
         return;
 
@@ -113,9 +121,7 @@ module.exports = async (client, guildId, message) => {
               checkIfWrong = await message.channel
                 .createMessageCollector({ time: 5000 })
                 .on("collect", async (msg) => {
-                  if (
-                    msg.content.includes("That is the wrong pokémon!")
-                  ) {
+                  if (msg.content.includes("That is the wrong pokémon!")) {
                     checkIfWrong.stop();
                     setTimeout(async () => {
                       msg.channel.send(
