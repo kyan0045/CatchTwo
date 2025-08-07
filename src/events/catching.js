@@ -53,12 +53,29 @@ async function predict(url) {
   }
   let startTime = new Date().getTime();
   const imageTensor = await preprocessImage(url);
-  const prediction = model.predict(imageTensor);
+  
+  // Use tf.tidy to automatically dispose intermediate tensors
+  const predictedIndex = tf.tidy(() => {
+    const prediction = model.predict(imageTensor);
+    const argMaxTensor = prediction.argMax(1);
+    return argMaxTensor.dataSync()[0];
+  });
 
-  const predictedIndex = prediction.argMax(1).dataSync()[0];
+  // Manually dispose the input tensor
+  imageTensor.dispose();
 
   const keys = Object.keys(data); // Get all keys from the data object
   const name = keys[predictedIndex]; // Get the key name at the specified index
+
+  // Log TensorFlow memory usage in debug mode
+  if (config.debug) {
+    const memory = tf.memory();
+    sendLog(
+      null,
+      `TF memory — tensors: ${memory.numTensors}, bytes: ${memory.numBytes}`,
+      "debug"
+    );
+  }
 
   sendLog(
     null,
