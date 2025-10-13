@@ -20,7 +20,7 @@ module.exports = async (client, guildId, message) => {
   // Checking if the message is from Pokétwo and if the bot is not already waiting
   if (
     message?.author.id == "716390085896962058" &&
-    getWaiting(client.user.username) == false &&
+    getWaiting(client.user.id) == false &&
     (config.globalSettings.GlobalCatch || message.guild.id == guildId)
   ) {
     // Checking if the account is suspended
@@ -39,7 +39,7 @@ module.exports = async (client, guildId, message) => {
       if (newMessage[1]?.author.id == client.user.id) {
         sendLog(client.user.username, "Detected suspension.", "suspension");
 
-        setWaiting(client.user.username, true);
+        setWaiting(client.user.id, true);
 
         config.ownership.OwnerIDs.forEach((id) => {
           if (id.length <= 16) return;
@@ -94,8 +94,8 @@ module.exports = async (client, guildId, message) => {
         `https://verify.poketwo.net/captcha/${client.user.id}`
       )
     ) {
-      if (getWaiting(client.user.username) == true) return;
-      setWaiting(client.user.username, true); // Setting the bot to a waiting state
+      if (getWaiting(client.user.id) == true) return;
+      setWaiting(client.user.id, true); // Setting the bot to a waiting state
       sendLog(client.user.username, "Detected captcha.", "captcha"); // Logging captcha detection
       if (config.incense.IncenseMode == true) {
         message.reply(`<@716390085896962058> incense pause all -y`)
@@ -195,7 +195,7 @@ module.exports = async (client, guildId, message) => {
               );
 
               if (response.data.status == "completed") {
-                setWaiting(client.user.username, false);
+                setWaiting(client.user.id, false);
                 sendLog(
                   client.user.username,
                   "Successfully solved the captcha!",
@@ -241,7 +241,7 @@ module.exports = async (client, guildId, message) => {
                   },
                 });
                setTimeout(() => {
-                setWaiting(client.user.username, false);
+                setWaiting(client.user.id, false);
                }, 30 * 60 * 1000)
               }
             } catch (error) {

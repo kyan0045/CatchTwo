@@ -17,11 +17,11 @@
     "axios": "^1.7.3",
     "chalk": "^4.1.0",
     "date-and-time": "^3.1.1",
-    "discord.js-selfbot-v13": "^3.4.6",
+    "discord.js-selfbot-v13": "^3.7.0",
     "figlet": "^1.8.0",
     "fs-extra": "^11.2.0",
     "gradient-string": "^3.0.0",
-    "pokehint": "^1.4.13",
+    "pokehint": "^1.4.20",
     "sharp": "^0.33.5"
   }
 }

@@ -53,7 +53,7 @@ async function predict(url) {
   }
   let startTime = new Date().getTime();
   const imageTensor = await preprocessImage(url);
-  
+
   // Use tf.tidy to automatically dispose intermediate tensors
   const predictedIndex = tf.tidy(() => {
     const prediction = model.predict(imageTensor);
@@ -178,8 +178,8 @@ module.exports = async (client, guildId, message) => {
         message.embeds[0]?.footer?.text?.includes("Incense")
       ) {
         // Log and manage spamming state based on incense detection
-        if (getSpamming(client.user.username) == true) {
-          setSpamming(client.user.username, false);
+        if (getSpamming(client.user.id) == true) {
+          setSpamming(client.user.id, false);
           sendLog(client.user.username, "Detected incense.", "incense");
         }
         // Handle the end of incense and possibly buy a new one
@@ -202,13 +202,13 @@ module.exports = async (client, guildId, message) => {
                 if (
                   msg.content.includes("You don't have enough shards for that!")
                 ) {
-                  setSpamming(client.user.username, true);
-                  setWaiting(client.user.username, false);
+                  setSpamming(client.user.id, true);
+                  setWaiting(client.user.id, false);
                 }
               });
           } else {
-            setSpamming(client.user.username, true);
-            setWaiting(client.user.username, false);
+            setSpamming(client.user.id, true);
+            setWaiting(client.user.id, false);
             sendLog(
               client.user.username,
               "Detected the end of the incense.",
@@ -262,7 +262,7 @@ module.exports = async (client, guildId, message) => {
                 .on("collect", async (msg) => {
                   if (
                     msg.content.includes("That is the wrong pokémon!") &&
-                    getSpamming(client.user.username) == true
+                    getSpamming(client.user.id) == true
                   ) {
                     checkIfWrong2.stop();
 

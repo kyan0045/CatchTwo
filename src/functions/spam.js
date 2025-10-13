@@ -32,15 +32,15 @@ function spam(client, guildId) {
   }
 
   if (!channel) return sendLog(client.user.username, `No spam channel found, please create a channel called "spam"`, "error");
-  if (getSpamming(client.user.username) !== false) {
-    setSpamming(client.user.username, true);
+  if (getSpamming(client.user.id) !== false) {
+    setSpamming(client.user.id, true);
   } else {
     return;
   }
   sendLog(client.user.username, `Action sent: started spamming`, "debug");
 
   setInterval(() => {
-    if (getSpamming(client.user.username) == false || getWaiting(client.user.username) == true) return;
+    if (getSpamming(client.user.id) == false || getWaiting(client.user.id) == true) return;
     const message = messages[Math.floor(Math.random() * messages.length)];
     channel.send(message);
     addStat(client.user.username, "spamMessages");

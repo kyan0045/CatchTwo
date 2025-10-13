@@ -47,15 +47,15 @@ module.exports = async (client) => {
       .createMessageCollector({ time: 5000 })
       .on("collect", async (msg) => {
         if (msg.content.includes("You don't have enough shards for that!")) {
-          setSpamming(client.user.username, true);
-          setWaiting(client.user.username, false);
+          setSpamming(client.user.id, true);
+          setWaiting(client.user.id, false);
         } else if (
           msg.content.includes(
             "This channel already has an incense active! Please wait for it to end before purchasing another one."
           )
         ) {
-          setSpamming(client.user.username, false);
-          setWaiting(client.user.username, false);
+          setSpamming(client.user.id, false);
+          setWaiting(client.user.id, false);
         }
       });
   }
