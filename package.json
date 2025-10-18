@@ -35,6 +35,6 @@
     "discord.js-selfbot-v13": "^3.3.0",
     "express": "^5.1.0",
     "fs-extra": "^11.1.1",
-    "pokehint": "^1.4.2"
+    "pokehint": "^1.4.22"
   }
 }
