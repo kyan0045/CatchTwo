@@ -1,7 +1,5 @@
 // Importing necessary modules and configurations
 
-const chalk = require("chalk"); // Used for styling and coloring console output
-const { solveHint, getImage } = require("pokehint"); // Functions for solving hints and getting images
 const config = require("../../config.js"); // Loading configuration from JSON file
 const axios = require("axios"); // Used for captchasolving
 

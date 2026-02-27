@@ -37,9 +37,6 @@ async function createCatcher(token, guildId) {
   catchers.push(catcher);
   catcher.listen();
   catcher.login();
-  setTimeout(() => {
-    //catcher.start();
-  }, 3000);
 }
 
 module.exports = { catchers, createCatchers };

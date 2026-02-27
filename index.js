@@ -1,6 +1,4 @@
-
 // Importing necessary functions
-const tf = require("@tensorflow/tfjs-node");
 const { createCatchers } = require("./src/functions/createCatchers.js");
 const { sendLog, sendWebhook } = require("./src/functions/logging.js");
 const { logMemoryUsage, memoryUsage } = require("./src/utils/utils.js");
@@ -15,7 +13,9 @@ const package = require("./package.json");
 // Main function to initialize and start the application
 async function main() {
   const figlet = require("figlet");
-  const gradient = await import('gradient-string').then(({default: gradient}) => gradient);
+  const gradient = await import("gradient-string").then(
+    ({ default: gradient }) => gradient,
+  );
 
   // Displaying the CatchTwo logo
   await figlet.text(
@@ -30,10 +30,10 @@ async function main() {
         console.log("Something went wrong...");
         console.dir(err);
         return;
-      } 
+      }
       console.log(gradient.fruit(data));
-    } 
-  );  
+    },
+  );
 
   // Extract version
   const version = package.version;
@@ -42,7 +42,7 @@ async function main() {
   console.log(
     chalk.bold.yellow(`[${"WELCOME".toUpperCase()}]`) +
       ` - ` +
-      chalk.yellow.bold(`Welcome to CatchTwo!`)
+      chalk.yellow.bold(`Welcome to CatchTwo!`),
   );
 
   // Log the current version with a nicer color
@@ -50,8 +50,8 @@ async function main() {
     chalk.bold.cyan(`[VERSION]`) +
       ` - ` +
       chalk.cyan(
-        `Version ${chalk.bold(version)}, by ${chalk.bold(`@kyan0045`)}`
-      )
+        `Version ${chalk.bold(version)}, by ${chalk.bold(`@kyan0045`)}`,
+      ),
   );
 
   // Sending a welcome message via webhook
@@ -67,7 +67,7 @@ async function main() {
     },
     thumbnail: {
       url: "https://res.cloudinary.com/dppthk8lt/image/upload/c_scale,h_50,w_64/v1719331169/catchtwo_bjvlqi.png",
-    },  
+    },
   });
 
   // Delayed execution to create catchers and log memory usage
