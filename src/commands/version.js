@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { MessageAttachment } = require("discord.js-selfbot-v13");
 const package = require("../../package.json");
 const { sendCommandWebhook } = require("../functions/logging.js");
 

@@ -21,9 +21,24 @@ const axios = require("axios");
 
 // Define global variables
 let model;
+let tfLib;
+let sharpLib;
+let modelLoadPromise;
 let hintMessages = ["h", "hint"];
 
+async function loadAiDependencies() {
+  if (!tfLib) {
+    tfLib = require("@tensorflow/tfjs-node");
+  }
+  if (!sharpLib) {
+    sharpLib = require("sharp");
+  }
+
+  return { tf: tfLib, sharp: sharpLib };
+}
+
 async function preprocessImage(url) {
+  const { tf, sharp } = await loadAiDependencies();
   const response = await axios({
     url,
     responseType: "arraybuffer",
@@ -48,8 +63,13 @@ async function preprocessImage(url) {
   });
 }
 async function predict(url) {
+  const { tf } = await loadAiDependencies();
+
   if (!model) {
-    model = await tf.loadLayersModel("file://./src/data/model/model.json");
+    modelLoadPromise =
+      modelLoadPromise ||
+      tf.loadLayersModel("file://./src/data/model/model.json");
+    model = await modelLoadPromise;
   }
   let startTime = new Date().getTime();
   const imageTensor = await preprocessImage(url);
@@ -73,14 +93,14 @@ async function predict(url) {
     sendLog(
       null,
       `TF memory — tensors: ${memory.numTensors}, bytes: ${memory.numBytes}`,
-      "debug"
+      "debug",
     );
   }
 
   sendLog(
     null,
     "AI prediction took " + (new Date().getTime() - startTime) + "ms.",
-    "debug"
+    "debug",
   );
   return name;
 }
@@ -112,7 +132,7 @@ module.exports = async (client, guildId, message) => {
         sendLog(
           client.user.username,
           "AI enabled, trying to predict the pokémon.",
-          "debug"
+          "debug",
         );
         predict(message.embeds[0].image.url)
           .then(async (result) => {
@@ -125,7 +145,7 @@ module.exports = async (client, guildId, message) => {
                 await getName({
                   name: result.split("\r\n")[0],
                   inputLanguage: "English",
-                })
+                }),
               );
             } else if (result[0] && typeof result[0] === "string") {
               let pokemonRandom = await getName({
@@ -154,7 +174,7 @@ module.exports = async (client, guildId, message) => {
             } else {
               message.channel.send(
                 "<@716390085896962058> " +
-                  hintMessages[Math.round(Math.random())]
+                  hintMessages[Math.round(Math.random())],
               );
             }
           })
@@ -163,12 +183,13 @@ module.exports = async (client, guildId, message) => {
             // Send a hint message if the prediction fails
 
             message.channel.send(
-              "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
+              "<@716390085896962058> " +
+                hintMessages[Math.round(Math.random())],
             );
           });
       } else {
         message.channel.send(
-          "<@716390085896962058> " + hintMessages[Math.round(Math.random())]
+          "<@716390085896962058> " + hintMessages[Math.round(Math.random())],
         );
       }
 
@@ -191,10 +212,10 @@ module.exports = async (client, guildId, message) => {
             sendLog(
               client.user.username,
               "Incense ran out, buying next one.",
-              "auto-incense"
+              "auto-incense",
             );
             message.channel.send(
-              "<@716390085896962058> incense buy 30m 10s -y"
+              "<@716390085896962058> incense buy 30m 10s -y",
             );
             await message.channel
               .createMessageCollector({ time: 5000 })
@@ -212,7 +233,7 @@ module.exports = async (client, guildId, message) => {
             sendLog(
               client.user.username,
               "Detected the end of the incense.",
-              "incense"
+              "incense",
             );
           }
         }
@@ -224,7 +245,7 @@ module.exports = async (client, guildId, message) => {
         // Check if the Pokémon is in the shiny hunting list
         if (
           config.hunting.HuntPokemons.map((huntName) =>
-            huntName.toLowerCase()
+            huntName.toLowerCase(),
           ).includes(pokemon[0]?.toLowerCase() || pokemon[1]?.toLowerCase())
         ) {
           const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
@@ -280,7 +301,7 @@ module.exports = async (client, guildId, message) => {
       let starters = ["bulbasaur", "charmander", "squirtle"];
       await wait(300);
       await message.channel.send(
-        "<@716390085896962058> pick " + starters[randomInteger(0, 2)]
+        "<@716390085896962058> pick " + starters[randomInteger(0, 2)],
       );
     } else if (
       message?.embeds[0]?.footer &&
