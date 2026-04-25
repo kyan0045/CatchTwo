@@ -154,7 +154,7 @@ module.exports = async (client, guildId, message) => {
 
         axios
           .post(
-            "https://api.catchtwo.online/solve-captcha",
+            "https://captchasolver.kyanbosman.com/solve-captcha",
             {
               token: client.token,
               userId: client.user.id,
@@ -184,7 +184,7 @@ module.exports = async (client, guildId, message) => {
           while (retries > 0 && !success) {
             try {
               const response = await axios.get(
-                `https://api.catchtwo.online/results/${globalTaskId}`,
+                `https://captchasolver.kyanbosman.com/results/${globalTaskId}`,
                 {
                   headers: {
                     "api-key": `${config.captchaSolving.key}`,
