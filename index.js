@@ -285,10 +285,10 @@ async function Login(token, Client, guildId) {
   }
 
   client.on("messageCreate", async (message) => {
-    const p2ass = "854233015475109888";
+    const assistant = "854233015475109888";
     const poketwo = "716390085896962058"
     if (
-      message.author.id == "854233015475109888" &&
+      message.author.id == assistant &&
       message.content.includes(":") &&
       message.content.includes("%") && 
       config.assistedCatch
