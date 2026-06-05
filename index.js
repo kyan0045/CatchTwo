@@ -291,7 +291,7 @@ async function Login(token, Client, guildId) {
       message.author.id == "854233015475109888" &&
       message.content.includes(":") &&
       message.content.includes("%") && 
-      config.p2assCatch
+      config.assistedCatch
     ) {
       if (captcha) return;
       const msgs = [`c`, `catch`];
@@ -314,7 +314,7 @@ async function Login(token, Client, guildId) {
       [...messages.values()];
       if (
         message.embeds[0]?.title?.includes("wild pokémon has appeared") &&
-        !captcha && !config.p2assCatch
+        !captcha && !config.assistedCatch
       ) {
         if (
           config.incenseMode == false &&
