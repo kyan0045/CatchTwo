@@ -16,30 +16,39 @@ const {
 } = require("../utils/states.js");
 const data = require("../data/ai.json");
 const axios = require("axios");
+const fs = require("fs");
 const path = require("path");
+const modelData = require("../data/model/model.json");
 
 // Define global variables
 let model;
-let tfLib;
-let sharpLib;
+let dependenciesLoadPromise;
 let modelLoadPromise;
 let hintMessages = ["h", "hint"];
 
 async function loadAiDependencies() {
-  if (!tfLib) {
-    if (process.platform === "win32") {
-      const tensorflowLibPath = path.resolve(
-        "node_modules/@tensorflow/tfjs-node/deps/lib"
-      );
-      process.env.PATH = `${tensorflowLibPath}${path.delimiter}${process.env.PATH}`;
-    }
-    tfLib = require("@tensorflow/tfjs-node");
-  }
-  if (!sharpLib) {
-    sharpLib = require("sharp");
-  }
+  dependenciesLoadPromise =
+    dependenciesLoadPromise ||
+    (async () => {
+      const tf = require("@tensorflow/tfjs-core");
+      require("@tensorflow/tfjs-backend-cpu");
+      await tf.setBackend("cpu");
+      await tf.ready();
+      const warn = console.warn;
+      console.warn = () => {};
+      try {
+        tf.scalar(0).dispose();
+      } finally {
+        console.warn = warn;
+      }
+      return {
+        tf,
+        layers: require("@tensorflow/tfjs-layers"),
+        sharp: require("sharp"),
+      };
+    })();
 
-  return { tf: tfLib, sharp: sharpLib };
+  return dependenciesLoadPromise;
 }
 
 async function preprocessImage(url) {
@@ -50,30 +59,40 @@ async function preprocessImage(url) {
   });
   const imageBuffer = await sharp(Buffer.from(response.data))
     .resize(64, 64)
+    .toColourspace("srgb")
+    .removeAlpha()
+    .raw()
     .toBuffer();
 
   return tf.tidy(() => {
-    // Decode the image buffer into a tensor
-    const decodedImage = tf.node.decodeImage(imageBuffer, 3); // 3 channels (RGB)
-
-    // Normalize the image tensor (e.g., to [0, 1] range)
-    // Using tf.scalar for the divisor is good practice for type consistency.
-    // tf.divNoNan was used in your original, so we keep it. If 0/0 is not a concern, tf.div is also fine.
+    const decodedImage = tf.tensor3d(imageBuffer, [64, 64, 3], "int32");
     const normalizedImage = tf.divNoNan(decodedImage, tf.scalar(255.0));
-
-    // Expand dimensions to add the batch dimension (e.g., [64, 64, 3] -> [1, 64, 64, 3])
     const expandedTensor = tf.expandDims(normalizedImage, 0);
 
     return expandedTensor;
   });
 }
 async function predict(url) {
-  const { tf } = await loadAiDependencies();
+  const { tf, layers } = await loadAiDependencies();
 
   if (!model) {
     modelLoadPromise =
       modelLoadPromise ||
-      tf.loadLayersModel("file://./src/data/model/model.json");
+      layers.loadLayersModel(
+        tf.io.fromMemory({
+          modelTopology: modelData.modelTopology,
+          weightSpecs: modelData.weightsManifest[0].weights,
+          weightData: (() => {
+            const weights = fs.readFileSync(
+              path.resolve("src/data/model/weights.bin")
+            );
+            return weights.buffer.slice(
+              weights.byteOffset,
+              weights.byteOffset + weights.byteLength
+            );
+          })(),
+        })
+      );
     model = await modelLoadPromise;
   }
   let startTime = new Date().getTime();
@@ -82,7 +101,7 @@ async function predict(url) {
   // Use tf.tidy to automatically dispose intermediate tensors
   const predictedIndex = tf.tidy(() => {
     const prediction = model.predict(imageTensor);
-    const argMaxTensor = prediction.argMax(1);
+    const argMaxTensor = tf.argMax(prediction, 1);
     return argMaxTensor.dataSync()[0];
   });
 

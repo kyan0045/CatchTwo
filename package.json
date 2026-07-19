@@ -13,7 +13,9 @@
   "author": "kyan0045",
   "license": "ISC",
   "dependencies": {
-    "@tensorflow/tfjs-node": "^4.22.0",
+    "@tensorflow/tfjs-backend-cpu": "4.22.0",
+    "@tensorflow/tfjs-core": "4.22.0",
+    "@tensorflow/tfjs-layers": "4.22.0",
     "axios": "^1.7.3",
     "chalk": "^4.1.0",
     "date-and-time": "^3.1.1",
@@ -25,7 +27,6 @@
     "sharp": "^0.33.5"
   },
   "allowScripts": {
-    "@tensorflow/tfjs-node@4.22.0": true,
     "core-js@3.49.0": true,
     "sharp@0.33.5": true
   }

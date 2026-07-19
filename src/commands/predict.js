@@ -1,29 +1,38 @@
 // Import necessary modules for AI prediction
 const data = require("../data/ai.json");
 const axios = require("axios");
+const fs = require("fs");
 const path = require("path");
+const modelData = require("../data/model/model.json");
 
 // Define global variables
 let model;
-let tfLib;
-let sharpLib;
+let dependenciesLoadPromise;
 let modelLoadPromise;
 
 async function loadAiDependencies() {
-  if (!tfLib) {
-    if (process.platform === "win32") {
-      const tensorflowLibPath = path.resolve(
-        "node_modules/@tensorflow/tfjs-node/deps/lib"
-      );
-      process.env.PATH = `${tensorflowLibPath}${path.delimiter}${process.env.PATH}`;
-    }
-    tfLib = require("@tensorflow/tfjs-node");
-  }
-  if (!sharpLib) {
-    sharpLib = require("sharp");
-  }
+  dependenciesLoadPromise =
+    dependenciesLoadPromise ||
+    (async () => {
+      const tf = require("@tensorflow/tfjs-core");
+      require("@tensorflow/tfjs-backend-cpu");
+      await tf.setBackend("cpu");
+      await tf.ready();
+      const warn = console.warn;
+      console.warn = () => {};
+      try {
+        tf.scalar(0).dispose();
+      } finally {
+        console.warn = warn;
+      }
+      return {
+        tf,
+        layers: require("@tensorflow/tfjs-layers"),
+        sharp: require("sharp"),
+      };
+    })();
 
-  return { tf: tfLib, sharp: sharpLib };
+  return dependenciesLoadPromise;
 }
 
 // Preprocess image for TensorFlow model
@@ -42,10 +51,13 @@ async function preprocessImage(url) {
       saturation: 1.2, // Step 2: Apply a gentle saturation boost after normalization
     })
     .resize(64, 64)
+    .toColourspace("srgb")
+    .removeAlpha()
+    .raw()
     .toBuffer();
 
   return tf.tidy(() => {
-    const decodedImage = tf.node.decodeImage(imageBuffer, 3);
+    const decodedImage = tf.tensor3d(imageBuffer, [64, 64, 3], "int32");
     const normalizedImage = tf.divNoNan(decodedImage, tf.scalar(255.0));
     const expandedTensor = tf.expandDims(normalizedImage, 0);
     return expandedTensor;
@@ -54,12 +66,26 @@ async function preprocessImage(url) {
 
 // Get top 5 predictions with confidence percentages
 async function getTopPredictions(url, topK = 5) {
-  const { tf } = await loadAiDependencies();
+  const { tf, layers } = await loadAiDependencies();
 
   if (!model) {
     modelLoadPromise =
       modelLoadPromise ||
-      tf.loadLayersModel("file://./src/data/model/model.json");
+      layers.loadLayersModel(
+        tf.io.fromMemory({
+          modelTopology: modelData.modelTopology,
+          weightSpecs: modelData.weightsManifest[0].weights,
+          weightData: (() => {
+            const weights = fs.readFileSync(
+              path.resolve("src/data/model/weights.bin")
+            );
+            return weights.buffer.slice(
+              weights.byteOffset,
+              weights.byteOffset + weights.byteLength
+            );
+          })(),
+        })
+      );
     model = await modelLoadPromise;
   }
 
