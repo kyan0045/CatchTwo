@@ -1,4 +1,4 @@
-const { Client } = require("discord.js-selfbot-v13");
+const { Client } = require("discord-self-lite");
 const fs = require("fs-extra");
 const { sendLog } = require("../functions/logging.js");
 const clients = [];
@@ -11,7 +11,7 @@ class Catcher {
   }
 
   listen() {
-    const client = new Client({ checkUpdate: false, readyStatus: false });
+    const client = new Client();
     client.commands = new Map();
 
     const commandFiles = fs

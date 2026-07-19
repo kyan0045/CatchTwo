@@ -24,15 +24,14 @@ module.exports = async (client, guildId, message) => {
     // Checking if the account is suspended
 
     if (message?.embeds[0]?.title?.includes("Account Suspended")) {
-      const messages = await message.channel.messages
-        .fetch({
+      const messages = await message.channel
+        .fetchMessages({
           limit: 2,
           around: message.id,
         })
         .catch(() => null);
 
-      const newMessage = Array.from(messages.values());
-      [...messages.values()];
+      const newMessage = messages || [];
 
       if (newMessage[1]?.author.id == client.user.id) {
         sendLog(client.user.username, "Detected suspension.", "suspension");
@@ -42,16 +41,12 @@ module.exports = async (client, guildId, message) => {
         config.ownership.OwnerIDs.forEach((id) => {
           if (id.length <= 16) return;
 
-          client.users.fetch(id).then(async (user) => {
-            try {
-              dmChannel = await client.channels.fetch(user?.dmChannel?.id);
-            } catch (error) {
-              dmChannel = await user.createDM();
-            }
+          client.resolveUser(id).then(async (user) => {
+            const dmChannel = await user.getDMChannel();
 
-            let lastMessage = await dmChannel.messages.fetch(
-              dmChannel?.lastMessageId
-            );
+            const lastMessage = dmChannel.lastMessageId
+              ? await dmChannel.fetchMessage(dmChannel.lastMessageId)
+              : null;
 
             if (lastMessage?.content?.includes("suspended")) {
               return client.destroy();
@@ -114,22 +109,17 @@ module.exports = async (client, guildId, message) => {
       // Notifying all owners about the captcha
       config.ownership.OwnerIDs.forEach((id) => {
         if (id?.length && id.length <= 16) return; // Skipping invalid IDs
-        client.users.fetch(id).then(async (user) => {
-          let dmChannel = await client.channels
-            .fetch(user.dmChannel?.id)
-            .catch(() => null);
-          if (!dmChannel) {
-            dmChannel = await user.createDM();
-          }
-          let lastMessage = await dmChannel.messages.fetch(
-            dmChannel.lastMessageId
-          );
+        client.resolveUser(id).then(async (user) => {
+          const dmChannel = await user.getDMChannel();
+          const lastMessage = dmChannel.lastMessageId
+            ? await dmChannel.fetchMessage(dmChannel.lastMessageId)
+            : null;
 
           // Checking if the last message already informed about a captcha within the last 24 hours
           if (
             lastMessage?.content?.includes("captcha") &&
             lastMessage?.author?.id == client.user.id &&
-            lastMessage?.createdTimestamp > Date.now() - 86400000
+            Date.parse(lastMessage?.timestamp) > Date.now() - 86400000
           ) {
             return; // Skipping if a recent captcha message was already sent
           } else {
@@ -260,14 +250,14 @@ module.exports = async (client, guildId, message) => {
 
   // Handling quest completion
   if (message.content.includes(`You have completed`)) {
-    const messages = await message.channel.messages
-      .fetch({
+    const messages = await message.channel
+      .fetchMessages({
         limit: 2,
         around: message.id,
       })
       .catch(() => null);
 
-    const newMessage = Array.from(messages.values());
+    const newMessage = messages || [];
 
     if (
       newMessage[1]?.author.id == client.user.id ||

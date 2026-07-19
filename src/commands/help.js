@@ -209,7 +209,7 @@ module.exports = {
       const commandName = args[0].toLowerCase();
       const command =
         client.commands.get(commandName) ||
-        client.commands.find(
+        Array.from(client.commands.values()).find(
           (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
         );
 

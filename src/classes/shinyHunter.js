@@ -1,4 +1,4 @@
-const { Client } = require("discord.js-selfbot-v13");
+const { Client } = require("discord-self-lite");
 
 class ShinyHunter {
   constructor(token) {
@@ -6,15 +6,15 @@ class ShinyHunter {
     this.pokemon = {};
   }
 
-  login() {
-    const client = new Client({ checkUpdate: false, readyStatus: false });
-    client.login(this.token);
+  async login() {
+    const client = new Client();
     this.shinyHunterClient = client;
+    await client.login(this.token);
   }
 
   async catch(spawnedGuild, spawnedChannel, spawnedPokemon) {
-    let guild = await this.shinyHunterClient.guilds.fetch(spawnedGuild);
-    let channel = await guild.channels.fetch(spawnedChannel);
+    const guild = await this.shinyHunterClient.fetchGuild(spawnedGuild);
+    const channel = await guild.fetchChannel(spawnedChannel);
     if (!channel)
       return console.error(
         "Your main/shinyHunter account does not have access to every channel/server."

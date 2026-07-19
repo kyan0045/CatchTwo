@@ -14,10 +14,9 @@ const {
   getSpamming,
   getWaiting,
 } = require("../utils/states.js");
-const tf = require("@tensorflow/tfjs-node");
-const sharp = require("sharp");
 const data = require("../data/ai.json");
 const axios = require("axios");
+const path = require("path");
 
 // Define global variables
 let model;
@@ -28,6 +27,12 @@ let hintMessages = ["h", "hint"];
 
 async function loadAiDependencies() {
   if (!tfLib) {
+    if (process.platform === "win32") {
+      const tensorflowLibPath = path.resolve(
+        "node_modules/@tensorflow/tfjs-node/deps/lib"
+      );
+      process.env.PATH = `${tensorflowLibPath}${path.delimiter}${process.env.PATH}`;
+    }
     tfLib = require("@tensorflow/tfjs-node");
   }
   if (!sharpLib) {
@@ -138,8 +143,8 @@ module.exports = async (client, guildId, message) => {
           .then(async (result) => {
             if (config.hunting.HuntPokemons.includes(result.split("\r\n")[0])) {
               const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
-              shinyHunter.login();
-              shinyHunter.catch(
+              await shinyHunter.login();
+              await shinyHunter.catch(
                 message.guild.id,
                 message.channel.id,
                 await getName({
@@ -155,22 +160,23 @@ module.exports = async (client, guildId, message) => {
               if (!pokemonRandom) {
                 pokemonRandom = result;
               }
-              checkIfWrong = await message.channel
-                .createMessageCollector({ time: 5000 })
-                .on("collect", async (msg) => {
-                  if (msg.content.includes("That is the wrong pokémon!")) {
-                    checkIfWrong.stop();
-                    setTimeout(async () => {
-                      msg.channel.send(
-                        "<@716390085896962058> " +
-                          hintMessages[Math.round(Math.random())]
-                      );
-                    }, 500);
-                  }
-                });
+              const wrongMessagePromise = message.channel.awaitMessage({
+                time: 5000,
+                errors: false,
+                filter: (msg) =>
+                  msg.content.includes("That is the wrong pokémon!"),
+              });
               await message.channel.send(
                 "<@716390085896962058> c " + pokemonRandom
               );
+              const wrongMessage = await wrongMessagePromise;
+              if (wrongMessage) {
+                await wait(500);
+                await wrongMessage.channel.send(
+                  "<@716390085896962058> " +
+                    hintMessages[Math.round(Math.random())]
+                );
+              }
             } else {
               message.channel.send(
                 "<@716390085896962058> " +
@@ -214,19 +220,20 @@ module.exports = async (client, guildId, message) => {
               "Incense ran out, buying next one.",
               "auto-incense",
             );
-            message.channel.send(
+            const responsePromise = message.channel.awaitMessage({
+              time: 5000,
+              errors: false,
+              filter: (msg) =>
+                msg.content.includes("You don't have enough shards for that!"),
+            });
+            await message.channel.send(
               "<@716390085896962058> incense buy 30m 10s -y",
             );
-            await message.channel
-              .createMessageCollector({ time: 5000 })
-              .on("collect", async (msg) => {
-                if (
-                  msg.content.includes("You don't have enough shards for that!")
-                ) {
-                  setSpamming(client.user.id, true);
-                  setWaiting(client.user.id, false);
-                }
-              });
+            const response = await responsePromise;
+            if (response) {
+              setSpamming(client.user.id, true);
+              setWaiting(client.user.id, false);
+            }
           } else {
             setSpamming(client.user.id, true);
             setWaiting(client.user.id, false);
@@ -242,6 +249,7 @@ module.exports = async (client, guildId, message) => {
       // Handle hint-based Pokémon catching
       const pokemon = await solveHint(message);
       if (pokemon[0] && typeof pokemon[0] === "string") {
+        let wrongMessagePromise;
         // Check if the Pokémon is in the shiny hunting list
         if (
           config.hunting.HuntPokemons.map((huntName) =>
@@ -249,8 +257,13 @@ module.exports = async (client, guildId, message) => {
           ).includes(pokemon[0]?.toLowerCase() || pokemon[1]?.toLowerCase())
         ) {
           const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
-          shinyHunter.login();
-          shinyHunter.catch(message.guild.id, message.channel.id, pokemon[0]);
+          await shinyHunter.login();
+          wrongMessagePromise = message.channel.awaitMessage({
+            time: 5000,
+            errors: false,
+            filter: (msg) => msg.content.includes("That is the wrong pokémon!"),
+          });
+          await shinyHunter.catch(message.guild.id, message.channel.id, pokemon[0]);
         } else {
           // Attempt to catch the Pokémon based on the hint
           let pokemonRandomLanguage = await getName({
@@ -260,41 +273,41 @@ module.exports = async (client, guildId, message) => {
           if (!pokemonRandomLanguage) {
             pokemonRandomLanguage = pokemon[0];
           }
+          wrongMessagePromise = message.channel.awaitMessage({
+            time: 5000,
+            errors: false,
+            filter: (msg) => msg.content.includes("That is the wrong pokémon!"),
+          });
           await message.channel.send(
             "<@716390085896962058> c " + pokemonRandomLanguage
           );
         }
         // Handle incorrect catch attempts
-        checkIfWrong = await message.channel
-          .createMessageCollector({ time: 5000 })
-          .on("collect", async (msg) => {
-            if (msg.content.includes("That is the wrong pokémon!")) {
-              checkIfWrong.stop();
-              if (!pokemon[1]) {
-                return msg.channel.send(
-                  "<@716390085896962058> " +
-                    hintMessages[Math.round(Math.random())]
-                );
-              }
-              await msg.channel.send("<@716390085896962058> c " + pokemon[1]);
-
-              checkIfWrong2 = await msg.channel
-                .createMessageCollector({ time: 5000 })
-                .on("collect", async (msg) => {
-                  if (
-                    msg.content.includes("That is the wrong pokémon!") &&
-                    getSpamming(client.user.id) == true
-                  ) {
-                    checkIfWrong2.stop();
-
-                    msg.channel.send(
-                      "<@716390085896962058> " +
-                        hintMessages[Math.round(Math.random())]
-                    );
-                  }
-                });
-            }
+        const wrongMessage = await wrongMessagePromise;
+        if (wrongMessage) {
+          if (!pokemon[1]) {
+            return wrongMessage.channel.send(
+              "<@716390085896962058> " +
+                hintMessages[Math.round(Math.random())]
+            );
+          }
+          const secondWrongMessagePromise = wrongMessage.channel.awaitMessage({
+            time: 5000,
+            errors: false,
+            filter: (msg) =>
+              msg.content.includes("That is the wrong pokémon!"),
           });
+          await wrongMessage.channel.send(
+            "<@716390085896962058> c " + pokemon[1]
+          );
+          const secondWrongMessage = await secondWrongMessagePromise;
+          if (secondWrongMessage && getSpamming(client.user.id) == true) {
+            await secondWrongMessage.channel.send(
+              "<@716390085896962058> " +
+                hintMessages[Math.round(Math.random())]
+            );
+          }
+        }
       }
     } else if (message.content.startsWith("Please pick a starter pokémon")) {
       // Handle starter Pokémon selection
@@ -309,11 +322,10 @@ module.exports = async (client, guildId, message) => {
       message?.components[0]?.components[0]
     ) {
       // Handle terms acceptance and initial setup
-      const messages = await message.channel.messages
-        .fetch({ limit: 2, around: message.id })
+      const messages = await message.channel
+        .fetchMessages({ limit: 2, around: message.id })
         .catch(() => null);
-      const newMessage = Array.from(messages.values());
-      [...messages.values()];
+      const newMessage = messages || [];
       if (!newMessage[1]?.content.includes("pick")) return;
       message.clickButton();
       await wait(3000);

@@ -1,4 +1,4 @@
-const { MessageAttachment } = require("discord.js-selfbot-v13");
+const { MessageAttachment } = require("discord-self-lite");
 
 // This module exports a "eval" command for CatchTwo. It allows the selfbot to evaluate a piece of code.
 module.exports = {

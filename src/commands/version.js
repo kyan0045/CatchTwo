@@ -21,8 +21,8 @@ module.exports = {
         }\n **NodeJS version:** ${process.version.replace(
           "v",
           ""
-        )}\n **Discord.JS-selfbot-v13 version:** ${
-          package.dependencies["discord.js-selfbot-v13"].replace("^", "")
+        )}\n **discord-self-lite version:** ${
+          package.dependencies["discord-self-lite"].replace("^", "")
         }`,
         color: "#fecd06",
         timestamp: new Date(),

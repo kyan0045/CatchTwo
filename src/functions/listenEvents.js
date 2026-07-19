@@ -9,6 +9,7 @@ function listenEvents(client, guildId) {
 
       const event = require(`../events/${file}`);
 
+      let eventName;
       if (
         file.includes("catching") ||
         file.includes("commands") ||
@@ -19,7 +20,16 @@ function listenEvents(client, guildId) {
       } else eventName = file.split(".")[0];
 
       if (typeof event === "function") {
-        client.on(eventName, event.bind(null, client, guildId));
+        const registeredEventName = eventName;
+        client.on(registeredEventName, async (message) => {
+          if (
+            registeredEventName === "messageCreate" &&
+            !client.getChannel(message.channelId)
+          ) {
+            await client.resolveChannel(message.channelId);
+          }
+          await event(client, guildId, message);
+        });
         eventName = file.split(".")[0];
         sendLog(
           null,

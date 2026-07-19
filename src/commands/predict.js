@@ -1,6 +1,7 @@
 // Import necessary modules for AI prediction
 const data = require("../data/ai.json");
 const axios = require("axios");
+const path = require("path");
 
 // Define global variables
 let model;
@@ -10,6 +11,12 @@ let modelLoadPromise;
 
 async function loadAiDependencies() {
   if (!tfLib) {
+    if (process.platform === "win32") {
+      const tensorflowLibPath = path.resolve(
+        "node_modules/@tensorflow/tfjs-node/deps/lib"
+      );
+      process.env.PATH = `${tensorflowLibPath}${path.delimiter}${process.env.PATH}`;
+    }
     tfLib = require("@tensorflow/tfjs-node");
   }
   if (!sharpLib) {
@@ -91,28 +98,26 @@ module.exports = {
   // Asynchronous function to handle the command execution
   async execute(client, message, args) {
     console.log("[PREDICT] Command executed");
-    console.log("[PREDICT] User:", message.author.tag);
+    console.log("[PREDICT] User:", message.author.username);
     console.log("[PREDICT] Args:", args);
 
     try {
       let imageUrl;
 
       // Check if there's an image attachment
-      if (message.attachments.size > 0) {
-        const attachment = message.attachments.first();
+      if (message.attachments.length > 0) {
+        const attachment = message.attachments[0];
         imageUrl = attachment.url;
         console.log("[PREDICT] Found attachment:", imageUrl);
       }
       // Check if replying to a message with an image
-      else if (message.reference) {
+      else if (message.data?.message_reference) {
         console.log("[PREDICT] Found message reference");
-        const referencedMessage = await message.channel.messages.fetch(
-          message.reference.messageId,
-        );
+        const referencedMessage = await message.fetchReference();
 
         // Check for attachments in referenced message
-        if (referencedMessage.attachments.size > 0) {
-          imageUrl = referencedMessage.attachments.first().url;
+        if (referencedMessage.attachments.length > 0) {
+          imageUrl = referencedMessage.attachments[0].url;
           console.log(
             "[PREDICT] Found attachment in referenced message:",
             imageUrl,

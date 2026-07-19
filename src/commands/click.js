@@ -11,15 +11,15 @@ module.exports = {
     try {
       // If the first argument is a message ID (length > 10), fetch the message
       if (args[0]?.length > 10) {
-        msg = await message.channel.messages.fetch(args[0]);
+        msg = await message.channel.fetchMessage(args[0]);
         buttonId = parseInt(args[1]) - 1; // Parse the button ID from the second argument
         // If a third argument is provided, parse it as the row ID
         if (args[2]) {
           rowId = parseInt(args[2]) - 1;
         }
-      } else if (message.reference) {
+      } else if (message.data?.message_reference) {
         // If the command is a reply, fetch the referenced message
-        msg = await message.channel.messages.fetch(message.reference.messageId);
+        msg = await message.fetchReference();
         buttonId = parseInt(args[0]) - 1; // Parse the button ID from the first argument
         // If a second argument is provided, parse it as the row ID
         if (args[1]) {

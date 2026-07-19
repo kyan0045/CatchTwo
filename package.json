@@ -13,15 +13,20 @@
   "author": "kyan0045",
   "license": "ISC",
   "dependencies": {
-    "@tensorflow/tfjs-node": "3.18.0",
+    "@tensorflow/tfjs-node": "^4.22.0",
     "axios": "^1.7.3",
     "chalk": "^4.1.0",
     "date-and-time": "^3.1.1",
-    "discord.js-selfbot-v13": "^3.7.0",
+    "discord-self-lite": "^0.1.17",
     "figlet": "^1.8.0",
     "fs-extra": "^11.2.0",
     "gradient-string": "^3.0.0",
     "pokehint": "^1.4.22",
     "sharp": "^0.33.5"
+  },
+  "allowScripts": {
+    "@tensorflow/tfjs-node@4.22.0": true,
+    "core-js@3.49.0": true,
+    "sharp@0.33.5": true
   }
 }

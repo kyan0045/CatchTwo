@@ -13,9 +13,7 @@ module.exports = {
       // If the first argument is a message ID and there is a second argument (emoji)
       if (args[0]?.length > 10 && args[1]) {
         // Fetch the message by ID from the same channel
-        msg = await client.channels.cache
-          .get(message.channelId)
-          .messages.fetch(args[0]);
+        msg = await client.fetchMessage(message.channelId, args[0]);
 
         // Set the emoji to the second argument
         emoji = args[1];
@@ -25,20 +23,14 @@ module.exports = {
           // If it starts with "<", it's an emoji
           emoji = args[0];
           // Fetch the referenced message in the channel
-          msg = await client.channels.cache
-            .get(message?.reference.channelId)
-            .messages.fetch(message?.reference?.messageId);
+          msg = await message.fetchReference();
         } else {
           // Otherwise, fetch the message by ID from the same channel
-          msg = await client.channels.cache
-            .get(message.channelId)
-            .messages.fetch(args[0]);
+          msg = await client.fetchMessage(message.channelId, args[0]);
         }
       } else {
         // If no valid message ID or emoji is provided, fetch the referenced message
-        msg = await client.channels.cache
-          .get(message?.reference.channelId)
-          .messages.fetch(message?.reference?.messageId);
+        msg = await message.fetchReference();
 
         // If there's an argument, assume it's an emoji
         if (args[0]) {
@@ -58,10 +50,10 @@ module.exports = {
       try {
         // If an emoji is specified and it's a custom emoji (length > 10)
         if (typeof emoji === "string" && emoji.length > 10) {
-          msg.react(emoji); // React to the message with the specified emoji
-        } else if (msg.reactions.cache.first()?._emoji) {
+          await msg.react(emoji); // React to the message with the specified emoji
+        } else if (msg.reactions[0]?.emoji) {
           // If no emoji is specified, react with the first emoji already on the message
-          msg.react(msg.reactions.cache.first()._emoji);
+          await msg.react(msg.reactions[0].emoji);
         }
         // React to the command message with a checkmark to indicate success
         message.react("✅");

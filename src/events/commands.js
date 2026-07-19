@@ -33,21 +33,19 @@ module.exports = async (client, guildId, message) => {
     try {
       // Attempting to fetch existing webhooks in the channel
       const webhooks = await message.channel.fetchWebhooks();
-      if (webhooks.size > 0) {
+      if (webhooks.length > 0) {
         // Using the first webhook found
-        webhookUrl = webhooks.first().url;
+        webhookUrl = webhooks[0].url;
       } else {
         // Creating a new webhook if none exist
         const newWebhook = await message.channel.createWebhook("CatchTwo", {
-          avatar:
-            "https://res.cloudinary.com/dppthk8lt/image/upload/ar_1.0,c_lpad,w_1.5/v1719331169/catchtwo_bjvlqi.png",
           reason: "CatchTwo Commands",
         });
         webhookUrl = newWebhook.url;
       }
     } catch (err) {
       // Handling errors, specifically the lack of permissions to create webhooks
-      if (err.code == "50013") {
+      if (err.fullError?.code === 50013 || err.status === 403) {
         webhookUrl = config.logging.LogWebhook;
       } else {
         console.log(err);

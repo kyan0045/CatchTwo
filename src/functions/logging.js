@@ -2,8 +2,17 @@ const chalk = require("chalk");
 const date = require("date-and-time");
 const config = require("../../config");
 const { checkRarity } = require("pokehint");
-const { WebhookClient, MessageAttachment } = require("discord.js-selfbot-v13");
+const { WebhookClient } = require("discord-self-lite");
 const { addStat } = require("../utils/stats");
+
+function isInvalidWebhookError(error) {
+  return (
+    error.message === "Invalid webhook URL" ||
+    error.status === 401 ||
+    error.status === 404 ||
+    error.fullError?.code === 10015
+  );
+}
 
 async function getMentions() {
   const mentions = config.ownership.OwnerIDs.filter(
@@ -144,9 +153,8 @@ async function sendWebhook(content, embed) {
     }
 
     await webhook.send(messageData);
-    webhook.destroy();
   } catch (err) {
-    if (err.code == "WEBHOOK_URL_INVALID") {
+    if (isInvalidWebhookError(err)) {
       sendLog(
         null,
         `Invalid webhook URL: ${config.logging.LogWebhook}`,
@@ -181,9 +189,8 @@ async function sendCommandWebhook(webhookURL, content, embed, files) {
     }
 
     await webhook.send(messageData);
-    webhook.destroy();
   } catch (err) {
-    if (err.code == "WEBHOOK_URL_INVALID") {
+    if (isInvalidWebhookError(err)) {
       sendLog(null, `Invalid webhook URL: ${webhookURL}`, "error");
     } else {
       console.log(err);
@@ -249,9 +256,8 @@ async function sendCatchWebhook(
       });
     }
 
-    webhook.destroy();
   } catch (err) {
-    if (err.code == "WEBHOOK_URL_INVALID") {
+    if (isInvalidWebhookError(err)) {
       sendLog(null, `Invalid webhook URL: ${config.logging.LogWebhook}`, "error");
     } else {
       console.log(err);
