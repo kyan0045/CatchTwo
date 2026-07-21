@@ -334,14 +334,13 @@ async function sendCatch(
   }
 
   const webhookRarity = shiny ? "Shiny" : label || undefined;
-  const article = /^[aeiou]/i.test(label || name) ? "an" : "a";
-  const catchName = [genderSymbol, label, name]
+  const catchName = [label, name, genderSymbol]
     .filter(Boolean)
     .join(" ");
   const url = await getImage(name, shiny, gigantamax);
   sendLog(
     username,
-    `Caught ${article} ${catchName} (Level ${level}) with ${iv} IV!`,
+    `Caught ${catchName} • Level ${level} • ${iv} IV`,
     logType
   );
   sendCatchWebhook(
