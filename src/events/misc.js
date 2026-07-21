@@ -95,7 +95,7 @@ module.exports = async (client, guildId, message) => {
       }
 
       // Sending a webhook and a direct message to the owner about the captcha
-      sendWebhook(config.captchaSolving.key ? null : getMentions(config.ownership.OwnerIDs), {
+      await sendWebhook(await getMentions(), {
         title: `Captcha Found!`,
         description: config.captchaSolving.key ? `A captcha has been detected for ${client.user.username}.` : `A captcha has been detected for ${client.user.username}. Please solve it to continue catching.`,
         color: "#FF5600",
@@ -287,7 +287,7 @@ module.exports = async (client, guildId, message) => {
           `Detected quest completion: Caught ${amount} ${region} pokemon and received ${pokecoins} Pokécoins.`,
           "quest"
         );
-        addStat(client.user.username, "coins", pokecoins);
+        addStat(client.user.id, "coins", pokecoins);
       } else if (message.content.includes(`You have completed this quest`)) {
         // Extract badge name using regex
         const badgeMatch = message.content.match(/received the (.*?) badge/);
@@ -312,7 +312,7 @@ module.exports = async (client, guildId, message) => {
       /received\s+(?:\*\*)?([\d,]+)(?:\*\*)?\s+Pokécoins[.!]?/
     );
     if (pokeCoins) {
-      addStat(client.user.username, "coins", pokeCoins[1]);
+      addStat(client.user.id, "coins", pokeCoins[1]);
     }
   }
 };

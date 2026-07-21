@@ -12,7 +12,7 @@ module.exports = {
     if (!args.length) {
       // No arguments provided, set all accounts to waiting
       clients.forEach((c) => {
-        setWaiting(c.user.username, true);
+        setWaiting(c.user.id, true);
       });
       await message.react("✅");
       return;
@@ -31,7 +31,7 @@ module.exports = {
       return message.reply("That user is not a CatchTwo catcher running in this instance.");
     }
 
-    setWaiting(catcher.user.username, true);
+    setWaiting(catcher.user.id, true);
     await message.react("✅");
   },
 };

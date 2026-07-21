@@ -43,7 +43,7 @@ function spam(client, guildId) {
     if (getSpamming(client.user.id) == false || getWaiting(client.user.id) == true) return;
     const message = messages[Math.floor(Math.random() * messages.length)];
     channel.send(message);
-    addStat(client.user.username, "spamMessages");
+    addStat(client.user.id, "spamMessages");
   }, config.spamming.SpamSpeed);
 
   return channel.id;

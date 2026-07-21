@@ -266,6 +266,7 @@ async function sendCatchWebhook(
 }
 
 async function sendCatch(
+  accountId,
   username,
   name,
   level,
@@ -287,7 +288,7 @@ async function sendCatch(
     stat = rarityStat === "regular" ? "catches" : rarityStat;
   }
 
-  addStat(username, stat);
+  addStat(accountId, stat);
 
   const highIV =
     !shiny &&

@@ -132,7 +132,7 @@ async function predict(url) {
 // Main function to handle message creation events
 module.exports = async (client, guildId, message) => {
   // Return if the bot is set to waiting
-  if (getWaiting(client.user.username) == true) return;
+  if (getWaiting(client.user.id) == true) return;
 
   // Check if the message is from the bot itself in the specified guild or if global catch is enabled and the guild is not blacklisted
   if (
@@ -367,6 +367,7 @@ module.exports = async (client, guildId, message) => {
       const gigantamax = message.content.includes("Gigantamax");
 
       await sendCatch(
+        client.user.id,
         client.user.username,
         name,
         level,

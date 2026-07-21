@@ -146,9 +146,9 @@ module.exports = {
 
       const user =
         client.getUser(userId) || clients.find((c) => c.user.id === userId)?.user;
-      if (!user || !clients.find((c) => c.user.username === user.username)) return message.reply("That user is not a CatchTwo catcher running in this instance.");
+      if (!user || !clients.find((c) => c.user.id === user.id)) return message.reply("That user is not a CatchTwo catcher running in this instance.");
       if (user) {
-        const stats = getAccountStat(user.username);
+        const stats = getAccountStat(user.id);
         if (!stats) {
           return message.reply(
             "That catcher was not found in this CatchTwo instance."
@@ -240,9 +240,9 @@ module.exports = {
 
       const user =
         client.getUser(userId) || clients.find((c) => c.user.id === userId)?.user;
-      if (!user || !clients.find((c) => c.user.username === user.username)) return message.reply("That user is not a CatchTwo catcher running in this instance.");
+      if (!user || !clients.find((c) => c.user.id === user.id)) return message.reply("That user is not a CatchTwo catcher running in this instance.");
       if (user) {
-        const stats = getAccountStat(user.username);
+        const stats = getAccountStat(user.id);
         if (!stats) {
           return message.reply(
             "That catcher was not found in this CatchTwo instance."
