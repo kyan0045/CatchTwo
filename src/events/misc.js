@@ -107,7 +107,7 @@ module.exports = async (client, guildId, message) => {
         },
       });
       // Notifying all owners about the captcha
-      config.ownership.OwnerIDs.forEach((id) => {
+      /* config.ownership.OwnerIDs.forEach((id) => {
         if (id?.length && id.length <= 16) return; // Skipping invalid IDs
         client.resolveUser(id).then(async (user) => {
           const dmChannel = await user.getDMChannel();
@@ -136,7 +136,7 @@ module.exports = async (client, guildId, message) => {
               });
           }
         });
-      });
+      }); */
 
       if (config.captchaSolving.key) {
         // Declare a global variable for taskid
