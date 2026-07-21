@@ -1,7 +1,7 @@
 const chalk = require("chalk");
 const date = require("date-and-time");
 const config = require("../../config");
-const { checkRarity } = require("pokehint");
+const { checkRarity, getImage } = require("pokehint");
 const { WebhookClient } = require("discord-self-lite");
 const { addStat } = require("../utils/stats");
 
@@ -272,15 +272,45 @@ async function sendCatch(
   iv,
   gender,
   shiny,
-  gigantamax,
-  url,
-  logCatch = true
+  gigantamax
 ) {
-  let genderSymbol;
   let stat;
+  let rarity;
+
+  if (shiny) {
+    stat = "shiny";
+  } else if (gigantamax) {
+    stat = "gigantamax";
+  } else {
+    rarity = await checkRarity(name).catch(() => "Regular");
+    const rarityStat = rarity.toLowerCase().replace(/\s/g, "");
+    stat = rarityStat === "regular" ? "catches" : rarityStat;
+  }
+
+  addStat(username, stat);
+
+  const highIV =
+    !shiny &&
+    !gigantamax &&
+    parseFloat(iv) >= config.logging.HighIVThreshold;
+  const lowIV =
+    !shiny &&
+    !gigantamax &&
+    parseFloat(iv) <= config.logging.LowIVThreshold;
+  let logCatch = config.logging.SpecialCatches;
+  if (highIV) {
+    logCatch = config.logging.HighIV;
+  } else if (lowIV) {
+    logCatch = config.logging.LowIV;
+  } else if (!shiny && !gigantamax && rarity === "Regular") {
+    logCatch = config.logging.Pokemon;
+  }
+
+  if (!logCatch) return;
+
+  let genderSymbol;
   let label;
   let logType = "special catch";
-  let webhookRarity;
 
   if (gender.includes("female")) {
     genderSymbol = "♀";
@@ -289,41 +319,26 @@ async function sendCatch(
   }
 
   if (shiny) {
-    stat = "shiny";
     label = "✨";
-    webhookRarity = "Shiny";
   } else if (gigantamax) {
-    stat = "gigantamax";
     label = "Gigantamax";
-    webhookRarity = "Gigantamax";
+  } else if (highIV) {
+    label = "High IV";
+  } else if (lowIV) {
+    label = "Low IV";
+  } else if (rarity === "Regular") {
+    label = "";
+    logType = "catch";
   } else {
-    const rarity = await checkRarity(name).catch(() => "Regular");
-    const rarityStat = rarity.toLowerCase().replace(/\s/g, "");
-    stat = rarityStat === "regular" ? "catches" : rarityStat;
-
-    if (parseFloat(iv) >= config.logging.HighIVThreshold) {
-      label = "High IV";
-      webhookRarity = "High IV";
-    } else if (parseFloat(iv) <= config.logging.LowIVThreshold) {
-      label = "Low IV";
-      webhookRarity = "Low IV";
-    } else if (rarity === "Regular") {
-      label = "";
-      logType = "catch";
-    } else {
-      label = rarity;
-      webhookRarity = rarity;
-    }
+    label = rarity;
   }
 
-  addStat(username, stat);
-
-  if (!logCatch) return;
-
+  const webhookRarity = shiny ? "Shiny" : label || undefined;
   const article = /^[aeiou]/i.test(label || name) ? "an" : "a";
   const catchName = [genderSymbol, label, name]
     .filter(Boolean)
     .join(" ");
+  const url = await getImage(name, shiny, gigantamax);
   sendLog(
     username,
     `Caught ${article} ${catchName} (Level ${level}) with ${iv} IV!`,

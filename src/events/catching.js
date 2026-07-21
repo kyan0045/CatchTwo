@@ -1,5 +1,5 @@
 // Import necessary modules and their functions
-const { solveHint, getImage, getName } = require("pokehint");
+const { solveHint, getName } = require("pokehint");
 
 // Import the config file
 const config = require("../../config.js");
@@ -365,7 +365,6 @@ module.exports = async (client, guildId, message) => {
       const name = unTrimmedName.trim();
       const shiny = message.content.includes("✨");
       const gigantamax = message.content.includes("Gigantamax");
-      const logCatches = config.logging.LogCatches ?? config.logging.Pokemon;
 
       await sendCatch(
         client.user.username,
@@ -374,9 +373,7 @@ module.exports = async (client, guildId, message) => {
         iv,
         gender,
         shiny,
-        gigantamax,
-        logCatches ? await getImage(name, shiny, gigantamax) : undefined,
-        logCatches
+        gigantamax
       );
     }
   }
