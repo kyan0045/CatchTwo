@@ -19,7 +19,11 @@ const config = {
   },
   // Logging settings
   logging: {
-    LogCatches: true, // Enable or disable logging of catches
+    Pokemon: false, // Enable or disable logging of catches
+    Quests: true, // Enable or disable logging of quests
+    LowIV: true, // Enable or disable logging of low IV catches
+    HighIV: true, // Enable or disable logging of high IV catches
+    SpecialCatches: true, // Enable or disable logging of special catches (e.g., Gigantamax)
     LowIVThreshold: 15.00, // Threshold for low IV logging
     HighIVThreshold: 85.00, // Threshold for high IV logging
     LogWebhook: "Webhook" // Webhook URL for logging

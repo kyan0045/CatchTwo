@@ -354,32 +354,30 @@ module.exports = async (client, guildId, message) => {
       await wait(2000);
       message.channel.send("<@716390085896962058> order iv");
     } else if (
-      config.logging.LogCatches &&
       message.content.includes(
         "Congratulations <@" + client.user.id + ">! You caught"
       )
     ) {
-      // Log successful catches
-      if (config.logging.LogCatches) {
-        let match = message.content.match(
-          /Level (\d+) ([^<]+)(<:[^>]+>) \(([^)]+%)\)/
-        );
-        const [, level, unTrimmedName, gender, iv] = match;
-        const name = unTrimmedName.trim();
-        const shiny = message.content.includes("✨");
-        const gigantamax = message.content.includes("Gigantamax");
+      const match = message.content.match(
+        /Level (\d+) ([^<]+)(<:[^>]+>) \(([^)]+%)\)/
+      );
+      const [, level, unTrimmedName, gender, iv] = match;
+      const name = unTrimmedName.trim();
+      const shiny = message.content.includes("✨");
+      const gigantamax = message.content.includes("Gigantamax");
+      const logCatches = config.logging.LogCatches ?? config.logging.Pokemon;
 
-        sendCatch(
-          client.user.username,
-          name,
-          level,
-          iv,
-          gender,
-          shiny,
-          gigantamax,
-          await getImage(name, shiny, gigantamax)
-        );
-      }
+      await sendCatch(
+        client.user.username,
+        name,
+        level,
+        iv,
+        gender,
+        shiny,
+        gigantamax,
+        logCatches ? await getImage(name, shiny, gigantamax) : undefined,
+        logCatches
+      );
     }
   }
 };

@@ -265,115 +265,79 @@ async function sendCatchWebhook(
   }
 }
 
-function sendCatch(username, name, level, iv, gender, shiny, gigantamax, url) {
+async function sendCatch(
+  username,
+  name,
+  level,
+  iv,
+  gender,
+  shiny,
+  gigantamax,
+  url,
+  logCatch = true
+) {
+  let genderSymbol;
+  let stat;
+  let label;
+  let logType = "special catch";
+  let webhookRarity;
+
   if (gender.includes("female")) {
-    genderEmoji = "♂️";
-    genderEmoji = "♀️";
+    genderSymbol = "♀";
   } else if (gender.includes("male")) {
-    genderEmoji = "♂️";
-  } else {
-    genderEmoji = "❔";
+    genderSymbol = "♂";
   }
 
   if (shiny) {
-    sendLog(
-      username,
-      `Caught a ✨ ${name} (Level ${level}) with ${iv} IV!`,
-      "special catch"
-    );
-    sendCatchWebhook(username, name, level, iv, gender, "Shiny", url);
-    addStat(username, "shiny");
-    return;
-  }
+    stat = "shiny";
+    label = "✨";
+    webhookRarity = "Shiny";
+  } else if (gigantamax) {
+    stat = "gigantamax";
+    label = "Gigantamax";
+    webhookRarity = "Gigantamax";
+  } else {
+    const rarity = await checkRarity(name).catch(() => "Regular");
+    const rarityStat = rarity.toLowerCase().replace(/\s/g, "");
+    stat = rarityStat === "regular" ? "catches" : rarityStat;
 
-  if (gigantamax) {
-    sendLog(
-      username,
-      `Caught a Gigantamax ${name} (Level ${level}) with ${iv} IV!`,
-      "special catch"
-    );  
-    sendCatchWebhook(username, name, level, iv, gender, "Gigantamax", url);
-    addStat(username, "gigantamax");
-    return;
-  }
-
-  if (parseFloat(iv) >= config.logging.HighIVThreshold) {
-    sendLog(
-      username,
-      `Caught a ${genderEmoji} High IV ${name} (Level ${level}) with ${iv} IV!`,
-      "special catch"
-    );
-    sendCatchWebhook(username, name, level, iv, gender, "High IV", url);
-    return;
-  }
-
-  if (parseFloat(iv) <= config.logging.LowIVThreshold) {
-    sendLog(
-      username,
-      `Caught a ${genderEmoji} Low IV ${name} (Level ${level}) with ${iv} IV!`,
-      "special catch"
-    );
-    sendCatchWebhook(username, name, level, iv, gender, "Low IV", url);
-    return;
-  }
-
-  checkRarity(name).then((rarity) => {
-    addStat(
-      username,
-      rarity.toLowerCase().replace(" ", "") === "regular"
-        ? "catches"
-        : rarity.toLowerCase().replace(" ", "")
-    );
-    if (rarity == "Legendary") {
-      sendLog(
-        username,
-        `Caught a ${genderEmoji} Legendary ${name} (Level ${level}) with ${iv} IV!`,
-        "special catch"
-      );
-      sendCatchWebhook(username, name, level, iv, gender, rarity, url);
-      return;
-    } else if (rarity == "Mythical") {
-      sendLog(
-        username,
-        `Caught a ${genderEmoji} Mythical ${name} (Level ${level}) with ${iv} IV!`,
-        "special catch"
-      );
-      sendCatchWebhook(username, name, level, iv, gender, rarity, url);
-      return;
-    } else if (rarity == "Ultra Beast") {
-      sendLog(
-        username,
-        `Caught an ${genderEmoji} Ultra Beast ${name} (Level ${level}) with ${iv} IV!`,
-        "special catch"
-      );
-      sendCatchWebhook(username, name, level, iv, gender, rarity, url);
-      return;
-    } else if (rarity == "Event") {
-      sendLog(
-        username,
-        `Caught an ${genderEmoji} Event ${name} (Level ${level}) with ${iv} IV!`,
-        "special catch"
-      );
-      sendCatchWebhook(username, name, level, iv, gender, rarity, url);
-      return;
-    } else if (rarity == "Regional") {
-      sendLog(
-        username,
-        `Caught a ${genderEmoji} Regional ${name} (Level ${level}) with ${iv} IV!`,
-        "special catch"
-      );
-      sendCatchWebhook(username, name, level, iv, gender, rarity, url);
-      return;
-    } else if (rarity == "Regular") {
-      sendLog(
-        username,
-        `Caught a ${genderEmoji} ${name} (Level ${level}) with ${iv} IV!`,
-        "catch"
-      );
-      sendCatchWebhook(username, name, level, iv, gender, undefined, url);
-      return;
+    if (parseFloat(iv) >= config.logging.HighIVThreshold) {
+      label = "High IV";
+      webhookRarity = "High IV";
+    } else if (parseFloat(iv) <= config.logging.LowIVThreshold) {
+      label = "Low IV";
+      webhookRarity = "Low IV";
+    } else if (rarity === "Regular") {
+      label = "";
+      logType = "catch";
+    } else {
+      label = rarity;
+      webhookRarity = rarity;
     }
-  });
+  }
+
+  addStat(username, stat);
+
+  if (!logCatch) return;
+
+  const article = /^[aeiou]/i.test(label || name) ? "an" : "a";
+  const catchName = [genderSymbol, label, name]
+    .filter(Boolean)
+    .join(" ");
+  sendLog(
+    username,
+    `Caught ${article} ${catchName} (Level ${level}) with ${iv} IV!`,
+    logType
+  );
+  sendCatchWebhook(
+    username,
+    name,
+    level,
+    iv,
+    gender,
+    webhookRarity,
+    url
+  );
 }
 
 module.exports = {

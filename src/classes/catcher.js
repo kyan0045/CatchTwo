@@ -34,7 +34,7 @@ class Catcher {
       .login(this.token)
       .then(() => {
         const { createAccountStats } = require("../utils/stats.js");
-        createAccountStats(this.client.user.id);
+        createAccountStats(this.client.user.username);
       })
       .catch((error) => {
         sendLog(
