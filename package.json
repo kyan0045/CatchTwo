@@ -19,7 +19,7 @@
     "axios": "^1.7.3",
     "chalk": "^4.1.0",
     "date-and-time": "^3.1.1",
-    "discord-self-lite": "^0.1.17",
+    "discord-self-lite": "^0.1.19",
     "figlet": "^1.8.0",
     "fs-extra": "^11.2.0",
     "gradient-string": "^3.0.0",
