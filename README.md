@@ -127,6 +127,12 @@ Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/di
 |                   | `HuntToken`         | `String`  | `""`| Specifies the token to use for hunting. This should be a different token than your main bot token.|
 | **Debug**         | `debug`             | `Boolean` | `true`| Enables or disables debug mode. When set to `true`, the bot will output additional information for debugging purposes.     
 
+<!-- Captcha Solving Note -->
+<h2 align="">Captcha Solving</h2>
+<p align="">
+  When a <code>captchaSolving.key</code> is configured in <code>config.js</code>, the bot sends the full Discord account token to the captcha-solving service (see <code>src/events/misc.js</code>) so captchas can be solved on that account's behalf. Only enable it on accounts whose token you are willing to share with the service; leave the key empty to disable.
+</p>
+
 <!-- Commands Section -->
 <h2 align="">Commands</h2>
 <p align="">
