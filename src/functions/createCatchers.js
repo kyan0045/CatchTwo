@@ -27,13 +27,13 @@ async function createCatchers() {
   }
 
   for (var i = 0; i < tokens.length; i++) {
-    await createCatcher(tokens[i].token, tokens[i].guildId);
+    await createCatcher(tokens[i].token, tokens[i].guildId, i + 1);
     await wait(1000)
   }
 }
 
-async function createCatcher(token, guildId) {
-  const catcher = new Catcher(token, guildId);
+async function createCatcher(token, guildId, lineNumber) {
+  const catcher = new Catcher(token, guildId, lineNumber);
   catchers.push(catcher);
   catcher.listen();
   catcher.login();
