@@ -4,9 +4,10 @@ const { sendLog } = require("../functions/logging.js");
 const clients = [];
 
 class Catcher {
-  constructor(token, guildId) {
+  constructor(token, guildId, lineNumber) {
     this.token = token;
     this.guildId = guildId;
+    this.lineNumber = lineNumber;
     this.pokemon = {};
   }
 
@@ -37,9 +38,15 @@ class Catcher {
         createAccountStats(this.client.user.id);
       })
       .catch((error) => {
+        // Line number identifies the failing entry; the 12-char prefix is
+        // only a visual cross-check. Never log the full secret.
+        const tokenHint = String(this.token).slice(0, 12) + "…";
+        const where = this.lineNumber
+          ? ` (tokens.txt line ${this.lineNumber})`
+          : "";
         sendLog(
           null,
-          `Failed to login to token: ${this.token}\n\t\t ${error}`,
+          `Failed to login to token${where}: ${tokenHint}\n\t\t ${error}`,
           "error"
         );
       });
