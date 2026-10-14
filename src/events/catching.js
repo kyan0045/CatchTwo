@@ -160,7 +160,13 @@ module.exports = async (client, guildId, message) => {
         );
         predict(message.embeds[0].image.url)
           .then(async (result) => {
-            if (config.hunting.HuntPokemons.includes(result.split("\r\n")[0])) {
+            if (
+              config.hunting.HuntPokemons.some(
+                (huntName) =>
+                  String(huntName).trim().toLowerCase() ===
+                  String(result.split("\r\n")[0]).trim().toLowerCase(),
+              )
+            ) {
               const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
               await shinyHunter.login();
               await shinyHunter.catch(
@@ -171,7 +177,7 @@ module.exports = async (client, guildId, message) => {
                   inputLanguage: "English",
                 }),
               );
-            } else if (result[0] && typeof result[0] === "string") {
+            } else if (result) {
               let pokemonRandom = await getName({
                 name: result.split("\r\n")[0],
                 inputLanguage: "English",
