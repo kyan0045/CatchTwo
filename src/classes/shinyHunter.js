@@ -28,9 +28,8 @@ class ShinyHunter {
         } ${spawnedPokemon}`
       )
       .then(() => {
-        if (this.pokemon[spawnedPokemon.toLowerCase()])
-          pokemon[spawnedPokemon]++;
-        else this.pokemon[spawnedPokemon.toLowerCase()] = 1;
+        const key = spawnedPokemon.toLowerCase();
+        this.pokemon[key] = (this.pokemon[key] || 0) + 1;
       });
   }
 }

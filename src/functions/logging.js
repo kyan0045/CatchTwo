@@ -88,7 +88,8 @@ function sendLog(username, message, type) {
           message
       );
       break;
-    case "incense" || "auto-incense":
+    case "incense":
+    case "auto-incense":
       console.log(
         chalk.bold.green(`[${type.toUpperCase()}]`) +
           ` - ` +
