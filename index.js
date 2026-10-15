@@ -19,7 +19,7 @@ if (process.env.CATCHTWO_RUNTIME_READY !== "1") {
 // Importing necessary functions
 const { createCatchers } = require("./src/functions/createCatchers.js");
 const { sendLog, sendWebhook } = require("./src/functions/logging.js");
-const { logMemoryUsage, memoryUsage } = require("./src/utils/utils.js");
+const { logMemoryUsage } = require("./src/utils/utils.js");
 
 // Importing necessary modules
 const chalk = require("chalk");
@@ -115,15 +115,8 @@ process.on("uncaughtException", (e, o) => {
   console.log(e);
 });
 
-// Handling uncaught exceptions with a monitor (currently commented out)
-/*process.on("uncaughtExceptionMonitor", (err, origin) => {
-  sendLog(undefined, `Uncaught Exception/Catch (MONITOR)`, "error")
-  console.log(err, origin);
-}); */
-
 // Handling multiple promise resolutions
 process.on("multipleResolves", (type, promise, reason) => {
-  // Logging multiple resolutions  sendLog(undefined, `Multiple Resolves`, "error");
   console.log(type, promise, reason);
 });
 
