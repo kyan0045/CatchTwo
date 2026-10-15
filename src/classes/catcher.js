@@ -38,9 +38,6 @@ class Catcher {
         createAccountStats(this.client.user.id);
       })
       .catch((error) => {
-        // Line number identifies the failing entry; the 12-char prefix is
-        // only a visual cross-check. Never log the full secret: the error
-        // text is third-party output, so redact the token from it too.
         const token = String(this.token);
         const tokenHint = token.slice(0, 12) + "…";
         const where = this.lineNumber
