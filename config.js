@@ -1,50 +1,54 @@
-// Configuration object containing various settings for the application
+// Runtime configuration. Loaded once at startup; restart after editing.
 const config = {
-  // Behavior settings
+  // Behavior
   behavior: {
-    AI: true, // Enable or disable AI behavior
-    Sleeping: false, // Enable or disable sleeping behavior
-    Catching: true, // Enable or disable catching behavior (CURRENTLY GLOBAL)
-    Spamming: true // Enable or disable spamming behavior (CURRENTLY GLOBAL)
+    AI: true, // Use the local model before falling back to hints
+    Catching: true, // Catch spawns (applies to all accounts)
+    Spamming: true // Send spam messages (applies to all accounts)
   },
-  // Incense settings
+  // Incense
   incense: {
-    IncenseMode: true, // Enable or disable incense mode
-    AutoIncenseBuy: false, // Enable or disable automatic incense buying
-    IncenseChannel: "ChannelID", // Channel ID for incense mode *WILL BE REMOVED IN FUTURE*
+    IncenseMode: true, // Catch incense spawns and stop spamming; off ignores incense spawns
+    AutoIncenseBuy: false, // Buy a new incense when the current one runs out, requires IncenseMode
+    IncenseChannel: "ChannelID", // Channel for automatic incense purchases; required when AutoIncenseBuy is on. Deprecated.
   },
-  // Spamming settings
+  // Spamming
   spamming: {
-    SpamSpeed: "1500", // Speed of spamming in milliseconds
+    SpamSpeed: 2000, // Milliseconds between spam messages
+    SpamChannel: "" // Channel ID to spam in --> With this empty, it auto-detects
   },
-  // Logging settings
+  // Logging
   logging: {
-    LogCatches: true, // Enable or disable logging of catches
-    LowIVThreshold: 15.00, // Threshold for low IV logging
-    HighIVThreshold: 85.00, // Threshold for high IV logging
-    LogWebhook: "Webhook" // Webhook URL for logging
+    Pokemon: true, // Log regular catches
+    Quests: true, // Log completed quests
+    LowIV: true, // Log catches at or below LowIVThreshold
+    HighIV: true, // Log catches at or above HighIVThreshold
+    SpecialCatches: true, // Log shiny, Gigantamax and other special catches
+    LowIVThreshold: 15.00, // IV percentage at or below this counts as low IV
+    HighIVThreshold: 85.00, // IV percentage at or above this counts as high IV
+    LogWebhook: "Webhook" // Discord webhook URL; empty or "Webhook" disables webhook output
   },
-  // Ownership settings
+  // Ownership
   ownership: {
-    OwnerIDs: ["1101294362505269379", "..."], // List of owner IDs
-    CommandPrefix: "!" // Prefix for commands
+    OwnerIDs: ["1101294362505269379", "..."], // Discord user IDs allowed to run commands
+    CommandPrefix: "!" // Prefix for commands, for example !help
   },
-  // Global settings
+  // Global catching
   globalSettings: {
-    GlobalCatch: false, // Enable or disable global catching
-    BlacklistedGuilds: ["716390832034414685", "..."] // List of blacklisted guild IDs
+    GlobalCatch: false, // Catch in every visible channel except blacklisted guilds
+    BlacklistedGuilds: ["716390832034414685", "..."] // Guild IDs where CatchTwo never catches
   },
-  // Hunting settings
+  // Hunting
   hunting: {
-    HuntPokemons: ["rayquaza", "solosis"], // List of Pokémon to hunt on your hunt account
-    HuntToken: "HuntToken" // Token for hunting
+    HuntPokemons: ["rayquaza", "solosis"], // Species the hunt account should catch
+    HuntToken: "HuntToken" // Hunt account token; empty, "HuntToken" or "..." uses the main account
   },
+  // Captcha solving
   captchaSolving: {
-    key: "", // CatchTwo Captchasolving API key, leave empty to disable, can be bought at @meneerplee or at https://catchtwo.online/captchasolver
+    key: "", // CatchTwo captcha solver API key; empty disables solving
   },
-  // Debug mode
-  debug: true // Enable or disable debug mode
+  // Debug
+  debug: false // Print extra diagnostic output
 };
 
-// Export the configuration object
 module.exports = config;
