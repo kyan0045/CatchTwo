@@ -1,12 +1,16 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { EventEmitter } = require("node:events");
 
 const {
-  getRandomHint,
   isIncenseSpawn,
   shouldCatchSpawn,
   shouldHandleCatchMessage,
 } = require("../src/events/catching.js");
+const {
+  buyIncense,
+  normalizeIncenseChannels,
+} = require("../src/services/incense.js");
 
 const POKETWO_ID = "716390085896962058";
 
@@ -62,17 +66,6 @@ test("catch handling respects the master toggle and guild policy", () => {
   );
 });
 
-test("random hint selection stays within array bounds", () => {
-  assert.equal(
-    getRandomHint(() => 0),
-    "h"
-  );
-  assert.equal(
-    getRandomHint(() => 0.999999),
-    "hint"
-  );
-});
-
 test("global catch accepts guild-less messages", () => {
   const guildless = { author: { id: POKETWO_ID } };
   assert.equal(
@@ -106,6 +99,46 @@ test("IncenseMode controls whether incense spawns are caught", () => {
     shouldCatchSpawn(normal, { incense: { IncenseMode: false } }),
     true
   );
+});
+
+test("incense purchase accepts a plain Poketwo response", async () => {
+  const events = new EventEmitter();
+  let waiterAttached = false;
+  const channel = {
+    awaitMessage({ filter, time }) {
+      waiterAttached = true;
+      return new Promise((resolve) => {
+        const timer = setTimeout(() => resolve(null), time);
+        events.once("message", (message) => {
+          clearTimeout(timer);
+          resolve(filter(message) ? message : null);
+        });
+      });
+    },
+    async send() {
+      assert.equal(waiterAttached, true);
+      events.emit("message", {
+        author: { id: POKETWO_ID },
+        content: "You don't have enough shards for that!",
+      });
+      return { id: "sent" };
+    },
+  };
+
+  const result = await buyIncense(channel, { timeout: 100 });
+
+  assert.equal(result.error, undefined);
+  assert.equal(result.sent.id, "sent");
+  assert.equal(result.reason, "no-shards");
+});
+
+test("incense channel lists accept one ID or an array", () => {
+  assert.deepEqual(normalizeIncenseChannels(" 123 "), ["123"]);
+  assert.deepEqual(
+    normalizeIncenseChannels(["123", "456", "123", "ChannelID", "", 42]),
+    ["123", "456"]
+  );
+  assert.deepEqual(normalizeIncenseChannels(undefined), []);
 });
 
 test("hunt targets fall back to the main account without a usable token", () => {

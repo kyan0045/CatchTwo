@@ -58,7 +58,11 @@ function getWebhookClient() {
   return new WebhookClient(url);
 }
 
-function canPingLoggingAlerts() {
+function shouldPingCategory(category) {
+  if (category) {
+    const configured = config.logging?.Ping?.[category];
+    if (configured !== undefined) return configured !== false;
+  }
   return loggingOption("Pokemon");
 }
 
@@ -178,10 +182,7 @@ async function sendCatchWebhook(
     };
 
     await webhook.send(
-      getWebhookMessage(
-        shouldPing && canPingLoggingAlerts() ? getMentions() : undefined,
-        embed
-      )
+      getWebhookMessage(shouldPing ? getMentions() : undefined, embed)
     );
   } catch (err) {
     if (err.code === "WEBHOOK_URL_INVALID") {
@@ -220,10 +221,7 @@ async function sendQuestWebhook(
     };
 
     await webhook.send(
-      getWebhookMessage(
-        shouldPing && canPingLoggingAlerts() ? getMentions() : undefined,
-        embed
-      )
+      getWebhookMessage(shouldPing ? getMentions() : undefined, embed)
     );
   } catch (err) {
     if (err.code === "WEBHOOK_URL_INVALID") {
@@ -257,8 +255,6 @@ async function sendCatch(
     genderEmoji = "Male";
   }
 
-  const shouldPingAlerts = canPingLoggingAlerts();
-
   if (shiny) {
     addStat(id, "shiny");
     if (loggingOption("SpecialCatches")) {
@@ -276,7 +272,7 @@ async function sendCatch(
         gender,
         "Shiny",
         url,
-        shouldPingAlerts
+        shouldPingCategory("Shiny")
       );
     }
     return;
@@ -299,7 +295,7 @@ async function sendCatch(
         gender,
         "Gigantamax",
         url,
-        shouldPingAlerts
+        shouldPingCategory("Gigantamax")
       );
     }
     return;
@@ -322,7 +318,7 @@ async function sendCatch(
         gender,
         "High IV",
         url,
-        shouldPingAlerts
+        shouldPingCategory("HighIV")
       );
     }
     return;
@@ -345,7 +341,7 @@ async function sendCatch(
         gender,
         "Low IV",
         url,
-        shouldPingAlerts
+        shouldPingCategory("LowIV")
       );
     }
     return;
@@ -385,7 +381,7 @@ async function sendCatch(
     gender,
     isRegular ? undefined : rarity,
     url,
-    !isRegular && shouldPingAlerts
+    !isRegular && shouldPingCategory("Rares")
   );
 }
 
@@ -398,5 +394,5 @@ module.exports = {
   sendQuestWebhook,
   getMentions,
   loggingOption,
-  canPingLoggingAlerts,
+  shouldPingCategory,
 };

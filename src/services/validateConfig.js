@@ -7,6 +7,15 @@ function isSnowflake(value) {
   return typeof value === "string" && /^\d{16,20}$/.test(value);
 }
 
+const PING_CATEGORIES = [
+  "Shiny",
+  "Gigantamax",
+  "Rares",
+  "HighIV",
+  "LowIV",
+  "Quests",
+];
+
 /**
  * @param {unknown} input
  * @returns {{ errors: string[], warnings: string[] }}
@@ -41,11 +50,25 @@ function validateConfig(input) {
       errors.push(`incense.${key} must be a boolean`);
     }
   }
-  if (typeof incense.IncenseChannel !== "string") {
-    errors.push("incense.IncenseChannel must be a string");
+  /** @type {unknown[]} */
+  const incenseChannels = Array.isArray(incense.IncenseChannel)
+    ? incense.IncenseChannel
+    : [incense.IncenseChannel];
+  if (
+    typeof incense.IncenseChannel !== "string" &&
+    !Array.isArray(incense.IncenseChannel)
+  ) {
+    errors.push(
+      "incense.IncenseChannel must be a string or an array of strings"
+    );
+  } else if (incenseChannels.some((channel) => typeof channel !== "string")) {
+    errors.push(
+      "incense.IncenseChannel must be a string or an array of strings"
+    );
   } else if (
-    incense.IncenseChannel === "ChannelID" ||
-    incense.IncenseChannel === "..."
+    incenseChannels.some(
+      (channel) => channel === "ChannelID" || channel === "..."
+    )
   ) {
     warnings.push("incense.IncenseChannel still holds a placeholder value");
   }
@@ -82,6 +105,21 @@ function validateConfig(input) {
   ]) {
     if (typeof logging[key] !== "boolean") {
       errors.push(`logging.${key} must be a boolean`);
+    }
+  }
+  if (logging.Ping !== undefined) {
+    if (
+      !logging.Ping ||
+      typeof logging.Ping !== "object" ||
+      Array.isArray(logging.Ping)
+    ) {
+      errors.push("logging.Ping must be an object with boolean category flags");
+    } else {
+      for (const key of PING_CATEGORIES) {
+        if (typeof logging.Ping[key] !== "boolean") {
+          errors.push(`logging.Ping.${key} must be a boolean`);
+        }
+      }
     }
   }
   for (const key of ["LowIVThreshold", "HighIVThreshold"]) {

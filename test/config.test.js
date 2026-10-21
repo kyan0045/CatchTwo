@@ -25,6 +25,14 @@ function validConfig() {
       LowIV: true,
       HighIV: true,
       SpecialCatches: true,
+      Ping: {
+        Shiny: true,
+        Gigantamax: true,
+        Rares: true,
+        HighIV: true,
+        LowIV: true,
+        Quests: true,
+      },
       LowIVThreshold: 15,
       HighIVThreshold: 85,
       LogWebhook: "",
@@ -60,6 +68,67 @@ test("a complete config validates and only warns about placeholders", () => {
     "incense.IncenseChannel still holds a placeholder value",
     "hunting.HuntToken still holds a placeholder value",
   ]);
+});
+
+test("incense channels accept one ID or an array of IDs", () => {
+  const single = copy();
+  single.incense.IncenseChannel = "123456789012345678";
+  assert.deepEqual(validateConfig(single).errors, []);
+
+  const multiple = copy();
+  multiple.incense.IncenseChannel = [
+    "123456789012345678",
+    "234567890123456789",
+  ];
+  const { errors, warnings } = validateConfig(multiple);
+  assert.deepEqual(errors, []);
+  assert.equal(
+    warnings.some((warning) => warning.includes("IncenseChannel")),
+    false
+  );
+
+  const invalid = copy();
+  invalid.incense.IncenseChannel = ["123456789012345678", 123];
+  assert.ok(
+    validateConfig(invalid).errors.includes(
+      "incense.IncenseChannel must be a string or an array of strings"
+    )
+  );
+});
+
+test("logging ping booleans are validated", () => {
+  const valid = copy();
+  valid.logging.Ping.Shiny = false;
+  valid.logging.Ping.Rares = true;
+  assert.deepEqual(validateConfig(valid).errors, []);
+
+  const invalid = copy();
+  invalid.logging.Ping.Shiny = "yes";
+  assert.ok(
+    validateConfig(invalid).errors.includes(
+      "logging.Ping.Shiny must be a boolean"
+    )
+  );
+});
+
+test("ping booleans override the legacy Pokemon flag", () => {
+  const config = require("../config.js");
+  const { shouldPingCategory } = require("../src/services/logging.js");
+  const previousPing = config.logging.Ping;
+  const previousPokemon = config.logging.Pokemon;
+
+  try {
+    config.logging.Ping = { Shiny: true, Rares: false };
+    config.logging.Pokemon = false;
+    assert.equal(shouldPingCategory("Shiny"), true);
+    assert.equal(shouldPingCategory("Rares"), false);
+
+    config.logging.Ping = undefined;
+    assert.equal(shouldPingCategory("Shiny"), false);
+  } finally {
+    config.logging.Ping = previousPing;
+    config.logging.Pokemon = previousPokemon;
+  }
 });
 
 test("required sections are rejected when missing", () => {

@@ -5,6 +5,11 @@ const config = require("../../config.js");
 const { wait, randomInteger } = require("../services/system.js");
 const { huntPokemon } = require("../classes/shinyHunter.js");
 const { sendLog, sendCatch } = require("../services/logging.js");
+const {
+  buyIncense,
+  logIncenseResult,
+  normalizeIncenseChannels,
+} = require("../services/incense.js");
 const { setWaiting, getWaiting } = require("../services/states.js");
 const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 const {
@@ -232,34 +237,18 @@ module.exports = {
             if (
               canSend(client) &&
               config.incense.AutoIncenseBuy === true &&
-              message.channel.id === config.incense.IncenseChannel
+              normalizeIncenseChannels(config.incense.IncenseChannel).includes(
+                message.channel.id
+              )
             ) {
               sendLog(
                 client.user.username,
                 "Incense ran out, buying next one.",
                 "auto-incense"
               );
-              message.channel
-                .send(`${POKETWO_MENTION} incense buy 30m 10s -y`)
-                .catch((error) =>
-                  sendLog(
-                    client.user.username,
-                    `Failed to buy incense: ${error.message || error}`,
-                    "error"
-                  )
-                );
-              const msg = await message.channel.awaitMessage({
-                filter: (message) =>
-                  message.content.includes(
-                    "You don't have enough shards for that!"
-                  ),
-                time: 5000,
-                errors: false,
-              });
-
-              if (msg) {
-                setWaiting(client.user.id, false);
-              }
+              const result = await buyIncense(message.channel);
+              await logIncenseResult(client, result);
+              if (result.reason) setWaiting(client.user.id, false);
             } else {
               setWaiting(client.user.id, false);
               sendLog(

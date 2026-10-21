@@ -91,6 +91,51 @@ module.exports = config;
   assert.match(fs.readFileSync(userPath, "utf8"), /\/\/ keep off/);
 });
 
+test("configuration migration ignores the optional nested ping block", (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "catchtwo-config-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+
+  const upstreamPath = path.join(directory, "upstream.js");
+  const userPath = path.join(directory, "user.js");
+
+  fs.writeFileSync(
+    upstreamPath,
+    `const config = {
+  logging: {
+    Pokemon: true,
+    Quests: true,
+    Ping: {
+      Shiny: true,
+      Rares: true,
+    },
+  },
+};
+
+module.exports = config;
+`
+  );
+  fs.writeFileSync(
+    userPath,
+    `const config = {
+  logging: {
+    Pokemon: false,
+  },
+};
+
+module.exports = config;
+`
+  );
+
+  assert.equal(mergeConfigFiles(upstreamPath, userPath), true);
+  delete require.cache[require.resolve(userPath)];
+  const merged = require(userPath);
+
+  assert.equal(merged.logging.Pokemon, false);
+  assert.equal(merged.logging.Quests, true);
+  assert.equal(merged.logging.Ping, undefined);
+  assert.doesNotMatch(fs.readFileSync(userPath, "utf8"), /Ping:/);
+});
+
 test("configuration migration is idempotent when run twice", (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "catchtwo-config-"));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));

@@ -140,7 +140,7 @@ if not exist "package.json" (
     pause
     exit /b
 )
-call npm install --no-audit --no-fund
+call npm install --omit=dev --no-audit --no-fund
 if errorlevel 1 goto fatal
 echo [SUCCESS] Dependencies verified.
 

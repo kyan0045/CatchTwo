@@ -117,7 +117,7 @@ function main() {
 
     console.log("[update] Installing dependencies");
     const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-    const install = spawnSync(npm, ["install"], {
+    const install = spawnSync(npm, ["install", "--omit=dev"], {
       cwd: repoRoot,
       stdio: "inherit",
     });

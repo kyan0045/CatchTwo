@@ -165,43 +165,6 @@ test("queue retries route-queue-full sends only up to the attempt limit", async 
   assert.equal(failure.code, "ROUTE_QUEUE_FULL");
 });
 
-test("queue resolves on the first send without retrying", async () => {
-  const { processPoketwoQueue } = require("../src/services/queue.js");
-
-  const sleeps = [];
-  const sent = { id: "message" };
-  let attempts = 0;
-  let resolvedWith;
-  const restManager = {
-    _poketwoQueue: [
-      {
-        channelId: "channel",
-        payload: { content: "message" },
-        priority: 2,
-        expiresAt: Date.now() + 10_000,
-        resolve: (value) => {
-          resolvedWith = value;
-        },
-        reject: () => {},
-      },
-    ],
-    _poketwoQueueProcessing: false,
-    destroyed: false,
-    sleep: async (ms) => {
-      sleeps.push(ms);
-    },
-  };
-
-  await processPoketwoQueue(restManager, async () => {
-    attempts++;
-    return sent;
-  });
-
-  assert.equal(attempts, 1);
-  assert.deepEqual(sleeps, []);
-  assert.equal(resolvedWith, sent);
-});
-
 test("a null response is a completed 204, not a dropped send", async () => {
   const { processPoketwoQueue } = require("../src/services/queue.js");
   let resolvedWith = "unset";

@@ -21,11 +21,13 @@ CatchTwo 2.0 brings the AI catcher to Android and makes the send path more relia
 - Local AI catch model (`sepconv-1279-real-ft`) with 1,279 classes, 1,621,951 parameters, and 64x64 RGB input. Validation top-1 is 99.451% and top-5 is 99.870%.
 - Center-crop preprocessing for live spawn images. The center 0.8x of the shorter side is cropped before the 64x64 resize, and images at or below 128 px are left as-is.
 - `CatchTwoRestManager`, a priority send queue for Pokétwo traffic. Catches outrank hints, hints outrank commands, and spam runs last.
+- `incense.IncenseChannel` accepts one channel ID or an array of channel IDs for auto-buy.
+- Optional nested `logging.Ping` object with boolean flags for shiny, Gigantamax, rare, IV, and quest catches, so shinies can ping without pinging rares or events.
 - Startup config validation and idempotent config migration.
 - `ping` and `support` commands, plus reworked `predict`, `version`, `help`, and `stats` commands.
 - Cross-platform setup for Windows, Linux, macOS, and Android (Termux).
 - TypeScript `checkJs` coverage for opt-in modules, Prettier, ESLint, and a Node 22/24/26 CI matrix.
-- 64 `node:test` tests covering services, commands, queueing, and lifecycle behavior.
+- 68 `node:test` tests covering services, commands, queueing, and lifecycle behavior.
 
 ### Changed
 
@@ -39,7 +41,7 @@ CatchTwo 2.0 brings the AI catcher to Android and makes the send path more relia
 - Outbound Pokétwo traffic now uses a bounded priority queue with per-class deadlines, bucket-aware pacing, and catch protection. Spam yields to catches and is dropped when paused.
 - A `null` REST response now means only `204 No Content`. Full route queues reject with `RouteQueueFullError` and are retried before the item's deadline.
 - The confidence floor is 0.5. Known weak classes always go to the hint path instead of being caught.
-- Install and update now use `main`. `start.bat` and the package scripts were updated.
+- The 2.0 beta installs from `dev`. The new `start.bat` follows `dev` and switches existing checkouts to it. `npm run update` updates the checked-out branch and preserves local `config.js` and `tokens.txt` changes.
 - `package-lock.json` is tracked and CI runs `npm ci`.
 - The supported Node baseline is `>=22.13.0`.
 
@@ -66,6 +68,6 @@ CatchTwo 2.0 brings the AI catcher to Android and makes the send path more relia
 
 ## Model
 
-- Production run: `20260723T122145Z-sepconv-1279-real-ft` from the private `kyan0045/poketwo-ai` repository. Checkpoint SHA-256 starts with `b49e33c3`.
+- Production run: `20260723T122145Z-sepconv-1279-real-ft` from the `kyan0045/poketwo-ai` repository. Checkpoint SHA-256 starts with `b49e33c3`.
 - Live validation at the 0.5 floor: 184 spawns, 182 caught (98.9%). On caught spawns, 180/182 were top-1 (98.9%) and 174/176 were accepted (98.9%).
 - Known weak classes always use hints: `Type Null`, `Type`, `Galarian Articuno`, `Galarian Zapdos`, `MissingNo`, `Regieleki`, `Scolipede`, and `Xurkitree`.

@@ -7,7 +7,7 @@ const {
   sendQuestWebhook,
   getMentions,
   loggingOption,
-  canPingLoggingAlerts,
+  shouldPingCategory,
 } = require("../services/logging.js");
 const {
   getWaiting,
@@ -367,7 +367,7 @@ module.exports = {
               quest,
               pokecoins,
               null,
-              canPingLoggingAlerts()
+              shouldPingCategory("Quests")
             );
           }
           addStat(client.user.id, "coins", pokecoins);
@@ -386,7 +386,7 @@ module.exports = {
               null,
               null,
               badge,
-              canPingLoggingAlerts()
+              shouldPingCategory("Quests")
             );
           }
         }

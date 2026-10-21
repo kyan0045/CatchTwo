@@ -10,7 +10,7 @@ const config = {
   incense: {
     IncenseMode: true, // Catch incense spawns and stop spamming; off ignores incense spawns
     AutoIncenseBuy: false, // Buy a new incense when the current one runs out, requires IncenseMode
-    IncenseChannel: "ChannelID", // Channel for automatic incense purchases; required when AutoIncenseBuy is on. Deprecated.
+    IncenseChannel: "ChannelID", // Channel ID or array of channel IDs for automatic purchases; required when AutoIncenseBuy is on. Deprecated.
   },
   // Spamming
   spamming: {
@@ -24,6 +24,14 @@ const config = {
     LowIV: true, // Log catches at or below LowIVThreshold
     HighIV: true, // Log catches at or above HighIVThreshold
     SpecialCatches: true, // Log shiny, Gigantamax and other special catches
+    Ping: {
+      Shiny: true,
+      Gigantamax: true,
+      Rares: true,
+      HighIV: true,
+      LowIV: true,
+      Quests: true,
+    },
     LowIVThreshold: 15.00, // IV percentage at or below this counts as low IV
     HighIVThreshold: 85.00, // IV percentage at or above this counts as high IV
     LogWebhook: "Webhook" // Discord webhook URL; empty or "Webhook" disables webhook output

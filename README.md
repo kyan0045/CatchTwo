@@ -72,7 +72,7 @@ git clone https://github.com/kyan0045/CatchTwo.git
 cd CatchTwo
 
 # 3. Install dependencies
-npm install
+npm install --omit=dev
 
 # 4. Fill in config.js and tokens.txt
 
@@ -91,7 +91,7 @@ CatchTwo 2.0.0 is currently in beta on the `dev` branch. On Windows, `start.bat`
 ```bash
 git clone --branch dev https://github.com/kyan0045/CatchTwo.git
 cd CatchTwo
-npm install
+npm install --omit=dev
 
 # Fill in config.js and tokens.txt, then start
 npm start
@@ -103,32 +103,48 @@ Use `npm run update` to update the current branch. It preserves `config.js` and 
 
 All settings live in `config.js`. `tokens.txt` holds one `token guildId` pair per account, separated by whitespace. Defaults are shown for reference; restart after editing.
 
-| Category            | Setting             | Type      | Default                          | Description                                                                                |
-| :------------------ | :------------------ | :-------- | :------------------------------- | :----------------------------------------------------------------------------------------- |
-| **Behavior**        | `AI`                | `Boolean` | `true`                           | Try the local model before falling back to hints.                                          |
-|                     | `Catching`          | `Boolean` | `true`                           | Master switch for catching.                                                                |
-|                     | `Spamming`          | `Boolean` | `true`                           | Master switch for spamming. IncenseMode disables it when on.                               |
-| **Incense**         | `IncenseMode`       | `Boolean` | `true`                           | Catch incense spawns and stop spamming. When off, incense spawns are ignored.              |
-|                     | `AutoIncenseBuy`    | `Boolean` | `false`                          | Buy a new incense when the current one runs out. Requires IncenseMode.                     |
-|                     | `IncenseChannel`    | `String`  | `"ChannelID"`                    | Channel for automatic incense purchases. Required when `AutoIncenseBuy` is on. Deprecated. |
-| **Spamming**        | `SpamSpeed`         | `Number`  | `2000`                           | Milliseconds between spam messages. Range 1000 to 120000.                                  |
-|                     | `SpamChannel`       | `String`  | `""`                             | Channel ID to spam in. Empty auto-detects a channel named "spam".                          |
-| **Logging**         | `Pokemon`           | `Boolean` | `false`                          | Log regular catches.                                                                       |
-|                     | `Quests`            | `Boolean` | `true`                           | Log completed quests.                                                                      |
-|                     | `LowIV`             | `Boolean` | `true`                           | Log catches at or below `LowIVThreshold`.                                                  |
-|                     | `HighIV`            | `Boolean` | `true`                           | Log catches at or above `HighIVThreshold`.                                                 |
-|                     | `SpecialCatches`    | `Boolean` | `true`                           | Log shiny, Gigantamax and other special catches.                                           |
-|                     | `LowIVThreshold`    | `Number`  | `15.00`                          | IV percentage at or below this counts as low IV.                                           |
-|                     | `HighIVThreshold`   | `Number`  | `85.00`                          | IV percentage at or above this counts as high IV.                                          |
-|                     | `LogWebhook`        | `String`  | `""`                             | Discord webhook URL. Empty or `Webhook` disables webhook output.                           |
-| **Ownership**       | `OwnerIDs`          | `Array`   | `["1101294362505269379", "..."]` | Discord user IDs allowed to run commands.                                                  |
-|                     | `CommandPrefix`     | `String`  | `"!"`                            | Command prefix, for example `!help`. Must not clash with another bot in the same server.   |
-| **Global Settings** | `GlobalCatch`       | `Boolean` | `false`                          | Catch in every visible channel except blacklisted guilds.                                  |
-|                     | `BlacklistedGuilds` | `Array`   | `["716390832034414685", "..."]`  | Guild IDs where CatchTwo never catches.                                                    |
-| **Hunting**         | `HuntPokemons`      | `Array`   | `["rayquaza", "solosis"]`        | Species the hunt account should catch.                                                     |
-|                     | `HuntToken`         | `String`  | `"HuntToken"`                    | Hunt account token. Empty, `HuntToken` or `...` uses the main account.                     |
-| **Captcha Solving** | `key`               | `String`  | `""`                             | CatchTwo captcha solver API key. Empty disables solving.                                   |
-| **Debug**           | `debug`             | `Boolean` | `true`                           | Print extra diagnostic output.                                                             |
+| Category            | Setting             | Type              | Default                          | Description                                                                                                          |
+| :------------------ | :------------------ | :---------------- | :------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| **Behavior**        | `AI`                | `Boolean`         | `true`                           | Try the local model before falling back to hints.                                                                    |
+|                     | `Catching`          | `Boolean`         | `true`                           | Master switch for catching.                                                                                          |
+|                     | `Spamming`          | `Boolean`         | `true`                           | Master switch for spamming. IncenseMode disables it when on.                                                         |
+| **Incense**         | `IncenseMode`       | `Boolean`         | `true`                           | Catch incense spawns and stop spamming. When off, incense spawns are ignored.                                        |
+|                     | `AutoIncenseBuy`    | `Boolean`         | `false`                          | Buy a new incense when the current one runs out. Requires IncenseMode.                                               |
+|                     | `IncenseChannel`    | `String or Array` | `"ChannelID"`                    | One channel ID or an array of channel IDs for automatic purchases. Required when `AutoIncenseBuy` is on. Deprecated. |
+| **Spamming**        | `SpamSpeed`         | `Number`          | `2000`                           | Milliseconds between spam messages. Range 1000 to 120000.                                                            |
+|                     | `SpamChannel`       | `String`          | `""`                             | Channel ID to spam in. Empty auto-detects a channel named "spam".                                                    |
+| **Logging**         | `Pokemon`           | `Boolean`         | `false`                          | Log regular catches.                                                                                                 |
+|                     | `Quests`            | `Boolean`         | `true`                           | Log completed quests.                                                                                                |
+|                     | `LowIV`             | `Boolean`         | `true`                           | Log catches at or below `LowIVThreshold`.                                                                            |
+|                     | `HighIV`            | `Boolean`         | `true`                           | Log catches at or above `HighIVThreshold`.                                                                           |
+|                     | `SpecialCatches`    | `Boolean`         | `true`                           | Log shiny, Gigantamax and other special catches.                                                                     |
+|                     | `Ping`              | `Object`          | see example                      | Per-category owner pings. Set each category to `true` or `false`.                                                    |
+|                     | `LowIVThreshold`    | `Number`          | `15.00`                          | IV percentage at or below this counts as low IV.                                                                     |
+|                     | `HighIVThreshold`   | `Number`          | `85.00`                          | IV percentage at or above this counts as high IV.                                                                    |
+|                     | `LogWebhook`        | `String`          | `""`                             | Discord webhook URL. Empty or `Webhook` disables webhook output.                                                     |
+| **Ownership**       | `OwnerIDs`          | `Array`           | `["1101294362505269379", "..."]` | Discord user IDs allowed to run commands.                                                                            |
+|                     | `CommandPrefix`     | `String`          | `"!"`                            | Command prefix, for example `!help`. Must not clash with another bot in the same server.                             |
+| **Global Settings** | `GlobalCatch`       | `Boolean`         | `false`                          | Catch in every visible channel except blacklisted guilds.                                                            |
+|                     | `BlacklistedGuilds` | `Array`           | `["716390832034414685", "..."]`  | Guild IDs where CatchTwo never catches.                                                                              |
+| **Hunting**         | `HuntPokemons`      | `Array`           | `["rayquaza", "solosis"]`        | Species the hunt account should catch.                                                                               |
+|                     | `HuntToken`         | `String`          | `"HuntToken"`                    | Hunt account token. Empty, `HuntToken` or `...` uses the main account.                                               |
+| **Captcha Solving** | `key`               | `String`          | `""`                             | CatchTwo captcha solver API key. Empty disables solving.                                                             |
+| **Debug**           | `debug`             | `Boolean`         | `true`                           | Print extra diagnostic output.                                                                                       |
+
+`logging.Ping` controls owner mentions independently from logging:
+
+```js
+Ping: {
+  Shiny: true,
+  Gigantamax: false,
+  Rares: false,
+  HighIV: false,
+  LowIV: false,
+  Quests: false,
+}
+```
+
+All six categories must be present. Omit `Ping` entirely to keep the legacy `Pokemon`-based ping behavior.
 
 ## Commands
 

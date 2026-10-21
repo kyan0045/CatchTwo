@@ -2,7 +2,11 @@ const chalk = require("chalk");
 const config = require("../../config.js");
 const { sendLog, sendWebhook } = require("../services/logging.js");
 const { setWaiting } = require("../services/states.js");
-const { POKETWO_MENTION } = require("../constants.js");
+const {
+  buyIncense,
+  logIncenseResult,
+  normalizeIncenseChannels,
+} = require("../services/incense.js");
 
 let accountReadyCount = 0;
 let timer;
@@ -16,7 +20,7 @@ module.exports = {
       "INFO"
     );
 
-    // Report once, five seconds after the last account becomes ready
+    // Report once, briefly after the last account becomes ready
     accountReadyCount++;
     if (timer) clearTimeout(timer);
 
@@ -32,7 +36,7 @@ module.exports = {
         },
       });
       accountReadyCount = 0;
-    }, 5000);
+    }, 1500);
 
     client.user.setStatus("invisible");
     if (
@@ -40,53 +44,29 @@ module.exports = {
       config.incense.AutoIncenseBuy === true
     ) {
       try {
-        const incenseChannel = await client.resolveChannel(
+        const channelIds = normalizeIncenseChannels(
           config.incense.IncenseChannel
         );
-
-        if (!incenseChannel) {
-          throw new Error(
-            `Could not resolve incense channel: ${config.incense.IncenseChannel}`
-          );
+        if (channelIds.length === 0) {
+          throw new Error("No valid incense channels configured.");
         }
 
-        const sent = await incenseChannel.send(
-          `${POKETWO_MENTION} incense buy 30m 10s -y`
-        );
-        if (!sent) {
-          // A dropped send means no purchase happened; keep the current spam state
-          sendLog(
-            client.user.username,
-            "Incense purchase was dropped before sending (route queue full).",
-            "warning"
-          );
-        } else {
-          const msg = await incenseChannel.awaitMessage({
-            filter: (message) =>
-              message.content.includes(
-                "You don't have enough shards for that!"
-              ) ||
-              message.content.includes(
-                "This channel already has an incense active! Please wait for it to end before purchasing another one."
-              ),
-            time: 5000,
-            errors: false,
-          });
-
-          if (msg?.content.includes("You don't have enough shards for that!")) {
-            setWaiting(client.user.id, false);
-          } else if (
-            msg?.content.includes(
-              "This channel already has an incense active! Please wait for it to end before purchasing another one."
-            )
-          ) {
-            setWaiting(client.user.id, false);
-          } else {
+        for (const channelId of channelIds) {
+          const incenseChannel = await client.resolveChannel(channelId);
+          if (!incenseChannel) {
             sendLog(
               client.user.username,
-              "Incense purchase was not confirmed; keeping spam state unchanged.",
-              "debug"
+              `Could not resolve incense channel: ${channelId}`,
+              "error"
             );
+            continue;
+          }
+
+          const result = await buyIncense(incenseChannel);
+          await logIncenseResult(client, result);
+          if (result.reason) {
+            setWaiting(client.user.id, false);
+            if (result.reason === "no-shards") break;
           }
         }
       } catch (error) {
