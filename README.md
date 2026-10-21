@@ -1,178 +1,179 @@
-      
-<!-- Badges (Top) -->
 <p align="center">
-  <a href="https://kyan.space"><img width="200px" src="https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png" alt="Logo"></a>
-  <h1 align="center">CatchTwo</h1>
+  <a href="https://kyanbosman.com"><img width="200" src="https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png" alt="CatchTwo logo"></a>
 </p>
 
+<h1 align="center">CatchTwo</h1>
 
 <p align="center">
-  <a href="#key-features">Key Features</a> •
-  <a href="#installation">How To Use</a> •
-  <a href="#configurations">Configurations</a> •
-  <a href="#commands">Commands</a> •
-  <a href="#support">Support</a> •
-  <a href="#related">Related</a>
+  <i>Open-source Pokétwo autocatcher with a local AI catch model.</i>
 </p>
 
-  <p align="center">
+<p align="center">
   <a href="https://discord.gg/tXa2Hw5jHy"><img src="https://img.shields.io/discord/1133853334944632832?label=Discord&logo=discord&logoColor=white&style=for-the-badge" alt="Discord"></a>
   <a href="https://github.com/kyan0045/CatchTwo/stargazers"><img src="https://img.shields.io/github/stars/kyan0045/CatchTwo?style=for-the-badge&logo=github&color=blue" alt="Stars"></a>
   <a href="https://github.com/kyan0045/CatchTwo/releases"><img src="https://img.shields.io/github/v/release/kyan0045/CatchTwo?style=for-the-badge&logo=github" alt="Release"></a>
-  <a href="https://www.nodejs.org/"><img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white" alt="made-with-python"></a>
+  <a href="https://www.nodejs.org/"><img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white" alt="Node.js"></a>
 </p>
-
 
 <p align="center">
-  <b>Enjoying CatchTwo? Give this project a ⭐ on GitHub to show your support!</b>
+  <a href="#features">Features</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#configuration">Configuration</a> •
+  <a href="#commands">Commands</a> •
+  <a href="#support">Support</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#related">Related</a>
 </p>
 
-<!-- Title & Subtitle -->
 <p align="center">
-  <i>The Revolutionary, Open-Source Autocatcher That Puts You in Control</i>
+  <b>If CatchTwo helps you, consider starring the repository.</b>
 </p>
 
-<img src="https://res.cloudinary.com/dppthk8lt/image/upload/v1734823547/image_fx__4_cacczd.png">
+![CatchTwo banner](https://res.cloudinary.com/dppthk8lt/image/upload/v1734823547/image_fx__4_cacczd.png)
 
-<!-- About Section -->
-<h2 align="">About CatchTwo</h2>
-<p align="">
-  CatchTwo is not just another Pokétwo bot. It's a <b>cutting-edge, AI-powered autocatcher</b> designed to give you the ultimate advantage. Built with contributions from the community, for the community, CatchTwo is <b>completely free and open-source</b>. Run it on <b>multiple accounts</b>, customize it to your liking, and watch your Pokédex grow faster than ever before.
-</p>
+## About
 
-<!-- Features Section -->
-<h2 align="">Key Features</h2>
-<p align="">
-  <ul>
-    <li>⚡ <b>Blazing Fast AI Catching:</b> Catch more Pokémon with fewer captchas.</li>
-    <li>🔧 <b>Fully Customizable:</b> Tailor every aspect of the bot to your needs.</li>
-    <li>👥 <b>Multi-Account Support:</b> Run CatchTwo on as many accounts as you want.</li>
-    <li>💖 <b>Open-Source & Free:</b> No hidden costs, no premium features, just pure Pokétwo domination.</li>
-    <li>📈 <b>Detailed Statistics:</b> Keep track of your progress with in-depth stats.</li>
-    <li>🤖 <b>Advanced Commands:</b> Control every aspect of your catching experience.</li>
-    <li>🛡️ <b>Safe & Reliable:</b> Designed to avoid detection and keep your accounts secure.</li>
-  </ul>
-</p>
+CatchTwo catches Pokémon for you on Pokétwo. Run one or more accounts from a single instance. A bundled local image model catches most spawns without waiting for a hint.
 
-<!-- Installation Section -->
-<h2 align="">Installation</h2>
-<p align="">
-  Getting started with CatchTwo is easy! Follow our detailed guides for your preferred platform, (and star the Github!):
-</p>
-<p align="">
+CatchTwo is a self-bot. Using it may violate Discord's or Pokétwo's terms of service, and accounts can be restricted. Use it at your own risk.
+
+## Features
+
+- **Local AI catching:** a 64x64 classifier runs on your machine and predicts each spawn. Hint solving is the fallback, and no image is sent to a third party.
+- **Multi-account:** run any number of accounts from one instance.
+- **Cross-platform:** runs on Windows, Linux, macOS and Android (Termux).
+- **Configurable:** catching, spamming, incense, logging and hunting live in `config.js`.
+- **Statistics:** per-account and combined catch, coin and spam counters.
+- **Owner commands:** pause, resume, stats, predict and version.
+- **Free:** no paid tiers and no hidden limits.
+
+## Installation
+
+Requires Node.js 22.13.0 or newer and Git.
+
+Windows and Android guides:
+
+<p align="center">
   <a href="https://youtu.be/Zfy2OQjAX3g">
-    <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Installation Guide">
+    <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows installation guide">
   </a>
   <a href="https://discord.gg/tXa2Hw5jHy">
-    <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android Installation Guide">
+    <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android installation guide">
   </a>
- <!-- <a href="[LINK_TO_REPLIT_GUIDE]">
-    <img src="https://img.shields.io/badge/Replit-F26207?style=for-the-badge&logo=replit&logoColor=white" alt="Replit Installation Guide">
-  </a> -->
 </p>
-<p align="">Or, for the experienced users, follow these quick steps:</p>
 
-- Download [NodeJS](https://nodejs.org/en/download)
-- Download [Git](https://git-scm.com/downloads)
+Quick start on Linux, macOS or Windows (stable `main`):
 
 ```bash
-# 1. Clone the repository (v1.4-beta branch)
-git clone -b v1.4-beta --single-branch https://github.com/kyan0045/catchtwo.git
+# 1. Clone the repository
+git clone https://github.com/kyan0045/CatchTwo.git
 
-# 2. Navigate to the directory
-cd catchtwo
+# 2. Enter the directory
+cd CatchTwo
 
 # 3. Install dependencies
 npm install
 
-# 4. Configure the bot (config.js & tokens.txt)
+# 4. Fill in config.js and tokens.txt
 
 # 5. Start CatchTwo
-npm start 
-# OR
-node .
+npm start
 ```
-<!-- Support Section -->
-<h2 align="">Support</h2>
-<p align="">
-Need help? Join our <a href="https://discord.gg/tXa2Hw5jHy">Discord community</a> for support, updates, and feature requests.<br>
-Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/discussions">Discussions</a> tab!
-</p>
 
-<!-- Configurations Section -->
-<h2 align="">Configurations</h2>
-<p align="">
-  Customize CatchTwo to your liking with these powerful configuration options. All options are to be set in <code>config.json</code>:
-</p>
+Run `npm start` from the repository root. `tokens.txt` is read relative to the working directory.
 
-| Category          | Name                | Type      | Default Value                                         | Description                                                                                                                                                                |
-| :---------------- | :------------------ | :-------- | :---------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Behavior**      | `AI`                | `Boolean` | `true`| Enables or disables the use of AI in the autocatcher. When set to `true`, the autocatcher will use AI logic for improved catching.                                    |
-|                   | `Catching`          | `Boolean` | `true`| Enables or disables catching behavior globally. When set to `true`, the bot will attempt to catch Pokémon in specified channels or guilds.                          |
-|                   | `Spamming`          | `Boolean` | `true`| Enables or disables spamming behavior globally. When set to `true`, the bot will send messages at a set interval in the designated spam channel.                      |
-| **Incense**       | `IncenseMode`       | `Boolean` | `true`| Enables or disables incense mode. When set to `true`, the bot will use incense when available, as specified by the Incense Channel.                                     |
-|                   | `AutoIncenseBuy`    | `Boolean` | `false`| Enables or disables automatic incense buying. When set to `true`, the bot will automatically purchase incense when it runs out.                                           |
-|                   | `IncenseChannel`    | `String`  | `""`| Specifies the channel ID where the bot will use incense. (Optional)|
-| **Spamming**      | `SpamSpeed`         | `Number`  | `1500`| Sets the speed of spamming in milliseconds (e.g., 1500 = 1.5 seconds between each message).                                                                            |
-|                   | `SpamChannel`       | `String`  | `""`| Specifies the channel ID where the bot will send spam messages. (Optional)|
-| **Logging**       | `LogCatches`        | `Boolean` | `true`| Enables or disables logging of catches. When set to `true`, the bot will log all caught Pokémon.                                                                       |
-|                   | `LowIVThreshold`    | `Number`  | `15.00`| Sets the threshold for logging a Pokémon as low IV (e.g., 15.00 means Pokémon with IV below 15% will be logged as low IV).                                                |
-|                   | `HighIVThreshold`   | `Number`  | `85.00`| Sets the threshold for logging a Pokémon as high IV (e.g., 85.00 means Pokémon with IV above 85% will be logged as high IV).                                               |
-|                   | `LogWebhook`        | `String`  | `""` | Specifies the webhook URL where logs will be sent.|
-| **Ownership**     | `OwnerIDs`          | `Array`   | `["1101294362505269379", ""]`| Lists the user IDs that have owner-level control over the bot. You can add more user IDs, separated by commas.|
-|                   | `CommandPrefix`     | `String`  | `"!` | Sets the prefix for bot commands (e.g., !help, !stats). Make sure this prefix is not used by any other bot in the same server!|
-| **Global Settings** | `GlobalCatch`       | `Boolean` | `false`| Enables or disables global catching. When set to `true`, the bot will attempt to catch Pokémon in all channels it has access to, except those in the blacklisted guilds. |
-|                   | `BlacklistedGuilds` | `Array`   | `["716390832034414685", ""]`| Lists the server (guild) IDs where the bot should not catch Pokémon.|
-| **Hunting** | `HuntPokemons`      | `Array`   | `["rayquaza", "solosis"]`| Lists the names of Pokémon to hunt, this means your HuntToken will catch these pokemon.|
-|                   | `HuntToken`         | `String`  | `""`| Specifies the token to use for hunting. This should be a different token than your main bot token.|
-| **Debug**         | `debug`             | `Boolean` | `true`| Enables or disables debug mode. When set to `true`, the bot will output additional information for debugging purposes.     
+On Windows, `start.bat` is a launcher that installs portable Git and Node when missing, follows the `dev` beta branch, merges new config keys and restarts after a crash.
 
-<!-- Commands Section -->
-<h2 align="">Commands</h2>
-<p align="">
-  Take control of CatchTwo with these powerful commands:
-</p>
+## Beta builds
 
+CatchTwo 2.0.0 is currently in beta on the `dev` branch. On Windows, `start.bat` follows `dev` automatically and switches existing checkouts to it. To install the beta manually:
 
-| Command   | Options         | Description                                                                                     |
-| :-------- | :-------------- | :---------------------------------------------------------------------------------------------- |
-| `help`    | `[command]`     | Provides a list of available commands. Use `help [command]` for details on a specific command. |
-| `say`     | `<content>`     | Makes the bot repeat the given text.                                                            |
-| `click`   | `<messageId>`   | Simulates a button click on the specified message.                                                |
-| `pause`   | `[account]`     | Pauses the bot's operations. If an account is specified, it pauses only that account.         |
-| `react`   | `<messageId>`   | Reacts to the specified message with the first available emoji.                               |
-| `restart` |                 | Restarts the bot.                                                                                |
-| `resume`  | `[account]`     | Resumes the bot's operations. If an account is specified, it resumes only that account.      |
-| `alias`   | `[command]`     | List all the aliases for commands.      |     
-| `stats`   | `[general, pokemon] [account]`     | List the stats, whether general or catch-related. If an account is specified, it lists the stats for that account.      |     
-| `join`   | `<invite/invitecode>`     | Attempts to join the invite(code) you specified.      |     
+```bash
+git clone --branch dev https://github.com/kyan0045/CatchTwo.git
+cd CatchTwo
+npm install
 
+# Fill in config.js and tokens.txt, then start
+npm start
+```
 
+The `npm run update` and `npm run force-update` scripts still track `main`. Beta installs should update with `git pull origin dev`, or switch back to the stable branch.
 
-<!-- Contributing Section -->
-<h2 align="">Contributing</h2>
-<p align="">
-CatchTwo is a community-driven project, and we welcome contributions of all kinds! Whether you're a seasoned developer or a passionate Pokétwo player, you can help make CatchTwo even better. Check out our <a href="[LINK_TO_CONTRIBUTING_GUIDE]">Contributing Guide</a> to get started.
-</p>
+## Configuration
 
-<!-- Related -->
-<h2>Related</h2>
-<p align="">
-  At the heart of multiple Pokétwo autocatchers lies <b>PokeHint</b>, an efficient open-source package created by <a href="https://github.com/kyan0045"> @kyan0045</a>:
-</p>
+All settings live in `config.js`. `tokens.txt` holds one `token guildId` pair per account, separated by whitespace. Defaults are shown for reference; restart after editing.
 
-- **[PokeHint](https://github.com/kyan0045/pokehint):** The <b>industry-standard</b>, open-source library for Pokétwo hint solving and rarity checking. This efficient package provides the underlying logic and comprehensive database that powers multiple autocatchers, including CatchTwo. If you're building a Pokétwo bot, you need PokeHint.
+| Category            | Setting             | Type      | Default                          | Description                                                                                |
+| :------------------ | :------------------ | :-------- | :------------------------------- | :----------------------------------------------------------------------------------------- |
+| **Behavior**        | `AI`                | `Boolean` | `true`                           | Try the local model before falling back to hints.                                          |
+|                     | `Catching`          | `Boolean` | `true`                           | Master switch for catching.                                                                |
+|                     | `Spamming`          | `Boolean` | `true`                           | Master switch for spamming. IncenseMode disables it when on.                               |
+| **Incense**         | `IncenseMode`       | `Boolean` | `true`                           | Catch incense spawns and stop spamming. When off, incense spawns are ignored.              |
+|                     | `AutoIncenseBuy`    | `Boolean` | `false`                          | Buy a new incense when the current one runs out. Requires IncenseMode.                     |
+|                     | `IncenseChannel`    | `String`  | `"ChannelID"`                    | Channel for automatic incense purchases. Required when `AutoIncenseBuy` is on. Deprecated. |
+| **Spamming**        | `SpamSpeed`         | `Number`  | `2000`                           | Milliseconds between spam messages. Range 1000 to 120000.                                  |
+|                     | `SpamChannel`       | `String`  | `""`                             | Channel ID to spam in. Empty auto-detects a channel named "spam".                          |
+| **Logging**         | `Pokemon`           | `Boolean` | `false`                          | Log regular catches.                                                                       |
+|                     | `Quests`            | `Boolean` | `true`                           | Log completed quests.                                                                      |
+|                     | `LowIV`             | `Boolean` | `true`                           | Log catches at or below `LowIVThreshold`.                                                  |
+|                     | `HighIV`            | `Boolean` | `true`                           | Log catches at or above `HighIVThreshold`.                                                 |
+|                     | `SpecialCatches`    | `Boolean` | `true`                           | Log shiny, Gigantamax and other special catches.                                           |
+|                     | `LowIVThreshold`    | `Number`  | `15.00`                          | IV percentage at or below this counts as low IV.                                           |
+|                     | `HighIVThreshold`   | `Number`  | `85.00`                          | IV percentage at or above this counts as high IV.                                          |
+|                     | `LogWebhook`        | `String`  | `""`                             | Discord webhook URL. Empty or `Webhook` disables webhook output.                           |
+| **Ownership**       | `OwnerIDs`          | `Array`   | `["1101294362505269379", "..."]` | Discord user IDs allowed to run commands.                                                  |
+|                     | `CommandPrefix`     | `String`  | `"!"`                            | Command prefix, for example `!help`. Must not clash with another bot in the same server.   |
+| **Global Settings** | `GlobalCatch`       | `Boolean` | `false`                          | Catch in every visible channel except blacklisted guilds.                                  |
+|                     | `BlacklistedGuilds` | `Array`   | `["716390832034414685", "..."]`  | Guild IDs where CatchTwo never catches.                                                    |
+| **Hunting**         | `HuntPokemons`      | `Array`   | `["rayquaza", "solosis"]`        | Species the hunt account should catch.                                                     |
+|                     | `HuntToken`         | `String`  | `"HuntToken"`                    | Hunt account token. Empty, `HuntToken` or `...` uses the main account.                     |
+| **Captcha Solving** | `key`               | `String`  | `""`                             | CatchTwo captcha solver API key. Empty disables solving.                                   |
+| **Debug**           | `debug`             | `Boolean` | `true`                           | Print extra diagnostic output.                                                             |
 
-<p align="">
-  Other projects by me you might be interested in:
-</p>
+## Commands
 
-- **[Spammer](https://github.com/kyan0045/spammer):** A versatile Discord spammer. Use with caution! (or maybe don't, who am I to judge?)
-- **[And More!](https://github.com/kyan0045?tab=repositories)** Explore <a href="https://github.com/kyan0045"> @kyan0045</a>'s GitHub profile for a variety of other projects, including experimental tools, utilities, and who knows what else!
+All commands are owner-only and use the configured prefix, `!` by default.
 
+| Command   | Options                              | Description                                                                                                                           |
+| :-------- | :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
+| `help`    | `[command]`                          | List commands, or show details for one command.                                                                                       |
+| `say`     | `<message>`                          | Repeat a message.                                                                                                                     |
+| `click`   | `[messageID] <button> [row]`         | Click a button on a message.                                                                                                          |
+| `pause`   | `[@user\|userID]`                    | Pause catching for all accounts, or for one account.                                                                                  |
+| `react`   | `[messageID] [emoji]`                | React to a message with an emoji, or with its first existing reaction.                                                                |
+| `restart` |                                      | Restart CatchTwo.                                                                                                                     |
+| `resume`  | `[@user\|userID]`                    | Resume catching for all accounts, or for one account. Alias: `solved`.                                                                |
+| `alias`   | `<command>`                          | List the aliases of a command.                                                                                                        |
+| `stats`   | `[pokemon\|general] [@user\|userID]` | Show combined stats, or stats for one account. A bare mention defaults to the general view.                                           |
+| `join`    | `<invite/invitecode>`                | **Currently unavailable.** Attempts to join the server for the invite code you specify. Will return once invite joining is supported. |
+| `predict` | `[imageURL]`                         | Predict the Pokémon in an attached image, a replied-to message, or a linked image.                                                    |
+| `ping`    |                                      | Check the bot's latency.                                                                                                              |
+| `support` |                                      | Send the CatchTwo support server invite.                                                                                              |
+| `version` |                                      | Show CatchTwo, Node.js and discord-self-lite versions.                                                                                |
+| `eval`    | `<code>`                             | Evaluate JavaScript. Debug mode only.                                                                                                 |
 
-<!-- License -->
-<h2 align="">License</h2>
-<p align="">
-CatchTwo is released under a <a href="https://github.com/kyan0045/CatchTwo/blob/main/LICENSE">custom license</a>.
-</p>
+## Support
+
+Join the [Discord server](https://discord.gg/tXa2Hw5jHy) for help, updates and feature requests, or use [Discussions](https://github.com/kyan0045/CatchTwo/discussions).
+
+## Contributing
+
+Contributions are welcome. New features and behavior changes need an issue or discussion first.
+
+- Read the [Contributing Guide](./CONTRIBUTING.md) before you start.
+- Writing code with an AI agent? Read [AGENTS.md](./AGENTS.md) and disclose the model in your pull request.
+- Report bugs, request features or ask anything else through the issue templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/). Dependency updates are handled weekly by `.github/dependabot.yml`.
+- Run `npm test`, `npm run lint` and `npm run format:check` before opening a pull request.
+
+## Related
+
+[@kyan0045](https://github.com/kyan0045) also maintains [PokeHint](https://github.com/kyan0045/pokehint), the open-source library for Pokétwo hint solving and rarity checks that CatchTwo depends on.
+
+Other projects:
+
+- **[Spammer](https://github.com/kyan0045/spammer):** A Discord spammer. Use it responsibly.
+- **[More projects](https://github.com/kyan0045?tab=repositories):** Tools and utilities from the same author.
+
+## License
+
+CatchTwo is released under a [custom license](https://github.com/kyan0045/CatchTwo/blob/main/LICENSE).
