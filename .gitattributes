@@ -1,0 +1,15 @@
+# Normalize all text files to LF in the repo and on checkout,
+# so CRLF working-tree churn no longer produces phantom diffs.
+* text=auto eol=lf
+
+# cmd.exe needs CRLF for labels and goto
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Explicitly mark binaries so auto-detection can never corrupt them.
+*.bin binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary

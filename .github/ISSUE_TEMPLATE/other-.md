@@ -1,10 +1,7 @@
 ---
-name: 'Other '
+name: "Other "
 about: Describe this issue's purpose here.
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
-
-

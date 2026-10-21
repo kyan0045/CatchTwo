@@ -1,10 +1,22 @@
 /node_modules
 /temp
-!package.json
 
 *.json
+!package.json
+!package-lock.json
+!.prettierrc.json
+!tsconfig.json
+!src/data/labels.json
 *.txt
 *.replit
 *.nix
 config.js
 tokens.txt
+config.js.bak
+config.js.new
+tokens.txt.bak
+
+# Portable runtime installed by start.bat
+/git/
+/node/
+*.zip
