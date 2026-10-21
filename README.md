@@ -49,7 +49,9 @@ CatchTwo is a self-bot. Using it may violate Discord's or Pokétwo's terms of se
 
 ## Installation
 
-Requires Node.js 22.13.0 or newer and Git.
+Requires Node.js 22.13.0 or newer and Git. `npm install --omit=dev` installs the
+required runtime dependencies only. TensorFlow.js is bundled with the project
+already.
 
 Windows and Android guides:
 
@@ -118,7 +120,7 @@ All settings live in `config.js`. `tokens.txt` holds one `token guildId` pair pe
 |                     | `LowIV`             | `Boolean`         | `true`                           | Log catches at or below `LowIVThreshold`.                                                                            |
 |                     | `HighIV`            | `Boolean`         | `true`                           | Log catches at or above `HighIVThreshold`.                                                                           |
 |                     | `SpecialCatches`    | `Boolean`         | `true`                           | Log shiny, Gigantamax and other special catches.                                                                     |
-|                     | `Ping`              | `Object`          | see example                      | Per-category owner pings. Set each category to `true` or `false`.                                                    |
+|                     | `Ping`              | `Object`          | see example                      | Per-category owner pings for catches. Quests ping with `logging.Quests`.                                             |
 |                     | `LowIVThreshold`    | `Number`          | `15.00`                          | IV percentage at or below this counts as low IV.                                                                     |
 |                     | `HighIVThreshold`   | `Number`          | `85.00`                          | IV percentage at or above this counts as high IV.                                                                    |
 |                     | `LogWebhook`        | `String`          | `""`                             | Discord webhook URL. Empty or `Webhook` disables webhook output.                                                     |
@@ -138,12 +140,22 @@ Ping: {
   Shiny: true,
   Gigantamax: false,
   Rares: false,
+  Event: false,
+  Regional: false,
   HighIV: false,
   LowIV: false,
 }
 ```
 
-All six categories must be present. Omit `Ping` entirely to keep the legacy `Pokemon`-based ping behavior.
+All seven categories must be present. Omit `Ping` entirely to keep the legacy
+`Pokemon`-based ping behavior.
+
+`Rares` covers Legendary, Mythical and Ultra Beast catches. `Event` and
+`Regional` have their own flags, so you can ping shinies without being pinged
+for every event form.
+
+Quest pings follow `logging.Quests`, so enabling quest logging also pings you for
+completed quests. There is no separate quest ping flag.
 
 ## Commands
 

@@ -27,6 +27,10 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - name: Rebuild TensorFlow.js bundle
+        run: npm run build:tfjs
+      - name: Verify TensorFlow.js bundle is current
+        run: git diff --exit-code -- src/vendor/tfjs.cjs
       - name: Verify model bundle matches poketwo-ai production checkpoint
         run: |
           echo "6914c98cd7cb2c38e0a1f4532e3aaa24257af74585a16d9f1eb95b90f3a06851  src/data/labels.json" | sha256sum -c -

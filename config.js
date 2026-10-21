@@ -20,7 +20,7 @@ const config = {
   // Logging
   logging: {
     Pokemon: true, // Log regular catches
-    Quests: true, // Log completed quests
+    Quests: true, // Log completed quests; quest pings follow this flag
     LowIV: true, // Log catches at or below LowIVThreshold
     HighIV: true, // Log catches at or above HighIVThreshold
     SpecialCatches: true, // Log shiny, Gigantamax and other special catches
@@ -28,9 +28,10 @@ const config = {
       Shiny: true,
       Gigantamax: true,
       Rares: true,
+      Event: true,
+      Regional: true,
       HighIV: true,
       LowIV: true,
-      Quests: true,
     },
     LowIVThreshold: 15.00, // IV percentage at or below this counts as low IV
     HighIVThreshold: 85.00, // IV percentage at or above this counts as high IV

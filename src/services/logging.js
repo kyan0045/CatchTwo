@@ -59,11 +59,23 @@ function getWebhookClient() {
 }
 
 function shouldPingCategory(category) {
+  if (category === "Quests") return loggingOption("Quests");
   if (category) {
     const configured = config.logging?.Ping?.[category];
     if (configured !== undefined) return configured !== false;
   }
   return loggingOption("Pokemon");
+}
+
+// Event and Regional catches have their own ping flags. Everything else that
+// is not regular, shiny, gigantamax or an IV catch counts as a rare.
+const RARITY_PING_CATEGORIES = {
+  Event: "Event",
+  Regional: "Regional",
+};
+
+function pingCategoryForRarity(rarity) {
+  return RARITY_PING_CATEGORIES[rarity] || "Rares";
 }
 
 function getWebhookMessage(content, embed, files) {
@@ -381,7 +393,7 @@ async function sendCatch(
     gender,
     isRegular ? undefined : rarity,
     url,
-    !isRegular && shouldPingCategory("Rares")
+    !isRegular && shouldPingCategory(pingCategoryForRarity(rarity))
   );
 }
 

@@ -34,6 +34,7 @@ function isIncenseResponse(message) {
 
 async function buyIncense(channel, { timeout = 5000 } = {}) {
   const channelId = channel.id;
+  const channelName = channel.name;
   try {
     // Attach the waiter before sending: Poketwo can answer before send() resolves.
     const responsePromise = channel.awaitMessage({
@@ -45,7 +46,14 @@ async function buyIncense(channel, { timeout = 5000 } = {}) {
     const sent = await channel.send(
       `${POKETWO_MENTION} incense buy 30m 10s -y`
     );
-    if (!sent) return { sent: null, response: null, reason: null, channelId };
+    if (!sent)
+      return {
+        sent: null,
+        response: null,
+        reason: null,
+        channelId,
+        channelName,
+      };
 
     const response = await responsePromise;
     return {
@@ -53,9 +61,17 @@ async function buyIncense(channel, { timeout = 5000 } = {}) {
       response,
       reason: getIncenseResponseReason(response?.content),
       channelId,
+      channelName,
     };
   } catch (error) {
-    return { sent: null, response: null, reason: null, channelId, error };
+    return {
+      sent: null,
+      response: null,
+      reason: null,
+      channelId,
+      channelName,
+      error,
+    };
   }
 }
 
@@ -91,10 +107,14 @@ async function logIncenseResult(client, result) {
       "Incense purchase was not confirmed; keeping spam state unchanged.";
   }
 
-  const channelLabel = result.channelId ? `<#${result.channelId}>` : null;
+  const channelLabel = result.channelId
+    ? `(${
+        result.channelName ? `${JSON.stringify(result.channelName)}, ` : ""
+      }${result.channelId})`
+    : null;
   sendLog(
     username,
-    channelLabel ? `${message} (${channelLabel})` : message,
+    channelLabel ? `${message} ${channelLabel}` : message,
     type
   );
   if (type === "debug") return;

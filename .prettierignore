@@ -1,3 +1,4 @@
 package-lock.json
 src/data/model/
 src/data/*.bin
+src/vendor/tfjs.cjs

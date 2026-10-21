@@ -11,9 +11,10 @@ const PING_CATEGORIES = [
   "Shiny",
   "Gigantamax",
   "Rares",
+  "Event",
+  "Regional",
   "HighIV",
   "LowIV",
-  "Quests",
 ];
 
 /**

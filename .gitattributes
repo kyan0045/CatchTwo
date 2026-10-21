@@ -13,3 +13,6 @@
 *.jpeg binary
 *.gif binary
 *.ico binary
+
+# Generated TensorFlow.js bundle
+src/vendor/tfjs.cjs linguist-generated=true -diff

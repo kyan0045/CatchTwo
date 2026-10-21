@@ -13,7 +13,7 @@ function getMissingPaths(source, target, prefix = "") {
   for (const key of Object.keys(source)) {
     const fullPath = prefix ? `${prefix}.${key}` : key;
 
-    // Nested objects are not merged. Ping is optional and falls back to the legacy flag.
+    // Nested objects are not merged. Ping is optional and falls back per category.
     if (fullPath === "logging.Ping" || fullPath.startsWith("logging.Ping.")) {
       continue;
     }

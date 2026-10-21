@@ -52,7 +52,7 @@ let modelLoadPromise = null;
 
 async function loadAiDependencies() {
   if (!tfLib) {
-    tfLib = require("@tensorflow/tfjs");
+    tfLib = require("../vendor/tfjs.cjs");
     tfLib.enableProdMode();
   }
   if (!sharpLib) {

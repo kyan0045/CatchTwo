@@ -33,6 +33,12 @@ just send the PR.
   of the repo.
 - Be patient. PRs are reviewed when there is time, not 24/7.
 
+## Generated files
+
+`src/vendor/tfjs.cjs` is a generated TensorFlow.js bundle. Do not edit it by
+hand. Rebuild it with `npm run build:tfjs` after changing the pinned
+`@tensorflow/tfjs` version.
+
 ## Coding conventions
 
 Read the existing code and follow it. We optimize for readability.

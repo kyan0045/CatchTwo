@@ -41,6 +41,15 @@ test("unreliable classes abstain regardless of confidence", () => {
   assert.equal(result.reason, "unreliable-class");
 });
 
+test("vendored TensorFlow.js bundle exposes the inference API", () => {
+  const tf = require("../src/vendor/tfjs.cjs");
+
+  assert.equal(typeof tf.loadLayersModel, "function");
+  assert.equal(typeof tf.tensor3d, "function");
+  assert.equal(typeof tf.tidy, "function");
+  assert.equal(typeof tf.enableProdMode, "function");
+});
+
 test("center crop recreates the training framing", () => {
   const { computeCenterCrop } = require("../src/services/ai.js");
 

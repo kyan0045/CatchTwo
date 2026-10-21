@@ -8,6 +8,7 @@
 !tsconfig.json
 !src/data/labels.json
 *.txt
+!LICENSES/*.txt
 *.replit
 *.nix
 config.js

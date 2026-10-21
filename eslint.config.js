@@ -3,7 +3,7 @@ const globals = require("globals");
 
 module.exports = [
   {
-    ignores: ["node_modules/**", "src/data/**", "temp/**"],
+    ignores: ["node_modules/**", "src/data/**", "src/vendor/**", "temp/**"],
   },
   js.configs.recommended,
   {

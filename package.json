@@ -1,6 +1,6 @@
 {
   "name": "catchtwo",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "AI-based PokéTwo autocatcher; efficient, low-detection & flawless catching",
   "main": "index.js",
   "repository": {
@@ -25,6 +25,7 @@
     "git-setup": "git init && git remote add origin https://github.com/kyan0045/catchtwo.git || git remote set-url origin https://github.com/kyan0045/catchtwo.git",
     "update": "node scripts/update.js",
     "force-update": "node scripts/update.js --force",
+    "build:tfjs": "node scripts/buildTfjs.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -34,7 +35,6 @@
     "node": ">=22.13.0"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.18.1",
     "chalk": "^4.1.0",
     "date-and-time": "^3.1.1",
@@ -47,7 +47,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tensorflow/tfjs": "4.22.0",
     "@types/node": "^22.20.5",
+    "esbuild": "0.25.10",
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
     "prettier": "^3.9.6",

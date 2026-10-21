@@ -4,7 +4,7 @@ All notable changes to CatchTwo are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-beta.1] - 2026-10-21
+## [2.0.0-beta.2] - 2026-10-21
 
 ### Highlights
 
@@ -22,21 +22,23 @@ CatchTwo 2.0 brings the AI catcher to Android and makes the send path more relia
 - Center-crop preprocessing for live spawn images. The center 0.8x of the shorter side is cropped before the 64x64 resize, and images at or below 128 px are left as-is.
 - `CatchTwoRestManager`, a priority send queue for Pokétwo traffic. Catches outrank hints, hints outrank commands, and spam runs last.
 - `incense.IncenseChannel` accepts one channel ID or an array of channel IDs for auto-buy.
-- Optional nested `logging.Ping` object with boolean flags for shiny, Gigantamax, rare, IV, and quest catches, so shinies can ping without pinging rares or events.
+- Optional nested `logging.Ping` object with boolean flags for shiny, Gigantamax, rare, event, regional, and IV catches, so shinies can ping without pinging every event form. Quest pings follow `logging.Quests`.
 - Startup config validation and idempotent config migration.
 - `ping` and `support` commands, plus reworked `predict`, `version`, `help`, and `stats` commands.
 - Cross-platform setup for Windows, Linux, macOS, and Android (Termux).
 - TypeScript `checkJs` coverage for opt-in modules, Prettier, ESLint, and a Node 22/24/26 CI matrix.
-- 68 `node:test` tests covering services, commands, queueing, and lifecycle behavior.
+- 69 `node:test` tests covering services, commands, queueing, and lifecycle behavior.
 
 ### Changed
 
 - **Breaking:** Migrated from `discord.js-selfbot-v13` to `discord-self-lite@0.2.0`. Clients use the library's `restClass` injection, and the queue uses `RestManager.destroy()`, `RouteQueueFullError`, and the gateway channel cache.
 - **Breaking:** Stats and account state are keyed by user ID instead of username. Existing username-keyed stats do not carry over.
 - **Breaking:** `spamming.SpamSpeed` is a number (default 2000, valid range 1000 to 120000). `logging.LogCatches` is split into `Pokemon`, `Quests`, `LowIV`, `HighIV`, and `SpecialCatches`, with `LowIVThreshold` and `HighIVThreshold`.
+- **Breaking:** `logging.Ping` has separate `Event` and `Regional` flags. Quest pings now follow `logging.Quests`, and `Ping.Quests` is removed. Existing `Ping` blocks must add the two new flags.
 - **Breaking:** `incense.IncenseMode` now disables spam while enabled. When disabled, incense spawns are ignored. `AutoIncenseBuy` requires `IncenseMode`.
 - **Breaking:** The model bundle and `labels.json` must be copied as a set. A model/label mismatch fails before inference.
-- Switched from `@tensorflow/tfjs-node` to `@tensorflow/tfjs`, loaded lazily so AI-disabled runs use about half the memory.
+- Switched from `@tensorflow/tfjs-node` to a vendored `@tensorflow/tfjs` bundle, loaded lazily so AI-disabled runs use about half the memory.
+- Vendored TensorFlow.js into a 2.1MB `src/vendor/tfjs.cjs` bundle. Production installs use `npm install --omit=dev` and no longer download its 272MB npm tree, reducing a production `node_modules` to about 75MB. This removes the install OOM on 256MB hosts.
 - Replaced the old model weights with the 1,279-class `model.json` bundle and its two shards.
 - Outbound Pokétwo traffic now uses a bounded priority queue with per-class deadlines, bucket-aware pacing, and catch protection. Spam yields to catches and is dropped when paused.
 - A `null` REST response now means only `204 No Content`. Full route queues reject with `RouteQueueFullError` and are retried before the item's deadline.
