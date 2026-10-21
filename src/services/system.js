@@ -1,15 +1,25 @@
+// @ts-check
 const config = require("../../config.js");
-const { sendLog } = require("../functions/logging.js");
+const { sendLog } = require("./logging.js");
 const chalk = require("chalk");
 
+/**
+ * @param {number} timeInMs
+ * @returns {Promise<void>}
+ */
 function wait(timeInMs) {
   return new Promise((resolve) => {
     setTimeout(resolve, timeInMs);
   });
 }
 
+/**
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
 function randomInteger(min, max) {
-  if (min == max) {
+  if (min === max) {
     return min;
   }
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -17,6 +27,10 @@ function randomInteger(min, max) {
 
 function logMemoryUsage() {
   if (!config.debug) return;
+  /**
+   * @param {number} bytes
+   * @returns {string}
+   */
   function bytesToMB(bytes) {
     return (bytes / 1024 / 1024).toFixed(2) + " MB";
   }
@@ -38,13 +52,4 @@ function logMemoryUsage() {
   );
 }
 
-function getMentions(ownerIDs) {
-  const mentions = ownerIDs
-    .filter((ownerID) => ownerID.length >= 18)
-    .map((ownerID) => `<@${ownerID}>`)
-    .join(", ");
-
-  return `${mentions}`;
-}
-
-module.exports = { wait, randomInteger, logMemoryUsage, getMentions };
+module.exports = { wait, randomInteger, logMemoryUsage };

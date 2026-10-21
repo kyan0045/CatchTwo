@@ -1,29 +1,29 @@
-const fs = require("fs");
-const path = require("path");
-const package = require("../../package.json");
-const { sendCommandWebhook } = require("../functions/logging.js");
+const pkg = require("../../package.json");
+const { sendCommandWebhook } = require("../services/logging.js");
 
 module.exports = {
   name: "version",
   aliases: ["info", "process", "v", "about", "versions"],
   async execute(client, message, args, webhook) {
-    sendCommandWebhook(
+    const description = `**CatchTwo version:** ${
+      pkg.version
+    }\n **NodeJS version:** ${process.version.replace(
+      "v",
+      ""
+    )}\n **discord-self-lite version:** ${pkg.dependencies[
+      "discord-self-lite"
+    ].replace("^", "")}`;
+
+    const sent = await sendCommandWebhook(
       webhook,
       `<@${message.author.id}>\n\`\`\`json\n${JSON.stringify(
-        package,
+        pkg,
         null,
         2
       )}\`\`\``,
       {
         title: "Version",
-        description: `**CatchTwo version:** ${
-          package.version
-        }\n **NodeJS version:** ${process.version.replace(
-          "v",
-          ""
-        )}\n **Discord.JS-selfbot-v13 version:** ${
-          package.dependencies["discord.js-selfbot-v13"].replace("^", "")
-        }`,
+        description,
         color: "#fecd06",
         timestamp: new Date(),
         thumbnail: {
@@ -31,5 +31,7 @@ module.exports = {
         },
       }
     );
+
+    if (!sent) return message.reply(description);
   },
 };

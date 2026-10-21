@@ -1,8 +1,8 @@
+// Stats are intentionally in-memory only and reset on restart
 const accountStats = {};
 
 function getAccountStat(id, stat) {
-  if (!accountStats[id] && id !== null)
-    createAccountStats(id);
+  if (!accountStats[id]) createAccountStats(id);
 
   switch (stat) {
     case "shiny":
@@ -48,8 +48,6 @@ function getTotalStats() {
   };
 
   if (Object.keys(accountStats).length === 0) return totalStat;
-  if (Object.keys(accountStats).length === 1)
-    return accountStats[Object.keys(accountStats)[0]];
   Object.values(accountStats).forEach((account) => {
     totalStat.catches.shiny += account.catches.shiny;
     totalStat.catches.gigantamax += account.catches.gigantamax;
@@ -71,59 +69,36 @@ function getTotalStats() {
 }
 
 function addStat(id, stat, amount) {
-  if (!accountStats[id] && id !== null)
-    createAccountStats(id);
-  if (!amount) amount = 1;
+  if (!accountStats[id]) createAccountStats(id);
+  const value = amount === undefined ? 1 : Number(amount);
+  if (!Number.isFinite(value)) {
+    console.warn(
+      `[STATS] Ignoring non-numeric amount "${amount}" for "${stat}".`
+    );
+    return;
+  }
 
-  switch (stat) {
-    case "shiny":
-      accountStats[id].catches.shiny += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "gigantamax":
-      accountStats[id].catches.gigantamax += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "legendary":
-      accountStats[id].catches.legendary += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "mythical":
-      accountStats[id].catches.mythical += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "ultrabeast":
-      accountStats[id].catches.ultrabeast += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "event":
-      accountStats[id].catches.event += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "regional":
-      accountStats[id].catches.regional += amount;
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "catches":
-      accountStats[id].catches.total += amount;
-      accountStats[id].general.lastCatch = Date.now();
-      break;
-    case "coins":
-      accountStats[id].general.coins += +amount;
-      break;
-    case "spamMessages":
-      accountStats[id].general.spamMessages += amount;
-      break;
-    default:
-      return;
+  const catchTypes = [
+    "shiny",
+    "gigantamax",
+    "legendary",
+    "mythical",
+    "ultrabeast",
+    "event",
+    "regional",
+  ];
+
+  if (catchTypes.includes(stat)) {
+    accountStats[id].catches[stat] += value;
+    accountStats[id].catches.total += value;
+    accountStats[id].general.lastCatch = Date.now();
+  } else if (stat === "catches") {
+    accountStats[id].catches.total += value;
+    accountStats[id].general.lastCatch = Date.now();
+  } else if (stat === "coins" || stat === "spamMessages") {
+    accountStats[id].general[stat] += value;
+  } else {
+    console.warn(`[STATS] Unknown stat "${stat}" not counted.`);
   }
 }
 

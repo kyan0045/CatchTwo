@@ -1,354 +1,425 @@
-// Import necessary modules and their functions
 const { solveHint, getImage, getName } = require("pokehint");
 
-// Import the config file
 const config = require("../../config.js");
 
-// Import necessary functions
-const { wait, randomInteger } = require("../utils/utils.js");
-const { ShinyHunter } = require("../classes/shinyHunter.js");
-const { sendLog, sendCatch } = require("../functions/logging.js");
+const { wait, randomInteger } = require("../services/system.js");
+const { huntPokemon } = require("../classes/shinyHunter.js");
+const { sendLog, sendCatch } = require("../services/logging.js");
+const { setWaiting, getWaiting } = require("../services/states.js");
+const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 const {
-  setSpamming,
-  setWaiting,
-  getSpamming,
-  getWaiting,
-} = require("../utils/states.js");
-const tf = require("@tensorflow/tfjs-node");
-const sharp = require("sharp");
-const data = require("../data/ai.json");
-const axios = require("axios");
+  HINT_MESSAGES,
+  isWrongPokemonMessage,
+  isCaughtMessage,
+  parseCatchMessage,
+} = require("../utils/messages.js");
 
-// Define global variables
-let model;
-let tfLib;
-let sharpLib;
-let modelLoadPromise;
-let hintMessages = ["h", "hint"];
+const { predict } = require("../services/ai.js");
 
-async function loadAiDependencies() {
-  if (!tfLib) {
-    tfLib = require("@tensorflow/tfjs-node");
-  }
-  if (!sharpLib) {
-    sharpLib = require("sharp");
-  }
-
-  return { tf: tfLib, sharp: sharpLib };
+function getRandomHint(random = Math.random) {
+  return HINT_MESSAGES[Math.floor(random() * HINT_MESSAGES.length)];
 }
 
-async function preprocessImage(url) {
-  const { tf, sharp } = await loadAiDependencies();
-  const response = await axios({
-    url,
-    responseType: "arraybuffer",
-  });
-  const imageBuffer = await sharp(Buffer.from(response.data))
-    .resize(64, 64)
-    .toBuffer();
-
-  return tf.tidy(() => {
-    // Decode the image buffer into a tensor
-    const decodedImage = tf.node.decodeImage(imageBuffer, 3); // 3 channels (RGB)
-
-    // Normalize the image tensor (e.g., to [0, 1] range)
-    // Using tf.scalar for the divisor is good practice for type consistency.
-    // tf.divNoNan was used in your original, so we keep it. If 0/0 is not a concern, tf.div is also fine.
-    const normalizedImage = tf.divNoNan(decodedImage, tf.scalar(255.0));
-
-    // Expand dimensions to add the batch dimension (e.g., [64, 64, 3] -> [1, 64, 64, 3])
-    const expandedTensor = tf.expandDims(normalizedImage, 0);
-
-    return expandedTensor;
-  });
-}
-async function predict(url) {
-  const { tf } = await loadAiDependencies();
-
-  if (!model) {
-    modelLoadPromise =
-      modelLoadPromise ||
-      tf.loadLayersModel("file://./src/data/model/model.json");
-    model = await modelLoadPromise;
-  }
-  let startTime = new Date().getTime();
-  const imageTensor = await preprocessImage(url);
-
-  // Use tf.tidy to automatically dispose intermediate tensors
-  const predictedIndex = tf.tidy(() => {
-    const prediction = model.predict(imageTensor);
-    const argMaxTensor = prediction.argMax(1);
-    return argMaxTensor.dataSync()[0];
-  });
-
-  // Manually dispose the input tensor
-  imageTensor.dispose();
-
-  const keys = Object.keys(data); // Get all keys from the data object
-  const name = keys[predictedIndex]; // Get the key name at the specified index
-
-  // Log TensorFlow memory usage in debug mode
-  if (config.debug) {
-    const memory = tf.memory();
-    sendLog(
-      null,
-      `TF memory — tensors: ${memory.numTensors}, bytes: ${memory.numBytes}`,
-      "debug",
-    );
-  }
-
-  sendLog(
-    null,
-    "AI prediction took " + (new Date().getTime() - startTime) + "ms.",
-    "debug",
-  );
-  return name;
-}
-
-// Main function to handle message creation events
-module.exports = async (client, guildId, message) => {
-  // Return if the bot is set to waiting
-  if (getWaiting(client.user.username) == true) return;
-
-  // Check if the message is from the bot itself in the specified guild or if global catch is enabled and the guild is not blacklisted
-  if (
-    (config.behavior.Catching == true &&
-      message.guild?.id == guildId &&
-      message?.author.id == "716390085896962058") ||
-    (config.globalSettings.GlobalCatch &&
-      message?.author.id == "716390085896962058" &&
-      !config.globalSettings.BlacklistedGuilds.includes(message.guild?.id))
-  ) {
-    // Handle wild Pokémon appearance
-    if (message?.embeds[0]?.title?.includes("wild pokémon has appeared")) {
-      // Return if IncenseMode is off and the message includes "Incense"
-      if (
-        config.incense.IncenseMode == false &&
-        message?.embeds[0]?.footer?.text?.includes("Incense")
+function sendHint(channel, client) {
+  return channel
+    .send(`${POKETWO_MENTION} ${getRandomHint()}`)
+    .catch((error) =>
+      sendLog(
+        client.user.username,
+        `Failed to send hint: ${error.message || error}`,
+        "error"
       )
-        return;
+    );
+}
 
-      if (config.behavior.AI == true) {
-        sendLog(
-          client.user.username,
-          "AI enabled, trying to predict the pokémon.",
-          "debug",
-        );
-        predict(message.embeds[0].image.url)
-          .then(async (result) => {
-            if (config.hunting.HuntPokemons.includes(result.split("\r\n")[0])) {
-              const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
-              shinyHunter.login();
-              shinyHunter.catch(
-                message.guild.id,
-                message.channel.id,
-                await getName({
-                  name: result.split("\r\n")[0],
-                  inputLanguage: "English",
-                }),
-              );
-            } else if (result[0] && typeof result[0] === "string") {
-              let pokemonRandom = await getName({
-                name: result.split("\r\n")[0],
-                inputLanguage: "English",
-              });
-              if (!pokemonRandom) {
-                pokemonRandom = result;
+// Get a caught Pokémon and forward it to the catch logger
+async function handleCaughtResponse(client, response, parsedCatch) {
+  // The awaited reply and the general message handler can both see the same catch, so only process each message id once
+  const messageId = response?.id;
+  if (messageId) {
+    if (!client._handledCatchIds) client._handledCatchIds = new Set();
+    if (client._handledCatchIds.has(messageId)) return;
+    client._handledCatchIds.add(messageId);
+    if (client._handledCatchIds.size > 500) {
+      const [oldest] = client._handledCatchIds;
+      client._handledCatchIds.delete(oldest);
+    }
+  }
+
+  await sendCatch(
+    client.user.id,
+    client.user.username,
+    response.url,
+    parsedCatch.name,
+    parsedCatch.level,
+    parsedCatch.iv,
+    parsedCatch.gender,
+    parsedCatch.shiny,
+    parsedCatch.gigantamax,
+    await getImage(parsedCatch.name, parsedCatch.shiny, parsedCatch.gigantamax)
+  );
+}
+
+function shouldHandleCatchMessage(message, guildId, settings = config) {
+  if (settings.behavior.Catching !== true) return false;
+  if (message?.author.id !== POKETWO_ID) return false;
+
+  return (
+    message.guild?.id === guildId ||
+    (settings.globalSettings.GlobalCatch &&
+      !settings.globalSettings.BlacklistedGuilds.includes(message.guild?.id))
+  );
+}
+
+function canSend(client) {
+  return (
+    !client.stopped && !client.suspended && getWaiting(client.user.id) !== true
+  );
+}
+
+function isIncenseSpawn(message) {
+  return message?.embeds?.[0]?.footer?.text?.includes("Incense") === true;
+}
+
+function shouldCatchSpawn(message, settings = config) {
+  return settings.incense?.IncenseMode !== false || !isIncenseSpawn(message);
+}
+
+module.exports = {
+  name: "messageCreate",
+  getRandomHint,
+  shouldHandleCatchMessage,
+  isIncenseSpawn,
+  shouldCatchSpawn,
+  handleCaughtResponse,
+  execute: async (client, guildId, message) => {
+    if (getWaiting(client.user.id) === true) return;
+
+    // Only handle Pokétwo messages in the guild specified in tokens.txt, or globally if allowed
+    if (shouldHandleCatchMessage(message, guildId)) {
+      if (message?.embeds?.[0]?.title?.includes("wild pokémon has appeared")) {
+        if (!shouldCatchSpawn(message)) {
+          sendLog(
+            client.user.username,
+            "IncenseMode is off; ignoring incense spawn.",
+            "debug"
+          );
+          return;
+        }
+
+        if (config.behavior.AI === true) {
+          sendLog(
+            client.user.username,
+            "AI enabled, trying to predict the pokémon.",
+            "debug"
+          );
+          const wildImageUrl = message.embeds?.[0]?.image?.url;
+          if (!wildImageUrl) {
+            if (canSend(client)) sendHint(message.channel, client);
+            return;
+          }
+          predict(wildImageUrl, { returnDetails: true })
+            .then(async (pred) => {
+              if (!canSend(client)) return;
+              if (!pred || !pred.accepted) {
+                const reason = pred?.reason ?? "no-result";
+                const conf =
+                  typeof pred?.confidence === "number"
+                    ? ` conf ${(pred.confidence * 100).toFixed(1)}%`
+                    : "";
+                const margin =
+                  typeof pred?.margin === "number"
+                    ? ` margin ${(pred.margin * 100).toFixed(1)}%`
+                    : "";
+                // Name the top guess so a near miss is diagnosable in debug
+                const guess = pred?.name ? `; guess ${pred.name}` : "";
+                sendLog(
+                  client.user.username,
+                  `AI abstained (${reason}${conf}${margin}${guess}) - asking for hint.`,
+                  "debug"
+                );
+                if (canSend(client)) sendHint(message.channel, client);
+                return;
               }
-              checkIfWrong = await message.channel
-                .createMessageCollector({ time: 5000 })
-                .on("collect", async (msg) => {
-                  if (msg.content.includes("That is the wrong pokémon!")) {
-                    checkIfWrong.stop();
-                    setTimeout(async () => {
-                      msg.channel.send(
-                        "<@716390085896962058> " +
-                          hintMessages[Math.round(Math.random())]
-                      );
-                    }, 500);
+
+              const predictedPokemon = pred.name;
+              const isHuntTarget = config.hunting.HuntPokemons.map((huntName) =>
+                huntName.toLowerCase()
+              ).includes(predictedPokemon.toLowerCase());
+              const hunted =
+                isHuntTarget &&
+                (await huntPokemon(
+                  predictedPokemon,
+                  message.guild.id,
+                  message.channel.id
+                ));
+              if (!hunted) {
+                let pokemonRandom = await getName({
+                  name: predictedPokemon,
+                  inputLanguage: "English",
+                }).catch(() => null);
+                if (!pokemonRandom) {
+                  pokemonRandom = predictedPokemon;
+                }
+                try {
+                  /*
+                  Register the waiter before sending: awaitMessage only sees messages
+                  dispatched after it is attached, and Poketwo can answer before the
+                  send request resolves.
+                  */
+                  const responsePromise = message.channel.awaitMessage({
+                    filter: (msg) =>
+                      msg.author.id === POKETWO_ID &&
+                      (isWrongPokemonMessage(msg.content) ||
+                        isCaughtMessage(msg.content, client.user.id)),
+                    time: 5000,
+                    errors: false,
+                  });
+
+                  await message.channel.send(
+                    `${POKETWO_MENTION} c ${pokemonRandom}`
+                  );
+
+                  const response = await responsePromise;
+
+                  if (response) {
+                    if (isWrongPokemonMessage(response.content)) {
+                      setTimeout(() => {
+                        sendHint(response.channel, client);
+                      }, 500);
+                    } else if (
+                      isCaughtMessage(response.content, client.user.id)
+                    ) {
+                      const parsedCatch = parseCatchMessage(response.content);
+                      if (parsedCatch) {
+                        await handleCaughtResponse(
+                          client,
+                          response,
+                          parsedCatch
+                        );
+                      }
+                    }
                   }
-                });
-              await message.channel.send(
-                "<@716390085896962058> c " + pokemonRandom
+                } catch (error) {
+                  sendLog(
+                    client.user.username,
+                    `Error during pokemon catch: ${error.message || error}`,
+                    "error"
+                  );
+                }
+              }
+            })
+            .catch((error) => {
+              sendLog(
+                client.user.username,
+                `AI prediction failed: ${error.message || error}`,
+                "error"
               );
+
+              if (canSend(client)) sendHint(message.channel, client);
+            });
+        } else {
+          if (canSend(client)) sendHint(message.channel, client);
+        }
+
+        if (config.incense.IncenseMode === true && isIncenseSpawn(message)) {
+          if (!client._incenseActive) {
+            client._incenseActive = true;
+            sendLog(client.user.username, "Detected incense.", "incense");
+          }
+          if (message.embeds[0]?.footer.text.includes("Spawns Remaining: 0.")) {
+            client._incenseActive = false;
+            if (
+              canSend(client) &&
+              config.incense.AutoIncenseBuy === true &&
+              message.channel.id === config.incense.IncenseChannel
+            ) {
+              sendLog(
+                client.user.username,
+                "Incense ran out, buying next one.",
+                "auto-incense"
+              );
+              message.channel
+                .send(`${POKETWO_MENTION} incense buy 30m 10s -y`)
+                .catch((error) =>
+                  sendLog(
+                    client.user.username,
+                    `Failed to buy incense: ${error.message || error}`,
+                    "error"
+                  )
+                );
+              const msg = await message.channel.awaitMessage({
+                filter: (message) =>
+                  message.content.includes(
+                    "You don't have enough shards for that!"
+                  ),
+                time: 5000,
+                errors: false,
+              });
+
+              if (msg) {
+                setWaiting(client.user.id, false);
+              }
             } else {
-              message.channel.send(
-                "<@716390085896962058> " +
-                  hintMessages[Math.round(Math.random())],
+              setWaiting(client.user.id, false);
+              sendLog(
+                client.user.username,
+                "Detected the end of the incense.",
+                "incense"
               );
             }
-          })
-          .catch((error) => {
-            console.error(error);
-            // Send a hint message if the prediction fails
-
-            message.channel.send(
-              "<@716390085896962058> " +
-                hintMessages[Math.round(Math.random())],
-            );
-          });
-      } else {
-        message.channel.send(
-          "<@716390085896962058> " + hintMessages[Math.round(Math.random())],
-        );
-      }
-
-      // Handle incense-specific logic
-      if (
-        config.incense.IncenseMode == true &&
-        message.embeds[0]?.footer?.text?.includes("Incense")
-      ) {
-        // Log and manage spamming state based on incense detection
-        if (getSpamming(client.user.id) == true) {
-          setSpamming(client.user.id, false);
-          sendLog(client.user.username, "Detected incense.", "incense");
-        }
-        // Handle the end of incense and possibly buy a new one
-        if (message.embeds[0]?.footer.text.includes("Spawns Remaining: 0.")) {
-          if (
-            config.incense.AutoIncenseBuy == true &&
-            message.channel.id == config.incense.IncenseChannel
-          ) {
-            sendLog(
-              client.user.username,
-              "Incense ran out, buying next one.",
-              "auto-incense",
-            );
-            message.channel.send(
-              "<@716390085896962058> incense buy 30m 10s -y",
-            );
-            await message.channel
-              .createMessageCollector({ time: 5000 })
-              .on("collect", async (msg) => {
-                if (
-                  msg.content.includes("You don't have enough shards for that!")
-                ) {
-                  setSpamming(client.user.id, true);
-                  setWaiting(client.user.id, false);
-                }
-              });
-          } else {
-            setSpamming(client.user.id, true);
-            setWaiting(client.user.id, false);
-            sendLog(
-              client.user.username,
-              "Detected the end of the incense.",
-              "incense",
-            );
           }
         }
-      }
-    } else if (message.content.includes("The pokémon is")) {
-      // Handle hint-based Pokémon catching
-      const pokemon = await solveHint(message);
-      if (pokemon[0] && typeof pokemon[0] === "string") {
-        // Check if the Pokémon is in the shiny hunting list
-        if (
-          config.hunting.HuntPokemons.map((huntName) =>
-            huntName.toLowerCase(),
-          ).includes(pokemon[0]?.toLowerCase() || pokemon[1]?.toLowerCase())
-        ) {
-          const shinyHunter = new ShinyHunter(config.hunting.HuntToken);
-          shinyHunter.login();
-          shinyHunter.catch(message.guild.id, message.channel.id, pokemon[0]);
-        } else {
-          // Attempt to catch the Pokémon based on the hint
+      } else if (message.content.includes("The pokémon is")) {
+        const pokemon = await solveHint(message);
+        if (!canSend(client)) return;
+        if (pokemon[0] && typeof pokemon[0] === "string") {
+          // Check whether any hint candidate is a hunt target
+          const huntList = config.hunting.HuntPokemons.map((huntName) =>
+            huntName.toLowerCase()
+          );
+          const huntMatch = [pokemon[0], pokemon[1], pokemon[2]].find((name) =>
+            huntList.includes(name?.toLowerCase())
+          );
+          const hunted =
+            huntMatch &&
+            (await huntPokemon(
+              huntMatch,
+              message.guild.id,
+              message.channel.id
+            ));
+          if (hunted) return;
+
           let pokemonRandomLanguage = await getName({
             name: pokemon[0],
             inputLanguage: "English",
-          });
-          if (!pokemonRandomLanguage) {
-            pokemonRandomLanguage = pokemon[0];
+          }).catch(() => null);
+          if (pokemonRandomLanguage) {
+            pokemon[0] = pokemonRandomLanguage;
           }
-          await message.channel.send(
-            "<@716390085896962058> c " + pokemonRandomLanguage
-          );
-        }
-        // Handle incorrect catch attempts
-        checkIfWrong = await message.channel
-          .createMessageCollector({ time: 5000 })
-          .on("collect", async (msg) => {
-            if (msg.content.includes("That is the wrong pokémon!")) {
-              checkIfWrong.stop();
-              if (!pokemon[1]) {
-                return msg.channel.send(
-                  "<@716390085896962058> " +
-                    hintMessages[Math.round(Math.random())]
+
+          const maxAttempts = 3;
+          const pokemonOptions = [pokemon[0], pokemon[1], pokemon[2]];
+
+          for (let i = 0; i < maxAttempts && i < pokemonOptions.length; i++) {
+            if (!canSend(client)) break;
+            if (pokemonOptions[i]) {
+              const responsePromise = message.channel.awaitMessage({
+                filter: (msg) =>
+                  msg.author.id === POKETWO_ID &&
+                  (isWrongPokemonMessage(msg.content) ||
+                    isCaughtMessage(msg.content, client.user.id)),
+                time: 5000,
+                errors: false,
+              });
+
+              await message.channel.send(
+                `${POKETWO_MENTION} c ${pokemonOptions[i]}`
+              );
+
+              const response = await responsePromise;
+
+              if (!response || !isWrongPokemonMessage(response.content)) {
+                if (
+                  response &&
+                  isCaughtMessage(response.content, client.user.id)
+                ) {
+                  const parsedCatch = parseCatchMessage(response.content);
+                  if (parsedCatch) {
+                    await handleCaughtResponse(client, response, parsedCatch);
+                  }
+                }
+                break;
+              }
+
+              if (i === maxAttempts - 1 || !pokemonOptions[i + 1]) {
+                await message.channel.send(
+                  `${POKETWO_MENTION} ${getRandomHint()}`
                 );
               }
-              await msg.channel.send("<@716390085896962058> c " + pokemon[1]);
-
-              checkIfWrong2 = await msg.channel
-                .createMessageCollector({ time: 5000 })
-                .on("collect", async (msg) => {
-                  if (
-                    msg.content.includes("That is the wrong pokémon!") &&
-                    getSpamming(client.user.id) == true
-                  ) {
-                    checkIfWrong2.stop();
-
-                    msg.channel.send(
-                      "<@716390085896962058> " +
-                        hintMessages[Math.round(Math.random())]
-                    );
-                  }
-                });
             }
-          });
-      }
-    } else if (message.content.startsWith("Please pick a starter pokémon")) {
-      // Handle starter Pokémon selection
-      let starters = ["bulbasaur", "charmander", "squirtle"];
-      await wait(300);
-      await message.channel.send(
-        "<@716390085896962058> pick " + starters[randomInteger(0, 2)],
-      );
-    } else if (
-      message?.embeds[0]?.footer &&
-      message?.embeds[0].footer.text.includes("Terms") &&
-      message?.components[0]?.components[0]
-    ) {
-      // Handle terms acceptance and initial setup
-      const messages = await message.channel.messages
-        .fetch({ limit: 2, around: message.id })
-        .catch(() => null);
-      const newMessage = Array.from(messages.values());
-      [...messages.values()];
-      if (!newMessage[1]?.content.includes("pick")) return;
-      message.clickButton();
-      await wait(3000);
-      message.channel.send("<@716390085896962058> i");
-      await wait(2000);
-      message.channel.send("<@716390085896962058> sh solosis");
-      await wait(2000);
-      message.channel.send("<@716390085896962058> order iv");
-    } else if (
-      config.logging.LogCatches &&
-      message.content.includes(
-        "Congratulations <@" + client.user.id + ">! You caught"
-      )
-    ) {
-      // Log successful catches
-      if (config.logging.LogCatches) {
-        let match = message.content.match(
-          /Level (\d+) ([^<]+)(<:[^>]+>) \(([^)]+%)\)/
-        );
-        const [, level, unTrimmedName, gender, iv] = match;
-        const name = unTrimmedName.trim();
-        const shiny = message.content.includes("✨");
-        const gigantamax = message.content.includes("Gigantamax");
+          }
+        }
+      } else if (message.content.startsWith("Please pick a starter pokémon")) {
+        let starters = ["bulbasaur", "charmander", "squirtle"];
+        await wait(300);
+        if (canSend(client)) {
+          await message.channel.send(
+            `${POKETWO_MENTION} pick ${starters[randomInteger(0, 2)]}`
+          );
+        }
+      } else if (
+        message?.embeds[0]?.footer &&
+        message?.embeds[0].footer.text.includes("Terms") &&
+        message?.components[0]?.components[0]
+      ) {
+        // Handle terms acceptance and initial setup
+        const referencedMessage =
+          message.reference || (await message.fetchReference());
+        let originalCommand = referencedMessage?.content || "";
 
-        sendCatch(
-          client.user.username,
-          name,
-          level,
-          iv,
-          gender,
-          shiny,
-          gigantamax,
-          await getImage(name, shiny, gigantamax)
-        );
+        if (!originalCommand) {
+          const messages = await message.channel
+            .fetchMessages({ limit: 2, around: message.id })
+            .catch((error) => {
+              sendLog(
+                client.user.username,
+                `Failed to fetch surrounding messages: ${error.message || error}`,
+                "error"
+              );
+              return [];
+            });
+          originalCommand =
+            messages.find((m) => m.id !== message.id)?.content || "";
+        }
+
+        if (
+          !originalCommand ||
+          !["pick", "catch", "c", "hint"].some((kw) =>
+            originalCommand.includes(kw)
+          )
+        ) {
+          return;
+        }
+
+        await message.clickButton();
+        if (message?.embeds[0].title.includes("Updated")) return;
+        await wait(3000);
+        message.channel
+          .send(`${POKETWO_MENTION} i`)
+          .catch((error) =>
+            sendLog(
+              client.user.username,
+              `Failed to send inventory command: ${error.message || error}`,
+              "error"
+            )
+          );
+        await wait(2000);
+        message.channel
+          .send(`${POKETWO_MENTION} sh solosis`)
+          .catch((error) =>
+            sendLog(
+              client.user.username,
+              `Failed to send hunt command: ${error.message || error}`,
+              "error"
+            )
+          );
+        await wait(2000);
+        message.channel
+          .send(`${POKETWO_MENTION} order iv`)
+          .catch((error) =>
+            sendLog(
+              client.user.username,
+              `Failed to send order command: ${error.message || error}`,
+              "error"
+            )
+          );
+      } else if (isCaughtMessage(message.content, client.user.id)) {
+        const parsedCatch = parseCatchMessage(message.content);
+        if (parsedCatch) {
+          await handleCaughtResponse(client, message, parsedCatch);
+        }
       }
     }
-  }
+  },
 };

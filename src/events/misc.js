@@ -1,328 +1,409 @@
-// Importing necessary modules and configurations
+const config = require("../../config.js");
+const axios = require("axios"); // Solve captchas
 
-const config = require("../../config.js"); // Loading configuration from JSON file
-const axios = require("axios"); // Used for captchasolving
-
-// Utility functions and classes
 const {
   sendLog,
   sendWebhook,
+  sendQuestWebhook,
   getMentions,
-} = require("../functions/logging.js"); // Logging functions
-const { getWaiting, setWaiting } = require("../utils/states.js"); // State management functions
-const { addStat } = require("../utils/stats.js"); // Stats management functions
+  loggingOption,
+  canPingLoggingAlerts,
+} = require("../services/logging.js");
+const {
+  getWaiting,
+  setWaiting,
+  stopAccount,
+} = require("../services/states.js");
+const { addStat } = require("../services/stats.js");
+const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 
-// The main function that handles new messages
+const POKEMON_PATTERN = "pok(?:\\u00e9|e)mon";
+const POKECOINS_PATTERN = "Pok(?:\\u00e9|e)coins";
 
-module.exports = async (client, guildId, message) => {
-  // Checking if the message is from Pokétwo and if the bot is not already waiting
-  if (
-    message?.author.id == "716390085896962058" &&
-    getWaiting(client.user.id) == false &&
-    (config.globalSettings.GlobalCatch || message.guild.id == guildId)
-  ) {
-    // Checking if the account is suspended
+function parseCoinAmount(value) {
+  const amount = Number(String(value).replace(/,/g, ""));
+  return Number.isFinite(amount) && amount >= 0 ? amount : 0;
+}
 
-    if (message?.embeds[0]?.title?.includes("Account Suspended")) {
-      const messages = await message.channel.messages
-        .fetch({
-          limit: 2,
-          around: message.id,
-        })
-        .catch(() => null);
+function parseQuestCompletion(content) {
+  const questMatch = content.match(/\*\*(.*?)\*\*/);
+  const questText = questMatch ? questMatch[1] : content;
+  const amountMatch = questText.match(
+    new RegExp(`Catch\\s+(\\d+).*?${POKEMON_PATTERN}`, "i")
+  );
+  const regionMatch = questText.match(/found in the (.*?) region/i);
+  const typeMatch = questText.match(
+    new RegExp(`(?:<a?:[^>]+>\\s*)?([A-Za-z]+-type)\\s+${POKEMON_PATTERN}`, "i")
+  );
+  const pokecoinsMatch = content.match(
+    new RegExp(
+      `received\\s+(?:\\*\\*)?([\\d,]+)(?:\\*\\*)?\\s+${POKECOINS_PATTERN}!?`,
+      "i"
+    )
+  );
 
-      const newMessage = Array.from(messages.values());
-      [...messages.values()];
+  let target = "pokemon";
+  if (regionMatch) {
+    target = `${regionMatch[1]} region pokemon`;
+  } else if (typeMatch) {
+    target = `${typeMatch[1]} pokemon`;
+  }
 
-      if (newMessage[1]?.author.id == client.user.id) {
-        sendLog(client.user.username, "Detected suspension.", "suspension");
+  return {
+    amount: amountMatch ? amountMatch[1] : "0",
+    target,
+    quest: questText,
+    pokecoins: parseCoinAmount(pokecoinsMatch?.[1]),
+  };
+}
 
-        setWaiting(client.user.id, true);
+module.exports = {
+  name: "messageCreate",
+  parseCoinAmount,
+  parseQuestCompletion,
+  execute: async (client, guildId, message) => {
+    if (client.stopped || client.suspended) return;
 
-        config.ownership.OwnerIDs.forEach((id) => {
-          if (id.length <= 16) return;
-
-          client.users.fetch(id).then(async (user) => {
-            try {
-              dmChannel = await client.channels.fetch(user?.dmChannel?.id);
-            } catch (error) {
-              dmChannel = await user.createDM();
-            }
-
-            let lastMessage = await dmChannel.messages.fetch(
-              dmChannel?.lastMessageId
-            );
-
-            if (lastMessage?.content?.includes("suspended")) {
-              return client.destroy();
-            } else {
-              sendWebhook(`${await getMentions()}`, {
-                title: `Account ${client.user.username} was suspended!`,
-                color: "#FF0000",
-                footer: {
-                  text: "CatchTwo by @kyan0045",
-                  icon_url:
-                    "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-                },
-              });
-
-              return user
-                .send(
-                  `## ACCOUNT SUSPENDED\n> Your account has been suspended. The autocatcher has been paused. Please check your account for more information.`
-                )
-                .catch((error) => {
-                  sendLog(
-                    client.user.username,
-                    `Error sending message to ${user.username}: ${error}`,
-                    "error"
-                  );
-                })
-                .finally(() => {
-                  client.destroy();
-                }); // Send a DM to the owner(s) specified in the config
-            }
-          });
-        });
-      }
-    }
-
-    // Handling captcha detection
     if (
-      message.content.includes(
-        `https://verify.poketwo.net/captcha/${client.user.id}`
-      )
+      message?.author.id === POKETWO_ID &&
+      (getWaiting(client.user.id) === false ||
+        message?.embeds[0]?.title?.includes("Account Suspended"))
     ) {
-      if (getWaiting(client.user.id) == true) return;
-      setWaiting(client.user.id, true); // Setting the bot to a waiting state
-      sendLog(client.user.username, "Detected captcha.", "captcha"); // Logging captcha detection
-      if (config.incense.IncenseMode == true) {
-        message.reply(`<@716390085896962058> incense pause all -y`)
+      if (message?.embeds[0]?.title?.includes("Account Suspended")) {
+        const messages = await message.channel
+          .fetchMessages({
+            limit: 2,
+            around: message.id,
+          })
+          .catch(() => []);
+
+        if (client.stopped || client.suspended) return;
+
+        const otherMessage = messages.find((m) => m.id !== message.id);
+
+        if (otherMessage?.author.id === client.user.id) {
+          client.suspended = true;
+          stopAccount(client.user.id);
+
+          let timeout;
+          try {
+            const deadline = new Promise((resolve) => {
+              timeout = setTimeout(resolve, 10_000);
+            });
+            sendLog(client.user.username, "Detected suspension.", "suspension");
+
+            await Promise.race([
+              deadline,
+              Promise.allSettled([
+                Promise.resolve().then(() => {
+                  if (client.stopped) return;
+                  return sendWebhook(getMentions(), {
+                    title: `Account ${client.user.username} was suspended!`,
+                    color: "#FF0000",
+                    footer: {
+                      text: "CatchTwo by @kyan0045",
+                      icon_url:
+                        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+                    },
+                  });
+                }),
+                ...config.ownership.OwnerIDs.map(async (id) => {
+                  if (id.length <= 16 || client.stopped) return;
+
+                  try {
+                    const user = await client.fetchUser(id);
+                    if (client.stopped) return;
+                    const dmChannel = await user.createDM();
+                    if (client.stopped) return;
+
+                    const lastMessage = await dmChannel
+                      .fetchMessage(dmChannel?.lastMessageId)
+                      .catch(() => null);
+                    if (client.stopped) return;
+                    if (lastMessage?.content?.includes("suspended")) return;
+
+                    await user.send(
+                      `## ACCOUNT SUSPENDED\n> Your account has been suspended. The autocatcher has been paused. Please check your account for more information.`
+                    );
+                  } catch (error) {
+                    if (client.stopped) return;
+                    sendLog(
+                      client.user.username,
+                      `Error notifying owner about suspension: ${
+                        error.message || error
+                      }`,
+                      "error"
+                    );
+                  }
+                }),
+              ]),
+            ]);
+          } finally {
+            clearTimeout(timeout);
+            client.catcher.destroy();
+          }
+          return;
+        }
       }
 
-      // Sending a webhook and a direct message to the owner about the captcha
-      sendWebhook(config.captchaSolving.key ? null : getMentions(config.ownership.OwnerIDs), {
-        title: `Captcha Found!`,
-        description: config.captchaSolving.key ? `A captcha has been detected for ${client.user.username}.` : `A captcha has been detected for ${client.user.username}. Please solve it to continue catching.`,
-        color: "#FF5600",
-        url: `https://verify.poketwo.net/captcha/${client.user.id}`,
-        footer: {
-          text: "CatchTwo by @kyan0045",
-          icon_url:
-            "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-        },
-      });
-      // Notifying all owners about the captcha
-      config.ownership.OwnerIDs.forEach((id) => {
-        if (id?.length && id.length <= 16) return; // Skipping invalid IDs
-        client.users.fetch(id).then(async (user) => {
-          let dmChannel = await client.channels
-            .fetch(user.dmChannel?.id)
-            .catch(() => null);
-          if (!dmChannel) {
-            dmChannel = await user.createDM();
-          }
-          let lastMessage = await dmChannel.messages.fetch(
-            dmChannel.lastMessageId
-          );
+      if (
+        message.content.includes(
+          `https://verify.poketwo.net/captcha/${client.user.id}`
+        )
+      ) {
+        if (getWaiting(client.user.id) === true) return;
+        setWaiting(client.user.id, true);
+        sendLog(client.user.username, "Detected captcha.", "captcha");
 
-          // Checking if the last message already informed about a captcha within the last 24 hours
-          if (
-            lastMessage?.content?.includes("captcha") &&
-            lastMessage?.author?.id == client.user.id &&
-            lastMessage?.createdTimestamp > Date.now() - 86400000
-          ) {
-            return; // Skipping if a recent captcha message was already sent
-          } else {
-            return user
-              .send(
-                `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.ownership.CommandPrefix}solved\`\` to continue catching.`
+        if (config.incense.IncenseMode === true) {
+          message
+            .reply(`${POKETWO_MENTION} incense pause all -y`)
+            .catch((error) =>
+              sendLog(
+                client.user.username,
+                `Failed to pause incense: ${error.message || error}`,
+                "error"
               )
-              .catch((error) => {
-                sendLog(
-                  client.user.username,
-                  `Error sending message to ${user.username}: ${error}`,
-                  "error"
-                );
-              });
-          }
+            );
+        }
+
+        await sendWebhook(config.captchaSolving.key ? null : getMentions(), {
+          title: `Captcha Found!`,
+          description: config.captchaSolving.key
+            ? `A captcha has been detected for ${client.user.username}.`
+            : `A captcha has been detected for ${client.user.username}. Please solve it to continue catching.`,
+          color: "#FF5600",
+          url: `https://verify.poketwo.net/captcha/${client.user.id}`,
+          footer: {
+            text: "CatchTwo by @kyan0045",
+            icon_url:
+              "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+          },
         });
-      });
+        config.ownership.OwnerIDs.forEach((id) => {
+          if (id?.length && id.length <= 16) return;
+          client
+            .fetchUser(id)
+            .then(async (user) => {
+              const dmChannel = await user.createDM();
+              let lastMessage = await dmChannel
+                .fetchMessage(dmChannel.lastMessageId)
+                .catch(() => null);
 
-      if (config.captchaSolving.key) {
-        // Declare a global variable for taskid
-        let globalTaskId;
+              // Avoid repeating the DM if the previous one is under 24 hours old
+              if (
+                lastMessage?.content?.includes("captcha") &&
+                lastMessage?.author?.id === client.user.id &&
+                lastMessage?.createdTimestamp > Date.now() - 86400000
+              ) {
+                return;
+              } else {
+                return user
+                  .send(
+                    `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.ownership.CommandPrefix}solved\`\` to continue catching.`
+                  )
+                  .catch((error) => {
+                    sendLog(
+                      client.user.username,
+                      `Error sending message to ${user.username}: ${error}`,
+                      "error"
+                    );
+                  });
+              }
+            })
+            .catch((error) => {
+              sendLog(
+                client.user.username,
+                `Error notifying owner about captcha: ${error.message || error}`,
+                "error"
+              );
+            });
+        });
 
-        axios
-          .post(
-            "https://api.catchtwo.online/solve-captcha",
-            {
-              token: client.token,
-              userId: client.user.id,
-            },
-            {
-              headers: {
-                "api-key": `${config.captchaSolving.key}`,
+        if (config.captchaSolving.key) {
+          let taskId;
+
+          try {
+            const submission = await axios.post(
+              "https://api.catchtwo.online/solve-captcha",
+              {
+                token: client.token,
+                userId: client.user.id,
               },
-            }
-          )
-          .then((response) => {
-            // Assign the taskid from the response to the global variable
-            globalTaskId = response.data.requestId;
-            console.log("Task ID:", globalTaskId);
+              {
+                headers: {
+                  "api-key": `${config.captchaSolving.key}`,
+                },
+                timeout: 15_000,
+              }
+            );
+            taskId = submission.data?.requestId;
+            if (!taskId) throw new Error("Captcha solver returned no task ID.");
+          } catch (error) {
             sendLog(
               client.user.username,
-              "Solver Task ID: " + globalTaskId,
-              "debug"
+              `Failed to submit captcha to solver: ${error.message}`,
+              "error"
             );
-          });
+            await sendWebhook(getMentions(), {
+              title: "Captcha Solver Submission Failed!",
+              color: "#FF0000",
+            });
+            return;
+          }
 
-        sendLog(client.user.username, "Sent captcha to the solver.", "captcha");
-        setTimeout(async () => {
-          let retries = 9;
-          let success = false;
+          sendLog(client.user.username, "Solver Task ID: " + taskId, "debug");
 
-          while (retries > 0 && !success) {
+          sendLog(
+            client.user.username,
+            "Sent captcha to the solver.",
+            "captcha"
+          );
+          await new Promise((resolve) => setTimeout(resolve, 15_000));
+
+          for (let attempt = 1; attempt <= 9; attempt++) {
             try {
               const response = await axios.get(
-                `https://api.catchtwo.online/results/${globalTaskId}`,
+                `https://api.catchtwo.online/results/${taskId}`,
                 {
                   headers: {
                     "api-key": `${config.captchaSolving.key}`,
                   },
+                  timeout: 15_000,
                 }
               );
 
-              if (response.data.status == "completed") {
+              if (response.data.status === "completed") {
                 setWaiting(client.user.id, false);
                 sendLog(
                   client.user.username,
                   "Successfully solved the captcha!",
                   "captcha"
                 );
-                sendWebhook(await getMentions(), {
-                  title: `Captcha Solved!`,
+                await sendWebhook(getMentions(), {
+                  title: "Captcha Solved!",
                   color: "#00FF00",
-                  footer: {
-                    text: "CatchTwo by @kyan0045",
-                    icon_url:
-                      "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-                  },
                 });
-                success = true;
-                if (config.incense.IncenseMode == true) {
-                  message.reply(`<@716390085896962058> incense resume all -y`)
+                if (config.incense.IncenseMode === true) {
+                  await message.reply(
+                    `${POKETWO_MENTION} incense resume all -y`
+                  );
                 }
-              } else if (response.data.status == "pending") {
+                return;
+              }
+
+              if (response.data.status !== "pending") {
                 sendLog(
                   client.user.username,
-                  "Captcha solve pending.",
-                  "debug"
-                );
-              } else {
-                sendLog(
-                  client.user.username,
-                  "Captcha solving failed.",
+                  `Captcha solving failed with status: ${response.data.status || "unknown"}.`,
                   "captcha"
                 );
-                console.log(
-                  `Please report this to @kyan0045,`,
-                  response,
-                  response.data
-                );
-                sendWebhook(await getMentions(), {
-                  title: `Solve with ${globalTaskId} failed!`,
+                await sendWebhook(getMentions(), {
+                  title: `Solve with ${taskId} failed!`,
                   color: "#FF0000",
-                  footer: {
-                    text: "CatchTwo by @kyan0045",
-                    icon_url:
-                      "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-                  },
                 });
-               setTimeout(() => {
-                setWaiting(client.user.id, false);
-               }, 30 * 60 * 1000)
+                return;
               }
+
+              sendLog(
+                client.user.username,
+                `Captcha solve pending (${attempt}/9).`,
+                "debug"
+              );
             } catch (error) {
-              console.error("Error checking captcha result:", error);
+              sendLog(
+                client.user.username,
+                `Error checking captcha result (${attempt}/9): ${error.message}`,
+                "error"
+              );
             }
 
-            if (!success) {
-              retries--;
-              if (retries > 0) {
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-              }
+            if (attempt < 9) {
+              await new Promise((resolve) => setTimeout(resolve, 5_000));
             }
           }
-        }, 15000);
+
+          sendLog(
+            client.user.username,
+            "Captcha solver timed out; account remains paused.",
+            "captcha"
+          );
+          await sendWebhook(getMentions(), {
+            title: `Solve with ${taskId} timed out!`,
+            color: "#FF0000",
+          });
+        }
       }
     }
-  }
 
-  // Handling quest completion
-  if (message.content.includes(`You have completed`)) {
-    const messages = await message.channel.messages
-      .fetch({
-        limit: 2,
-        around: message.id,
-      })
-      .catch(() => null);
+    if (message.content.includes(`You have completed`)) {
+      const messages = await message.channel
+        .fetchMessages({
+          limit: 2,
+          around: message.id,
+        })
+        .catch(() => []);
 
-    const newMessage = Array.from(messages.values());
+      const triggeringMessage = messages.find((m) => m.id !== message.id);
+
+      if (
+        triggeringMessage?.author.id === client.user.id ||
+        (triggeringMessage?.author.id === POKETWO_ID &&
+          triggeringMessage.content.includes(client.user.id))
+      ) {
+        if (message.content.includes(`You have completed the quest`)) {
+          const { amount, target, quest, pokecoins } = parseQuestCompletion(
+            message.content
+          );
+
+          if (loggingOption("Quests")) {
+            sendLog(
+              client.user.username,
+              `Detected quest completion: Caught ${amount} ${target} and received ${pokecoins} Pokécoins.`,
+              "quest"
+            );
+            await sendQuestWebhook(
+              client.user.username,
+              quest,
+              pokecoins,
+              null,
+              canPingLoggingAlerts()
+            );
+          }
+          addStat(client.user.id, "coins", pokecoins);
+        } else if (message.content.includes(`You have completed this quest`)) {
+          const badgeMatch = message.content.match(/received the (.*?) badge/);
+          const badge = badgeMatch ? badgeMatch[1] : "Unknown badge";
+
+          if (loggingOption("Quests")) {
+            sendLog(
+              client.user.username,
+              `Detected quest track completion and received the ${badge} badge.`,
+              "quest"
+            );
+            await sendQuestWebhook(
+              client.user.username,
+              null,
+              null,
+              badge,
+              canPingLoggingAlerts()
+            );
+          }
+        }
+      }
+    }
 
     if (
-      newMessage[1]?.author.id == client.user.id ||
-      (newMessage[1]?.author.id == "716390085896962058" &&
-        newMessage[1].content.includes(client.user.id))
+      message.content.includes("You received") &&
+      message.content.includes("Pokécoins") &&
+      message.content.includes(client.user.id)
     ) {
-      if (message.content.includes(`You have completed the quest`)) {
-        // Extract amount of pokemon caught using regex
-        const amountMatch = message.content.match(/Catch (\d+) pokémon/);
-        const amount = amountMatch ? amountMatch[1] : "0";
-
-        // Extract region name using regex
-        const regionMatch = message.content.match(/found in the (.*?) region/);
-        const region = regionMatch ? regionMatch[1] : "Unknown region";
-
-        // Extract Pokécoins amount using regex
-        const pokecoinsMatch = message.content.match(
-          /received\s+(?:\*\*)?([\d,]+)(?:\*\*)?\s+Pokécoins!?/
-        );
-        const pokecoins = pokecoinsMatch
-          ? pokecoinsMatch[1].replace(/,/g, "")
-          : "0";
-
-        // Log the extracted information
-        sendLog(
-          client.user.username,
-          `Detected quest completion: Caught ${amount} ${region} pokemon and received ${pokecoins} Pokécoins.`,
-          "quest"
-        );
-        addStat(client.user.username, "coins", pokecoins);
-      } else if (message.content.includes(`You have completed this quest`)) {
-        // Extract badge name using regex
-        const badgeMatch = message.content.match(/received the (.*?) badge/);
-        const badge = badgeMatch ? badgeMatch[1] : "Unknown badge";
-
-        // Log the extracted information
-        sendLog(
-          client.user.username,
-          `Detected quest track completion and received the ${badge} badge.`,
-          "quest"
-        );
+      const pokeCoins = message.content.match(
+        /received\s+(?:\*\*)?([\d,]+)(?:\*\*)?\s+Pokécoins[.!]?/
+      );
+      if (pokeCoins) {
+        addStat(client.user.id, "coins", parseCoinAmount(pokeCoins[1]));
       }
     }
-  }
-
-  if (
-    message.content.includes("You received") &&
-    message.content.includes("Pokécoins") &&
-    message.content.includes(client.user.id)
-  ) {
-    const pokeCoins = message.content.match(
-      /received\s+(?:\*\*)?([\d,]+)(?:\*\*)?\s+Pokécoins[.!]?/
-    );
-    if (pokeCoins) {
-      addStat(client.user.username, "coins", pokeCoins[1]);
-    }
-  }
+  },
 };

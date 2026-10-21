@@ -1,83 +1,83 @@
-// This module exports a "click" command for CatchTwo. It allows the selfbot to click a button on a message.
+const { sendLog } = require("../services/logging.js");
+
 module.exports = {
-  name: "click", // Command name
-  aliases: ["buttonclick", "clickbutton"], // Command aliases for easier access
-  // Asynchronous function to handle the command execution
+  name: "click",
+  aliases: ["buttonclick", "clickbutton"],
   async execute(client, message, args) {
-    let msg; // Variable to store the message object
-    let buttonId = 0; // Default button ID
-    let rowId = 0; // Default row ID for button groups
+    let msg;
+    let buttonId;
+    let rowId = null;
 
     try {
-      // If the first argument is a message ID (length > 10), fetch the message
       if (args[0]?.length > 10) {
-        msg = await message.channel.messages.fetch(args[0]);
-        buttonId = parseInt(args[1]) - 1; // Parse the button ID from the second argument
-        // If a third argument is provided, parse it as the row ID
+        msg = await message.channel.fetchMessage(args[0]);
+        buttonId = parseInt(args[1]) - 1;
         if (args[2]) {
           rowId = parseInt(args[2]) - 1;
         }
       } else if (message.reference) {
-        // If the command is a reply, fetch the referenced message
-        msg = await message.channel.messages.fetch(message.reference.messageId);
-        buttonId = parseInt(args[0]) - 1; // Parse the button ID from the first argument
-        // If a second argument is provided, parse it as the row ID
+        msg = await message.fetchReference();
+        buttonId = parseInt(args[0]) - 1;
         if (args[1]) {
           rowId = parseInt(args[1]) - 1;
         }
       } else {
-        // If neither condition is met, throw an error
         throw new Error();
       }
     } catch (err) {
-      // Log the error and inform the user to specify a message ID or reply to a message
-      console.error(err);
+      sendLog(
+        client?.user?.username,
+        `Click command failed: ${err.message || err}`,
+        "error"
+      );
       return message.reply(
         `Please reply to the message that the button is attached to, or specify the message ID.`
       );
     }
 
     try {
-      // Check if the message has components (buttons)
-      if (!msg.components || msg.components.length === 0) {
+      if (!msg?.components || msg?.components?.length === 0) {
         return message.reply("This message doesn't have any buttons to click.");
       }
 
-      // Find the button by position (row and button index)
       let targetButton = null;
 
-      // If rowId is specified and valid, look in that specific row
-      if (rowId >= 0 && rowId < msg.components.length) {
+      if (rowId !== null) {
         const row = msg.components[rowId];
-        if (buttonId >= 0 && buttonId < row.components.length) {
-          targetButton = row.components[buttonId];
+        if (!row) {
+          return message.reply("Row not found at the specified position.");
         }
+        const rowButtons = row.components.filter(
+          (component) => component.type === 2 && component.customId
+        );
+        if (!(buttonId >= 0 && buttonId < rowButtons.length)) {
+          return message.reply("Button not found at the specified position.");
+        }
+        targetButton = rowButtons[buttonId];
       } else {
-        // If no specific row, find the button by counting through all rows
-        let currentIndex = 0;
-        for (const row of msg.components) {
-          for (const component of row.components) {
-            if (currentIndex === buttonId) {
-              targetButton = component;
-              break;
-            }
-            currentIndex++;
-          }
-          if (targetButton) break;
+        const buttons = msg.components.flatMap((row) =>
+          row.components.filter(
+            (component) => component.type === 2 && component.customId
+          )
+        );
+        if (!(buttonId >= 0 && buttonId < buttons.length)) {
+          return message.reply("Button not found at the specified position.");
         }
+        targetButton = buttons[buttonId];
       }
 
       if (!targetButton || !targetButton.customId) {
         return message.reply("Button not found at the specified position.");
       }
 
-      // Attempt to click the button using its custom_id
       await msg.clickButton(targetButton.customId);
-      // React with a checkmark emoji to indicate success
-      message.react("✅");
+      message.react("✅").catch(() => null);
     } catch (err) {
-      // Log any errors and react with an X emoji to indicate failure
-      console.error(err);
+      sendLog(
+        client?.user?.username,
+        `Click command failed: ${err.message || err}`,
+        "error"
+      );
       message.react("❌");
       message.reply(`Failed to click button: ${err.message}`);
     }

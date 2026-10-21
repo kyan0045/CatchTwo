@@ -1,54 +1,112 @@
-const { Client } = require("discord.js-selfbot-v13");
+const { Client } = require("discord-self-lite");
 const fs = require("fs-extra");
-const { sendLog } = require("../functions/logging.js");
+const path = require("path");
+const { sendLog } = require("../services/logging.js");
+const { listenEvents } = require("../services/listenEvents.js");
+const { createAccountStats } = require("../services/stats.js");
+const { spam } = require("../services/spam.js");
+const { stopAccount } = require("../services/states.js");
+const { CatchTwoRestManager, stoppedError } = require("../services/queue.js");
+
 const clients = [];
+
+const preloadedCommands = [];
+try {
+  const commandFiles = fs
+    .readdirSync(path.join(__dirname, "..", "commands"))
+    .filter((file) => file.endsWith(".js"));
+
+  for (const file of commandFiles) {
+    try {
+      preloadedCommands.push(require(`../commands/${file}`));
+    } catch (error) {
+      console.error(`Error preloading command ${file}:`, error);
+    }
+  }
+} catch (error) {
+  console.error("Error reading commands directory:", error);
+}
+
+function removeClient(client) {
+  const index = clients.indexOf(client);
+  if (index !== -1) {
+    clients.splice(index, 1);
+  }
+}
 
 class Catcher {
   constructor(token, guildId) {
     this.token = token;
     this.guildId = guildId;
-    this.pokemon = {};
+    this.stopped = false;
   }
 
   listen() {
-    const client = new Client({ checkUpdate: false, readyStatus: false });
+    if (this.stopped || this.client) return;
+    const client = new Client({ restClass: CatchTwoRestManager });
+    client.catcher = this;
+    client.stopped = false;
+    this.destroyClient = client.destroy.bind(client);
+    client.destroy = () => this.destroy();
     client.commands = new Map();
 
-    const commandFiles = fs
-      .readdirSync("./src/commands")
-      .filter((file) => file.endsWith(".js"));
-
-    for (const file of commandFiles) {
-      const command = require(`../commands/${file}`);
-      client.commands.set(command.name, command);
+    for (const command of preloadedCommands) {
+      if (command?.name) client.commands.set(command.name, command);
     }
     this.client = client;
     this.client.guildId = this.guildId;
 
-    const { listenEvents } = require("../functions/listenEvents.js");
     listenEvents(this.client, this.guildId);
   }
 
   login() {
-    this.client
-      .login(this.token)
+    if (this.stopped || this.loginPromise) return this.loginPromise;
+    clients.push(this.client);
+    const login = this.client.login(this.token);
+    this.loginPromise = login
       .then(() => {
-        const { createAccountStats } = require("../utils/stats.js");
+        if (this.stopped) return;
         createAccountStats(this.client.user.id);
       })
       .catch((error) => {
-        sendLog(
-          null,
-          `Failed to login to token: ${this.token}\n\t\t ${error}`,
-          "error"
-        );
+        if (this.stopped) return;
+        sendLog(null, `Failed to login: ${error.message || error}`, "error");
+        this.destroy();
       });
-    clients.push(this.client);
+    return this.loginPromise;
   }
 
   start() {
-    const { spam } = require("../functions/spam.js");
-    this.spamChannel = spam(this.client, this.guildId);
+    if (this.stopped || !this.client || this.client.stopped) return;
+    this.spamChannel = spam(this.client, this.guildId).catch((error) => {
+      sendLog(
+        this.client?.user?.username ?? null,
+        `Failed to start spammer: ${error.message || error}`,
+        "error"
+      );
+      return null;
+    });
+  }
+
+  destroy() {
+    if (this.stopped || !this.client) return;
+    this.stopped = true;
+    this.client.stopped = true;
+    if (this.client.user?.id) stopAccount(this.client.user.id);
+    this.spamChannel = null;
+    if (this.client.spamInterval) {
+      clearInterval(this.client.spamInterval);
+      this.client.spamInterval = null;
+    }
+    removeClient(this.client);
+    const { catchers } = require("../services/createCatchers.js");
+    const index = catchers.indexOf(this);
+    if (index !== -1) catchers.splice(index, 1);
+    try {
+      this.destroyClient?.(stoppedError());
+    } finally {
+      if (this.client.ws) clearInterval(this.client.ws.heartbeatInterval);
+    }
   }
 }
 

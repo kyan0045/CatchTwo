@@ -1,11 +1,11 @@
-// Importing the necessary logging function from the logging module
-const { sendLog } = require("../functions/logging.js");
+// Disabled: discord-self-lite cannot accept invites yet. Kept for when I implement it downstream
 
-// This module exports a "join" command for CatchTwo that allows the selfbot to join servers via invite links.
+/*
+const { sendLog } = require("../services/logging.js");
+
 module.exports = {
-  name: "join", // Command name
-  aliases: ["accept-invite", "accept", "enterserver"], // Command aliases for easier access
-  // Asynchronous function to handle the command execution
+  name: "join",
+  aliases: ["accept-invite", "accept", "enterserver"],
   async execute(client, message, args) {
     if (!args[0]) {
       // If no invite code/link is provided, inform the user and stop execution
@@ -27,7 +27,6 @@ module.exports = {
       // Format the complete Discord invite URL
       const inviteUrl = `https://discord.gg/${inviteCode}`;
       
-      // Use the Discord.js-selfbot-v13 method to accept the invite
       // The options bypass server onboarding and verification processes
       const guildInfo = await client.acceptInvite(inviteUrl, { 
         bypassOnboarding: true, 
@@ -52,3 +51,4 @@ module.exports = {
     }
   },
 };
+*/

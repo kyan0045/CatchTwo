@@ -1,294 +1,208 @@
-// Importing necessary modules and configurations
-const package = require("../../package.json"); // Loading package.json for version
-const version = package.version;
-const { clients } = require("../classes/catcher");
+const pkg = require("../../package.json");
+const version = pkg.version;
 
-// Importing necessary functions
-const { getAccountStat, getTotalStats } = require("../utils/stats.js");
-const { sendCommandWebhook } = require("../functions/logging.js");
+const { getAccountStat, getTotalStats } = require("../services/stats.js");
+const { sendCommandWebhook } = require("../services/logging.js");
+
+async function sendStatsEmbed(
+  webhook,
+  message,
+  title,
+  fields,
+  processStartTime,
+  lastCatch
+) {
+  const sent = await sendCommandWebhook(webhook, `<@${message.author.id}>`, {
+    title,
+    description: `**Started:** <t:${Math.round(processStartTime / 1000)}:R>\n**Last Catch:** ${
+      lastCatch === 0 ? "Never" : `<t:${Math.round(lastCatch / 1000)}:R>`
+    }`,
+    fields,
+    color: "#fecd06",
+    thumbnail: {
+      url: "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+    },
+    footer: {
+      text: "CatchTwo by @kyan0045, version " + version,
+      icon_url:
+        "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
+    },
+  });
+
+  if (sent) return true;
+
+  const lines = fields.map((field) => `**${field.name}:** ${field.value}`);
+  return message.reply(`**${title}**\n${lines.join("\n")}`);
+}
+
+function getPokemonFields(catches, processUptime, isUser = false) {
+  const uptimeHours = processUptime / 3600;
+  const catchRate =
+    catches.total === 0 || !(uptimeHours > 0)
+      ? "0 per hour"
+      : `${Math.round(catches.total / uptimeHours)} catches per hour`;
+
+  const fields = [
+    { name: "Total Catches", value: `${catches.total}`, inline: true },
+    { name: "Catch Rate", value: catchRate, inline: true },
+    { name: "\u200B", value: "\u200B", inline: true },
+    {
+      name: isUser ? "Shiny" : "Total Shiny",
+      value: `${catches.shiny}`,
+      inline: true,
+    },
+    {
+      name: isUser ? "Legendary" : "Total Legendary",
+      value: `${catches.legendary}`,
+      inline: true,
+    },
+    {
+      name: isUser ? "Mythical" : "Total Mythical",
+      value: `${catches.mythical}`,
+      inline: true,
+    },
+    {
+      name: isUser ? "Ultra Beasts" : "Total Ultra Beasts",
+      value: `${catches.ultrabeast}`,
+      inline: true,
+    },
+    {
+      name: isUser ? "Events" : "Total Events",
+      value: `${catches.event}`,
+      inline: true,
+    },
+    {
+      name: isUser ? "Regionals" : "Total Regionals",
+      value: `${catches.regional}`,
+      inline: true,
+    },
+  ];
+
+  if (catches.gigantamax !== undefined) {
+    fields.push({
+      name: isUser ? "Gigantamax" : "Total Gigantamax",
+      value: `${catches.gigantamax}`,
+      inline: true,
+    });
+  }
+
+  return fields;
+}
+
+function getGeneralFields(stats, isUser = false) {
+  const prefix = isUser ? "" : "Total ";
+  return [
+    { name: `${prefix}Catches`, value: `${stats.catches.total}`, inline: true },
+    {
+      name: `${prefix}Coins Gained`,
+      value: `${stats.general.coins}`,
+      inline: true,
+    },
+    {
+      name: `${prefix}Spam Messages`,
+      value: `${stats.general.spamMessages}`,
+      inline: true,
+    },
+  ];
+}
 
 module.exports = {
   name: "stats",
   aliases: ["statistics", "data", "catches"],
+  getGeneralFields,
+  getPokemonFields,
   async execute(client, message, args, webhook) {
-    // Get process uptime and start time
+    const { clients } = require("../classes/catcher");
     const processUptime = process.uptime();
     const processStartTime = Date.now() - processUptime * 1000;
 
-    // If no arguments provided, show main stats menu
     if (!args.length) {
-      message.reply(
-        "Please provide a valid argument.\nUse `pokemon` to view your Pokemon statistics, `General` to view your general statistics. You can also mention one of your catchers or provide their ID to view their statistics."
+      return message.reply(
+        "Please provide a valid argument.\nUse `pokemon` to view your Pokemon statistics, `general` to view your general statistics. You can also mention one of your catchers or provide their ID to view their statistics."
       );
-    } else if (args.length === 1 && args[0] === "pokemon") {
+    }
+
+    const lowered = args.map((arg) => arg.toLowerCase());
+    const wantsPokemon = lowered.includes("pokemon");
+    const wantsGeneral = lowered.includes("general");
+    // Any argument that is not a category is the target account
+    const userArg = args.find(
+      (_arg, index) => !["pokemon", "general"].includes(lowered[index])
+    );
+
+    if (!userArg) {
       const stats = getTotalStats();
-
-      sendCommandWebhook(webhook, `<@${message.author.id}>`, {
-        title: "Statistics",
-        description: `**Started:** <t:${Math.round(
-          processStartTime / 1000
-        )}:R>\n**Last Catch:** ${
-          stats.general.lastCatch === 0
-            ? "Never"
-            : `<t:${Math.round(stats.general.lastCatch / 1000)}:R>`
-        }`,
-        fields: [
-          {
-            name: "Total Catches",
-            value: `${stats.catches.total}`,
-            inline: true,
-          },
-          {
-            name: "Catch Rate",
-            value:
-              stats.catches.total === 0
-                ? "0 per hour"
-                : `${Math.round(
-                    stats.catches.total / (processUptime / 2400)
-                  )} catches per hour`,
-            inline: true,
-          },
-          { name: "\u200B", value: "\u200B", inline: true },
-          {
-            name: "Total Shiny",
-            value: `${stats.catches.shiny}`,
-            inline: true,
-          },
-          {
-            name: "Total Legendary",
-            value: `${stats.catches.legendary}`,
-            inline: true,
-          },
-          {
-            name: "Total Mythical",
-            value: `${stats.catches.mythical}`,
-            inline: true,
-          },
-          {
-            name: "Total Ultra Beasts",
-            value: `${stats.catches.ultrabeast}`,
-            inline: true,
-          },
-          {
-            name: "Total Events",
-            value: `${stats.catches.event}`,
-            inline: true,
-          },
-          {
-            name: "Total Regionals",
-            value: `${stats.catches.regional}`,
-            inline: true,
-          },
-          {
-            name: "Total Gigantamax",
-            value: `${stats.catches.gigantamax}`,
-            inline: true,
-          },
-        ],
-        color: "#fecd06",
-        thumbnail: {
-          url: "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-        },
-        footer: {
-          text: "CatchTwo by @kyan0045, version " + version,
-          icon_url:
-            "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-        },
-      });
-    } else if (args[0] && args[0] === "general") {
-      const stats = getTotalStats();
-
-      sendCommandWebhook(webhook, `<@${message.author.id}>`, {
-        title: "General Statistics",
-        description: `**Started:** <t:${Math.round(
-          processStartTime / 1000
-        )}:R>\n**Last Catch:** ${
-          stats.general.lastCatch === 0
-            ? "Never"
-            : `<t:${Math.round(stats.general.lastCatch / 1000)}:R>`
-        }`,
-        fields: [
-          {
-            name: "Total Catches",
-            value: `${stats.catches.total}`,
-            inline: true,
-          },
-          {
-            name: "Total Coins Gained",
-            value: `${stats.general.coins}`,
-            inline: true,
-          },
-          {
-            name: "Total Spam Messages",
-            value: `${stats.general.spamMessages}`,
-            inline: true,
-          },
-        ],
-        color: "#fecd06",
-        thumbnail: {
-          url: "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-        },
-        footer: {
-          text: "CatchTwo by @kyan0045, version " + version,
-          icon_url:
-            "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-        },
-      });
-    } else if (args[1] && (args[1] === "pokemon" || args[0] === "pokemon")) {
-      let userId = args[0].includes("pokemon") ? args[1] : args[0];
-      if (userId.startsWith("<@") && userId.endsWith(">")) {
-        // If it's a mention, extract the user ID
-        userId = userId.slice(2, -1);
-        if (userId.startsWith("!")) {
-          userId = userId.slice(1);
-        }
-      }
-
-      const user = client.users.cache.get(userId);
-      if (!clients.find((c) => c.user.username === user.username)) return message.reply("That user is not a CatchTwo catcher running in this instance.");
-      if (user) {
-        const stats = getAccountStat(user.username);
-        if (!stats) {
-          return message.reply(
-            "That catcher was not found in this CatchTwo instance."
-          );
-        }
-
-        sendCommandWebhook(webhook, `<@${message.author.id}>`, {
-          title: "Pokemon Statistics",
-          description: `**Started:** <t:${Math.round(
-            processStartTime / 1000
-          )}:R>\n**Last Catch:** ${
-            stats.general.lastCatch === 0
-              ? "Never"
-              : `<t:${Math.round(stats.general.lastCatch / 1000)}:R>`
-          }`,
-          fields: [
-            {
-              name: "Total Catches",
-              value: `${stats.catches.total}`,
-              inline: true,
-            },
-            {
-              name: "Catch Rate",
-              value:
-                stats.catches.total === 0
-                  ? "0 per hour"
-                  : `${Math.round(
-                      stats.catches.total / (processUptime / 2400)
-                    )} catches per hour`,
-              inline: true,
-            },
-            { name: "\u200B", value: "\u200B", inline: true },
-            {
-              name: "Shiny",
-              value: `${stats.catches.shiny}`,
-              inline: true,
-            },
-            {
-              name: "Legendary",
-              value: `${stats.catches.legendary}`,
-              inline: true,
-            },
-            {
-              name: "Mythical",
-              value: `${stats.catches.mythical}`,
-              inline: true,
-            },
-            {
-              name: "Ultra Beasts",
-              value: `${stats.catches.ultrabeast}`,
-              inline: true,
-            },
-            {
-              name: "Events",
-              value: `${stats.catches.event}`,
-              inline: true,
-            },
-            {
-              name: "Regionals",
-              value: `${stats.catches.regional}`,
-              inline: true,
-            },
-          ],
-          color: "#fecd06",
-          thumbnail: {
-            url: "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-          },
-          footer: {
-            text: "CatchTwo by @kyan0045, version " + version,
-            icon_url:
-              "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-          },
-        });
-      } else {
-        // If the user is not found, send an error message
-        return message.reply(
-          "That user was not found in this CatchTwo instance."
+      if (wantsPokemon) {
+        return sendStatsEmbed(
+          webhook,
+          message,
+          "Statistics",
+          getPokemonFields(stats.catches, processUptime, false),
+          processStartTime,
+          stats.general.lastCatch
         );
       }
-    } else if (args[1] && (args[1] === "general" || args[0] === "general")) {
-      let userId = args[0].includes("general") ? args[1] : args[0];
-      if (userId.startsWith("<@") && userId.endsWith(">")) {
-        // If it's a mention, extract the user ID
-        userId = userId.slice(2, -1);
-        if (userId.startsWith("!")) {
-          userId = userId.slice(1);
-        }
-      }
-
-      const user = client.users.cache.get(userId);
-      if (!clients.find((c) => c.user.username === user.username)) return message.reply("That user is not a CatchTwo catcher running in this instance.");
-      if (user) {
-        const stats = getAccountStat(user.id);
-        if (!stats) {
-          return message.reply(
-            "That catcher was not found in this CatchTwo instance."
-          );
-        }
-
-        sendCommandWebhook(webhook, `<@${message.author.id}>`, {
-          title: "General Statistics",
-          description: `**Started:** <t:${Math.round(
-            processStartTime / 1000
-          )}:R>\n**Last Catch:** ${
-            stats.general.lastCatch === 0
-              ? "Never"
-              : `<t:${Math.round(stats.general.lastCatch / 1000)}:R>`
-          }`,
-          fields: [
-            {
-              name: "Catches",
-              value: `${stats.catches.total}`,
-              inline: true,
-            },
-            {
-              name: "Coins Gained",
-              value: `${stats.general.coins}`,
-              inline: true,
-            },
-            {
-              name: "Spam Messages",
-              value: `${stats.general.spamMessages}`,
-              inline: true,
-            },
-          ],
-          color: "#fecd06",
-          thumbnail: {
-            url: "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-          },
-          footer: {
-            text: "CatchTwo by @kyan0045, version " + version,
-            icon_url:
-              "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
-          },
-        });
-      } else {
-        // If the user is not found, send an error message
-        return message.reply(
-          "That user was not found in this CatchTwo instance."
+      if (wantsGeneral) {
+        return sendStatsEmbed(
+          webhook,
+          message,
+          "General Statistics",
+          getGeneralFields(stats, false),
+          processStartTime,
+          stats.general.lastCatch
         );
+      }
+      return message.reply(
+        "Please provide a valid argument: `pokemon`, `general`, or a catcher mention/ID."
+      );
+    }
+
+    let userId = userArg;
+    if (userId.startsWith("<@") && userId.endsWith(">")) {
+      userId = userId.slice(2, -1);
+      if (userId.startsWith("!")) {
+        userId = userId.slice(1);
       }
     }
+
+    const user = await client.resolveUser(userId).catch(() => null);
+    if (!user) {
+      return message.reply(
+        "That user was not found in this CatchTwo instance."
+      );
+    }
+
+    if (!clients.find((c) => c?.user?.id === user.id)) {
+      return message.reply(
+        "That user is not a CatchTwo catcher running in this instance."
+      );
+    }
+
+    const stats = getAccountStat(user.id);
+    if (!stats) {
+      return message.reply(
+        "That catcher was not found in this CatchTwo instance."
+      );
+    }
+
+    // A plain mention defaults to the general view
+    if (wantsPokemon) {
+      return sendStatsEmbed(
+        webhook,
+        message,
+        "Pokemon Statistics",
+        getPokemonFields(stats.catches, processUptime, true),
+        processStartTime,
+        stats.general.lastCatch
+      );
+    }
+    return sendStatsEmbed(
+      webhook,
+      message,
+      "General Statistics",
+      getGeneralFields(stats, true),
+      processStartTime,
+      stats.general.lastCatch
+    );
   },
 };

@@ -1,63 +1,127 @@
-// Importing necessary functions
-const { createCatchers } = require("./src/functions/createCatchers.js");
-const { sendLog, sendWebhook } = require("./src/functions/logging.js");
-const { logMemoryUsage, memoryUsage } = require("./src/utils/utils.js");
+const {
+  createCatchers,
+  readTokens,
+} = require("./src/services/createCatchers.js");
+const { sendLog, sendWebhook } = require("./src/services/logging.js");
+const { logMemoryUsage } = require("./src/services/system.js");
+const { assertValidConfig } = require("./src/services/validateConfig.js");
 
-// Importing necessary modules
 const chalk = require("chalk");
-const fs = require("fs-extra");
 
-// Importing package.json
-const package = require("./package.json");
+const pkg = require("./package.json");
 
-// Main function to initialize and start the application
+// Invalid configuration is fatal and gets its own exit code so a launcher can stop instead of restarting in a loop
+const CONFIG_EXIT_CODE = 2;
+
+function loadConfig() {
+  try {
+    return require("./config.js");
+  } catch (error) {
+    console.error(
+      `[CONFIG] Failed to load config.js: ${error.message || error}`
+    );
+    process.exit(CONFIG_EXIT_CODE);
+  }
+}
+
+const config = loadConfig();
+
 async function main() {
+  // Clear before validating so config warnings are actually visible
+  console.clear();
+
+  try {
+    assertValidConfig(config);
+    readTokens();
+  } catch (error) {
+    console.error(`[CONFIG] ${error.message || error}`);
+    process.exit(CONFIG_EXIT_CODE);
+  }
+
   const figlet = require("figlet");
   const gradient = await import("gradient-string").then(
-    ({ default: gradient }) => gradient,
+    ({ default: gradient }) => gradient
   );
 
-  // Displaying the CatchTwo logo
-  await figlet.text(
+  figlet.text(
     "CatchTwo",
     {
       font: "Standard",
       horizontalLayout: "fitted",
       verticalLayout: "default",
     },
-    async function (err, data) {
-      if (err) {
-        console.log("Something went wrong...");
-        console.dir(err);
-        return;
-      }
-      console.log(gradient.fruit(data));
-    },
+    (err, data) => {
+      if (err) return console.log(err);
+      console.log(gradient.atlas.multiline(data));
+      console.log("");
+    }
   );
 
-  // Extract version
-  const version = package.version;
+  await new Promise((r) => setTimeout(r, 400));
 
-  // Displaying the CatchTwo logo and welcome message
+  const version = pkg.version;
+  const startTime = Date.now();
+  const mem = process.memoryUsage();
+
+  const separator = chalk.hex("#4a4a4a")("═".repeat(68));
+
+  console.log(separator);
+
+  console.log(chalk.gray("   v") + chalk.bold.cyan(version));
+
+  console.log(separator);
+  console.log("");
+
+  console.log(chalk.bold.hex("#00d4ff")("▶ SYSTEM"));
   console.log(
-    chalk.bold.yellow(`[${"WELCOME".toUpperCase()}]`) +
-      ` - ` +
-      chalk.yellow.bold(`Welcome to CatchTwo!`),
+    chalk.gray("   Node      ") +
+      chalk.white(process.version.padEnd(12)) +
+      chalk.gray("   PID       ") +
+      chalk.white(process.pid)
   );
-
-  // Log the current version with a nicer color
   console.log(
-    chalk.bold.cyan(`[VERSION]`) +
-      ` - ` +
-      chalk.cyan(
-        `Version ${chalk.bold(version)}, by ${chalk.bold(`@kyan0045`)}`,
-      ),
+    chalk.gray("   Platform  ") +
+      chalk.white(process.platform.toUpperCase().padEnd(12)) +
+      chalk.gray("   Env       ") +
+      chalk.white((process.env.NODE_ENV || "development").toUpperCase())
   );
 
-  // Sending a welcome message via webhook
+  console.log("");
+
+  console.log(chalk.bold.hex("#00d4ff")("▶ STATUS"));
+  console.log(
+    chalk.green("   ✓") + chalk.white(" Application initialized successfully")
+  );
+
+  console.log(
+    chalk.green("   ✓") +
+      chalk.white(" Heap Used: ") +
+      chalk.yellow((mem.heapUsed / 1024 / 1024).toFixed(1)) +
+      chalk.gray(" MB")
+  );
+
+  const startupTime = Date.now() - startTime;
+
+  console.log(
+    chalk.bold.green("   ✓ Ready") + chalk.gray(` in ${startupTime}ms`)
+  );
+
+  console.log("");
+  console.log(separator);
+
+  console.log(
+    chalk.gray("   Made with") +
+      chalk.red(" ❤️ ") +
+      chalk.gray("by ") +
+      chalk.bold.magenta("@kyan0045") +
+      chalk.gray(" • kyanbosman.com")
+  );
+  console.log("");
+
   sendWebhook(null, {
     title: "Welcome to CatchTwo!",
-    description: `If you need any help, please join our [Discord](https://discord.gg/RtnQavFVRq).`,
+    description:
+      "If you need any help, please join our [Discord](https://discord.gg/RtnQavFVRq).",
     color: "#fecd06",
     url: "https://github.com/kyan0045/CatchTwo",
     footer: {
@@ -69,46 +133,35 @@ async function main() {
       url: "https://res.cloudinary.com/dppthk8lt/image/upload/c_scale,h_50,w_64/v1719331169/catchtwo_bjvlqi.png",
     },
   });
-
   // Delayed execution to create catchers and log memory usage
   setTimeout(() => {
-    createCatchers();
+    createCatchers().catch((error) => {
+      console.error(
+        `[FATAL] Failed to create catchers: ${error.message || error}`
+      );
+      process.exit(1);
+    });
     logMemoryUsage();
   }, 500);
 }
-
-// Handling unhandled promise rejections
-process.on("unhandledRejection", (reason, p) => {
-  // Ignoring specific errors
+process.on("unhandledRejection", (reason) => {
   const ignoreErrors = [
     "MESSAGE_ID_NOT_FOUND",
     "INTERACTION_TIMEOUT",
     "BUTTON_NOT_FOUND",
   ];
-  if (ignoreErrors.includes(reason.code || reason.message)) return;
-  // Logging unhandled rejections
-  sendLog(undefined, `Unhandled Rejection`, "error");
-  console.log(reason, p);
+  if (ignoreErrors.includes(reason?.code || reason?.message)) return;
+  const detail = reason?.stack || reason?.message || String(reason);
+  sendLog(undefined, `Unhandled Rejection: ${detail}`, "error");
 });
 
-// Handling uncaught exceptions
-process.on("uncaughtException", (e, o) => {
-  // Logging uncaught exceptions
-  sendLog(undefined, `Uncaught Exception/Catch`, "error");
-  console.log(e);
+process.on("uncaughtException", (error) => {
+  const detail = error?.stack || error?.message || String(error);
+  sendLog(undefined, `Uncaught Exception: ${detail}`, "error");
 });
 
-// Handling uncaught exceptions with a monitor (currently commented out)
-/*process.on("uncaughtExceptionMonitor", (err, origin) => {
-  sendLog(undefined, `Uncaught Exception/Catch (MONITOR)`, "error")
-  console.log(err, origin);
-}); */
-
-// Handling multiple promise resolutions
-process.on("multipleResolves", (type, promise, reason) => {
-  // Logging multiple resolutions  sendLog(undefined, `Multiple Resolves`, "error");
-  console.log(type, promise, reason);
+main().catch((error) => {
+  const detail = error?.stack || error?.message || String(error);
+  console.error(chalk.bold.red("[FATAL] ") + detail);
+  process.exit(1);
 });
-
-// Executing the main function to start the application
-main();
