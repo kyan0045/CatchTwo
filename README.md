@@ -140,7 +140,6 @@ Ping: {
   Rares: false,
   HighIV: false,
   LowIV: false,
-  Quests: false,
 }
 ```
 
