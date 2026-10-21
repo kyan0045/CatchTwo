@@ -62,6 +62,7 @@ CatchTwo 2.0 brings the AI catcher to Android and makes the send path more relia
 - REST shutdown aborts in-flight requests and rejects queued sends and pending sleeps.
 - The 50013 permission check reads `DiscordAPIError.code` instead of `fullError.code`.
 - Event handlers no longer fetch and cache each message channel themselves.
+- `npm run update` and `npm run force-update` preserve local `config.js` and `tokens.txt` changes.
 
 ## Model
 

@@ -23,8 +23,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "git-setup": "git init && git remote add origin https://github.com/kyan0045/catchtwo.git || git remote set-url origin https://github.com/kyan0045/catchtwo.git",
-    "update": "git fetch origin && git pull origin main --ff-only && npm install",
-    "force-update": "git fetch origin && git reset --hard origin/main && npm install",
+    "update": "node scripts/update.js",
+    "force-update": "node scripts/update.js --force",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

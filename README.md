@@ -97,7 +97,7 @@ npm install
 npm start
 ```
 
-The `npm run update` and `npm run force-update` scripts still track `main`. Beta installs should update with `git pull origin dev`, or switch back to the stable branch.
+Use `npm run update` to update the current branch. It preserves `config.js` and `tokens.txt` and merges new config defaults. `npm run force-update` resets the current branch to its remote and also preserves both files.
 
 ## Configuration
 
