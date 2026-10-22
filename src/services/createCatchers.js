@@ -5,11 +5,12 @@ const fs = require("fs-extra");
 
 let catchers = [];
 
-// Parse tokens.txt (or TOKENS) into one { token, guildId } pair per account.
+// Parse tokens.txt (or TOKENS) into one { token, guildId, lineNumber } pair per account.
 function readTokens() {
+  const fromEnv = Boolean(process.env.TOKENS);
   let data;
   try {
-    data = process.env.TOKENS
+    data = fromEnv
       ? process.env.TOKENS
       : fs.readFileSync("./tokens.txt", "utf-8");
   } catch (error) {
@@ -24,18 +25,31 @@ function readTokens() {
     );
   }
 
-  const parts = data.split(/\s+/).filter(Boolean);
-  if (parts.length % 2 !== 0) {
-    throw new Error(
-      "tokens.txt must contain token and guild ID pairs; one value is missing a partner."
-    );
-  }
-
+  const lines = fromEnv ? [data] : data.split(/\r?\n/);
   const tokens = [];
-  for (let index = 0; index < parts.length; index += 2) {
-    const token = parts[index].trim();
-    const guildId = parts[index + 1].trim();
-    if (token && guildId) tokens.push({ token, guildId });
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].trim();
+    if (!line) continue;
+
+    const parts = line.split(/\s+/).filter(Boolean);
+    if (parts.length % 2 !== 0) {
+      const where = fromEnv ? "tokens.txt" : `tokens.txt line ${index + 1}`;
+      throw new Error(
+        `${where} must contain token and guild ID pairs; one value is missing a partner.`
+      );
+    }
+
+    for (let part = 0; part < parts.length; part += 2) {
+      const token = parts[part].trim();
+      const guildId = parts[part + 1].trim();
+      if (token && guildId) {
+        tokens.push({
+          token,
+          guildId,
+          lineNumber: fromEnv ? null : index + 1,
+        });
+      }
+    }
   }
 
   if (tokens.length === 0) {
@@ -46,14 +60,19 @@ function readTokens() {
 }
 
 async function createCatchers() {
-  for (const { token, guildId } of readTokens()) {
-    await createCatcher(token, guildId);
+  const tokens = readTokens();
+  for (let index = 0; index < tokens.length; index += 1) {
+    const { token, guildId, lineNumber } = tokens[index];
+    await createCatcher(token, guildId, {
+      accountNumber: index + 1,
+      lineNumber,
+    });
     await wait(1000);
   }
 }
 
-async function createCatcher(token, guildId) {
-  const catcher = new Catcher(token, guildId);
+async function createCatcher(token, guildId, account = {}) {
+  const catcher = new Catcher(token, guildId, account);
   catchers.push(catcher);
   catcher.listen();
   catcher.login();

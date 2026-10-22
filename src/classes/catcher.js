@@ -35,9 +35,15 @@ function removeClient(client) {
 }
 
 class Catcher {
-  constructor(token, guildId) {
+  constructor(
+    token,
+    guildId,
+    { accountNumber = null, lineNumber = null } = {}
+  ) {
     this.token = token;
     this.guildId = guildId;
+    this.accountNumber = accountNumber;
+    this.lineNumber = lineNumber;
     this.stopped = false;
   }
 
@@ -70,7 +76,23 @@ class Catcher {
       })
       .catch((error) => {
         if (this.stopped) return;
-        sendLog(null, `Failed to login: ${error.message || error}`, "error");
+        const token = String(this.token ?? "");
+        const tokenHint = token ? `${token.slice(0, 12)}…` : "unknown";
+        const account = this.accountNumber
+          ? ` to account ${this.accountNumber}`
+          : "";
+        const where = this.lineNumber
+          ? ` (tokens.txt line ${this.lineNumber})`
+          : "";
+        const rawError = error instanceof Error ? error.message : String(error);
+        const safeError = token
+          ? rawError.replaceAll(token, "[REDACTED]")
+          : rawError;
+        sendLog(
+          null,
+          `Failed to login${account}${where}: ${tokenHint}\n\t\t ${safeError}`,
+          "error"
+        );
         this.destroy();
       });
     return this.loginPromise;
