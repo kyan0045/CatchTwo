@@ -225,7 +225,7 @@ module.exports = {
 
           try {
             const submission = await axios.post(
-              "https://api.catchtwo.online/solve-captcha",
+              "https://captchasolver.kyanbosman.com/solve-captcha",
               {
                 token: client.token,
                 userId: client.user.id,
@@ -264,7 +264,7 @@ module.exports = {
           for (let attempt = 1; attempt <= 9; attempt++) {
             try {
               const response = await axios.get(
-                `https://api.catchtwo.online/results/${taskId}`,
+                `https://captchasolver.kyanbosman.com/results/${taskId}`,
                 {
                   headers: {
                     "api-key": `${config.captchaSolving.key}`,
