@@ -605,112 +605,160 @@
           "shape": [
             32
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization/beta",
           "shape": [
             32
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization/moving_mean",
           "shape": [
             32
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization/moving_variance",
           "shape": [
             32
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_1/gamma",
           "shape": [
             64
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_1/beta",
           "shape": [
             64
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_1/moving_mean",
           "shape": [
             64
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_1/moving_variance",
           "shape": [
             64
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_2/gamma",
           "shape": [
             128
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_2/beta",
           "shape": [
             128
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_2/moving_mean",
           "shape": [
             128
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_2/moving_variance",
           "shape": [
             128
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_3/gamma",
           "shape": [
             256
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_3/beta",
           "shape": [
             256
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_3/moving_mean",
           "shape": [
             256
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "batch_normalization_3/moving_variance",
           "shape": [
             256
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "conv2d/kernel",
@@ -720,7 +768,10 @@
             3,
             32
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "dense/kernel",
@@ -728,14 +779,20 @@
             256,
             1024
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "dense/bias",
           "shape": [
             1024
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "dense_1/kernel",
@@ -743,14 +800,20 @@
             1024,
             1279
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "dense_1/bias",
           "shape": [
             1279
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "separable_conv2d/depthwise_kernel",
@@ -760,7 +823,10 @@
             32,
             1
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "separable_conv2d/pointwise_kernel",
@@ -770,7 +836,10 @@
             32,
             64
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "separable_conv2d_1/depthwise_kernel",
@@ -780,7 +849,10 @@
             64,
             1
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "separable_conv2d_1/pointwise_kernel",
@@ -790,7 +862,10 @@
             64,
             128
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "separable_conv2d_2/depthwise_kernel",
@@ -800,7 +875,10 @@
             128,
             1
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         },
         {
           "name": "separable_conv2d_2/pointwise_kernel",
@@ -810,7 +888,10 @@
             128,
             256
           ],
-          "dtype": "float32"
+          "dtype": "float32",
+          "quantization": {
+            "dtype": "float16"
+          }
         }
       ]
     }
