@@ -45,10 +45,51 @@ const UNRELIABLE_CLASSES = new Set([
   "Xurkitree",
 ]);
 
+const MODEL_IDLE_UNLOAD_MS = 15 * 60 * 1000;
+
 let model = null;
 let tfLib = null;
 let sharpLib = null;
 let modelLoadPromise = null;
+let modelIdleTimer = null;
+let activeInferences = 0;
+
+function clearModelIdleTimer() {
+  if (!modelIdleTimer) return;
+  clearTimeout(modelIdleTimer);
+  modelIdleTimer = null;
+}
+
+function disposeModel() {
+  if (!model) return;
+  clearModelIdleTimer();
+
+  const loaded = model;
+  model = null;
+  modelLoadPromise = null;
+  try {
+    loaded.dispose();
+  } catch {}
+
+  const { sendLog } = require("./logging.js");
+  sendLog(null, "AI model unloaded after 15 minutes without a spawn.", "debug");
+}
+
+function scheduleModelUnload() {
+  clearModelIdleTimer();
+  if (!model || activeInferences > 0) return;
+
+  modelIdleTimer = setTimeout(() => {
+    modelIdleTimer = null;
+    if (activeInferences > 0) {
+      scheduleModelUnload();
+      return;
+    }
+    disposeModel();
+  }, MODEL_IDLE_UNLOAD_MS);
+
+  modelIdleTimer.unref?.();
+}
 
 async function loadAiDependencies() {
   if (!tfLib) {
@@ -134,6 +175,7 @@ async function getModel() {
     modelLoadPromise = modelLoadPromise || loadLayersModelFromDisk(modelDir);
     try {
       model = await modelLoadPromise;
+      scheduleModelUnload();
     } catch (error) {
       modelLoadPromise = null;
       throw error;
@@ -193,7 +235,10 @@ async function preprocessImage(url) {
       [64, 64, 3],
       "int32"
     );
-    const normalizedImage = tf.div(tf.cast(tensor, "float32"), tf.scalar(255.0));
+    const normalizedImage = tf.div(
+      tf.cast(tensor, "float32"),
+      tf.scalar(255.0)
+    );
     const expandedTensor = tf.expandDims(normalizedImage, 0);
     return expandedTensor;
   });
@@ -223,24 +268,31 @@ function decide(names, probs, topK) {
 
 async function infer(url, { topK = 5 } = {}) {
   const { tf } = await loadAiDependencies();
-  const activeModel = await getModel();
-  const names = loadLabels();
+  activeInferences++;
 
-  const startTime = Date.now();
-  const imageTensor = await preprocessImage(url);
-
-  let probs;
   try {
-    probs = tf.tidy(() => {
-      const prediction = activeModel.predict(imageTensor);
-      return prediction.dataSync();
-    });
-  } finally {
-    imageTensor.dispose();
-  }
+    const activeModel = await getModel();
+    const names = loadLabels();
 
-  const result = decide(names, probs, topK);
-  return { ...result, timeTaken: Date.now() - startTime };
+    const startTime = Date.now();
+    const imageTensor = await preprocessImage(url);
+
+    let probs;
+    try {
+      probs = tf.tidy(() => {
+        const prediction = activeModel.predict(imageTensor);
+        return prediction.dataSync();
+      });
+    } finally {
+      imageTensor.dispose();
+    }
+
+    const result = decide(names, probs, topK);
+    return { ...result, timeTaken: Date.now() - startTime };
+  } finally {
+    activeInferences--;
+    scheduleModelUnload();
+  }
 }
 
 async function predict(url, opts = {}) {
@@ -306,6 +358,7 @@ module.exports = {
   getTopPredictions,
   computeCenterCrop,
   decide,
+  MODEL_IDLE_UNLOAD_MS,
   CONFIDENCE_FLOOR,
   MARGIN_WARN,
   UNRELIABLE_CLASSES,
