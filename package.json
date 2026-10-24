@@ -18,7 +18,7 @@
     "url": "https://github.com/kyan0045/catchtwo/issues"
   },
   "scripts": {
-    "start": "node --no-deprecation index.js",
+    "start": "node --no-deprecation --max-old-space-size=256 index.js",
     "test": "node --test",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

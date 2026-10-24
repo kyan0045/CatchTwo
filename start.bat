@@ -151,7 +151,7 @@ echo ============================================================
 echo.
 
 :loop
-node index.js
+node --no-deprecation --max-old-space-size=256 index.js
 
 if %errorlevel% equ 2 (
     echo.

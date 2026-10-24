@@ -57,6 +57,8 @@ async function loadAiDependencies() {
   }
   if (!sharpLib) {
     sharpLib = require("sharp");
+    sharpLib.cache(false);
+    sharpLib.concurrency(1);
   }
   return { tf: tfLib, sharp: sharpLib };
 }
@@ -174,8 +176,7 @@ async function preprocessImage(url) {
     throw new Error(`Unexpected content-type: ${contentType}`);
   }
 
-  const sourceBuffer = Buffer.from(response.data);
-  let pipeline = sharp(sourceBuffer);
+  let pipeline = sharp(response.data);
   const metadata = await pipeline.metadata();
   const crop = computeCenterCrop(metadata.width, metadata.height);
   if (crop) pipeline = pipeline.extract(crop);
