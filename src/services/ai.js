@@ -193,7 +193,7 @@ async function preprocessImage(url) {
       [64, 64, 3],
       "int32"
     );
-    const normalizedImage = tf.cast(tensor, "float32").div(tf.scalar(255.0));
+    const normalizedImage = tf.div(tf.cast(tensor, "float32"), tf.scalar(255.0));
     const expandedTensor = tf.expandDims(normalizedImage, 0);
     return expandedTensor;
   });

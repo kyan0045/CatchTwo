@@ -48,6 +48,10 @@ test("vendored TensorFlow.js bundle exposes the inference API", () => {
   assert.equal(typeof tf.tensor3d, "function");
   assert.equal(typeof tf.tidy, "function");
   assert.equal(typeof tf.enableProdMode, "function");
+  assert.equal(typeof tf.cast, "function");
+  assert.equal(typeof tf.div, "function");
+  assert.equal(typeof tf.scalar, "function");
+  assert.equal(typeof tf.expandDims, "function");
 });
 
 test("center crop recreates the training framing", () => {

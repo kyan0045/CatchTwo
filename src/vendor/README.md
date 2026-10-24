@@ -1,6 +1,7 @@
 # Vendored TensorFlow.js
 
-`tfjs.cjs` is a generated bundle of the pinned `@tensorflow/tfjs` version. It is
+`tfjs.cjs` is a generated bundle of the pinned TensorFlow.js 4.22.0 packages
+this project uses: `tfjs-core`, `tfjs-layers`, and `tfjs-backend-cpu`. It is
 committed so production installs do not download the full TensorFlow.js
 dependency tree.
 
