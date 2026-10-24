@@ -31,9 +31,11 @@ jobs:
         run: npm run build:tfjs
       - name: Verify TensorFlow.js bundle is current
         run: git diff --exit-code -- src/vendor/tfjs.cjs
-      - name: Verify model bundle matches poketwo-ai production checkpoint
+      # The shards are float16 derivatives of the poketwo-ai production checkpoint.
+      - name: Verify model bundle
         run: |
           echo "6914c98cd7cb2c38e0a1f4532e3aaa24257af74585a16d9f1eb95b90f3a06851  src/data/labels.json" | sha256sum -c -
-          echo "bd914eae6621ce05176847027292824d4f21f50c200d93b34d1c659e819e3f52  src/data/model/group1-shard1of2.bin" | sha256sum -c -
-          echo "9bc8cb522e3b676f1306d4f8a8e985fece19fbe8630aeeccb6e3f86619bb00a7  src/data/model/group1-shard2of2.bin" | sha256sum -c -
+          echo "087329f2d3ac2b70bae7a30c7d36a6417c228db0425d56edb3e9a2a092c8e39a  src/data/model/group1-shard1of2.bin" | sha256sum -c -
+          echo "3174d1bde1e53aa263bb18d7b93002315025734b27b09a58bcdfc1adee4088b6  src/data/model/group1-shard2of2.bin" | sha256sum -c -
           node -e "const l = require('./src/data/labels.json'); if (!Array.isArray(l.classes) || l.classes.length !== 1279) { console.error('expected 1279 label classes, got', l.classes?.length); process.exit(1); }"
+          node -e "const m = require('./src/data/model/model.json'); const specs = m.weightsManifest.flatMap((g) => g.weights ?? []); if (specs.length !== 27) { console.error('expected 27 weight specs, got', specs.length); process.exit(1); } for (const spec of specs) { if (spec.dtype !== 'float32' || spec.quantization?.dtype !== 'float16') { console.error('expected float32 dtype with float16 quantization on', spec.name); process.exit(1); } }"
