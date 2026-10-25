@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const fs = require("fs-extra");
+const fs = require("node:fs");
 const { readTokens } = require("../src/services/createCatchers.js");
 
 function restoreTokens(t, previous) {

@@ -1,7 +1,7 @@
 const { Catcher } = require("../classes/catcher.js");
 const { wait } = require("./system.js");
 
-const fs = require("fs-extra");
+const fs = require("node:fs");
 
 let catchers = [];
 

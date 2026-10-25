@@ -1,5 +1,4 @@
 const chalk = require("chalk");
-const date = require("date-and-time");
 const config = require("../../config");
 const { checkRarity } = require("pokehint");
 const { WebhookClient } = require("discord-self-lite");
@@ -99,12 +98,18 @@ function getWebhookMessage(content, embed, files) {
   return messageData;
 }
 
+function formatTime(now) {
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
 function sendLog(username, message, type = "info") {
   const typeLower = type.toLowerCase();
   if (typeLower === "debug" && !config.debug) return;
 
   const now = new Date();
-  const timeStr = chalk.white.bold(date.format(now, "HH:mm"));
+  const timeStr = chalk.white.bold(formatTime(now));
   const colorFn = LOG_COLORS[typeLower] || chalk.bold.blue;
   const tag = colorFn(`[${type.toUpperCase()}]`);
 

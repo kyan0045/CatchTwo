@@ -1,5 +1,4 @@
 const config = require("../../config.js");
-const axios = require("axios"); // Solve captchas
 
 const {
   sendLog,
@@ -224,20 +223,28 @@ module.exports = {
           let taskId;
 
           try {
-            const submission = await axios.post(
+            const response = await fetch(
               "https://captchasolver.kyanbosman.com/solve-captcha",
               {
-                token: client.token,
-                userId: client.user.id,
-              },
-              {
+                method: "POST",
                 headers: {
+                  "Content-Type": "application/json",
                   "api-key": `${config.captchaSolving.key}`,
                 },
-                timeout: 15_000,
+                body: JSON.stringify({
+                  token: client.token,
+                  userId: client.user.id,
+                }),
+                signal: AbortSignal.timeout(15_000),
               }
             );
-            taskId = submission.data?.requestId;
+            if (!response.ok) {
+              throw new Error(
+                `Captcha solver returned status ${response.status}`
+              );
+            }
+            const submission = await response.json();
+            taskId = submission?.requestId;
             if (!taskId) throw new Error("Captcha solver returned no task ID.");
           } catch (error) {
             sendLog(
@@ -263,17 +270,23 @@ module.exports = {
 
           for (let attempt = 1; attempt <= 9; attempt++) {
             try {
-              const response = await axios.get(
+              const response = await fetch(
                 `https://captchasolver.kyanbosman.com/results/${taskId}`,
                 {
                   headers: {
                     "api-key": `${config.captchaSolving.key}`,
                   },
-                  timeout: 15_000,
+                  signal: AbortSignal.timeout(15_000),
                 }
               );
+              if (!response.ok) {
+                throw new Error(
+                  `Captcha result returned status ${response.status}`
+                );
+              }
+              const result = await response.json();
 
-              if (response.data.status === "completed") {
+              if (result.status === "completed") {
                 setWaiting(client.user.id, false);
                 sendLog(
                   client.user.username,
@@ -292,10 +305,10 @@ module.exports = {
                 return;
               }
 
-              if (response.data.status !== "pending") {
+              if (result.status !== "pending") {
                 sendLog(
                   client.user.username,
-                  `Captcha solving failed with status: ${response.data.status || "unknown"}.`,
+                  `Captcha solving failed with status: ${result.status || "unknown"}.`,
                   "captcha"
                 );
                 await sendWebhook(getMentions(), {

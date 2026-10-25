@@ -1,5 +1,5 @@
 const { Client } = require("discord-self-lite");
-const fs = require("fs-extra");
+const fs = require("node:fs");
 const path = require("path");
 const { sendLog } = require("../services/logging.js");
 const { listenEvents } = require("../services/listenEvents.js");

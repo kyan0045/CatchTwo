@@ -1,6 +1,5 @@
 const path = require("path");
 const fs = require("fs");
-const axios = require("axios");
 
 // Production model: sepconv-1279-real-ft (20260723 run), from https://github.com/kyan0045/poketwo-ai.
 
@@ -187,6 +186,7 @@ async function getModel() {
 // Center crop live scenes to the training framing.
 const CENTER_CROP_MIN_SIDE = 128;
 const CENTER_CROP_RATIO = 0.8;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 function computeCenterCrop(width, height) {
   if (!width || !height) return null;
@@ -202,23 +202,54 @@ function computeCenterCrop(width, height) {
   };
 }
 
+async function readImageBuffer(response) {
+  const reader = response.body?.getReader();
+  if (!reader) {
+    const data = Buffer.from(await response.arrayBuffer());
+    if (data.byteLength > MAX_IMAGE_BYTES) {
+      throw new Error(`Image is larger than ${MAX_IMAGE_BYTES} bytes`);
+    }
+    return data;
+  }
+
+  const chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    total += value.byteLength;
+    if (total > MAX_IMAGE_BYTES) {
+      await reader.cancel().catch(() => {});
+      throw new Error(`Image is larger than ${MAX_IMAGE_BYTES} bytes`);
+    }
+    chunks.push(value);
+  }
+
+  return Buffer.concat(chunks);
+}
+
 async function preprocessImage(url) {
   const { tf, sharp } = await loadAiDependencies();
-  const response = await axios({
-    url,
-    responseType: "arraybuffer",
-    timeout: 8000,
-    maxContentLength: 5 * 1024 * 1024,
-    maxBodyLength: 5 * 1024 * 1024,
-    validateStatus: (status) => status >= 200 && status < 300,
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(8000),
   });
 
-  const contentType = response.headers?.["content-type"];
+  if (!response.ok) {
+    throw new Error(`Image request failed with status ${response.status}`);
+  }
+
+  const contentType = response.headers.get("content-type");
   if (contentType && !contentType.startsWith("image/")) {
     throw new Error(`Unexpected content-type: ${contentType}`);
   }
 
-  let pipeline = sharp(response.data);
+  const declaredLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_IMAGE_BYTES) {
+    throw new Error(`Image is larger than ${MAX_IMAGE_BYTES} bytes`);
+  }
+
+  let pipeline = sharp(await readImageBuffer(response));
   const metadata = await pipeline.metadata();
   const crop = computeCenterCrop(metadata.width, metadata.height);
   if (crop) pipeline = pipeline.extract(crop);
