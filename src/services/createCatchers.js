@@ -59,16 +59,19 @@ function readTokens() {
   return tokens;
 }
 
+const LOGIN_START_DELAY_MS = 250;
+
 async function createCatchers() {
   const tokens = readTokens();
-  for (let index = 0; index < tokens.length; index += 1) {
-    const { token, guildId, lineNumber } = tokens[index];
-    await createCatcher(token, guildId, {
-      accountNumber: index + 1,
-      lineNumber,
-    });
-    await wait(1000);
-  }
+  await Promise.all(
+    tokens.map(async ({ token, guildId, lineNumber }, index) => {
+      if (index > 0) await wait(index * LOGIN_START_DELAY_MS);
+      await createCatcher(token, guildId, {
+        accountNumber: index + 1,
+        lineNumber,
+      });
+    })
+  );
 }
 
 async function createCatcher(token, guildId, account = {}) {
