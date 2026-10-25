@@ -218,16 +218,25 @@ async function sendQuestWebhook(
   username,
   quest,
   reward,
-  badge,
+  trackReward,
   shouldPing = false
 ) {
   try {
     const webhook = getWebhookClient();
     if (!webhook) return;
+
+    const isTrackReward = Boolean(trackReward);
+    const trackName =
+      typeof trackReward === "string" ? trackReward : trackReward?.name;
+    const trackLabel =
+      typeof trackReward === "object" && trackReward?.type === "background"
+        ? "Background"
+        : "Badge";
+
     const embed = {
-      title: badge ? "Quest Track Completed!" : "Quest Completed!",
-      description: badge
-        ? `**Account:** ${username}\n**Badge:** ${badge}`
+      title: isTrackReward ? "Quest Track Completed!" : "Quest Completed!",
+      description: isTrackReward
+        ? `**Account:** ${username}\n**${trackLabel}:** ${trackName}`
         : `**Account:** ${username}\n**Quest:** ${quest}\n**Reward:** ${reward} Pokecoins`,
       color: "#f7a63b",
       timestamp: new Date(),

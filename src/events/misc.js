@@ -56,10 +56,27 @@ function parseQuestCompletion(content) {
   };
 }
 
+function parseQuestTrackReward(content) {
+  if (typeof content !== "string") return null;
+
+  const match = content.match(
+    /received the (?:\*\*)?([^*]+?)(?:\*\*)? (badge|backgrounds?)\b/i
+  );
+  if (!match) return null;
+
+  return {
+    name: match[1].trim(),
+    type: match[2].toLowerCase().startsWith("background")
+      ? "background"
+      : "badge",
+  };
+}
+
 module.exports = {
   name: "messageCreate",
   parseCoinAmount,
   parseQuestCompletion,
+  parseQuestTrackReward,
   execute: async (client, guildId, message) => {
     if (client.stopped || client.suspended) return;
 
@@ -385,22 +402,31 @@ module.exports = {
           }
           addStat(client.user.id, "coins", pokecoins);
         } else if (message.content.includes(`You have completed this quest`)) {
-          const badgeMatch = message.content.match(/received the (.*?) badge/);
-          const badge = badgeMatch ? badgeMatch[1] : "Unknown badge";
+          const reward = parseQuestTrackReward(message.content);
 
           if (loggingOption("Quests")) {
-            sendLog(
-              client.user.username,
-              `Detected quest track completion and received the ${badge} badge.`,
-              "quest"
-            );
-            await sendQuestWebhook(
-              client.user.username,
-              null,
-              null,
-              badge,
-              shouldPingCategory("Quests")
-            );
+            if (reward) {
+              const label =
+                reward.type === "background" ? "background" : "badge";
+              sendLog(
+                client.user.username,
+                `Detected quest track completion and received the ${reward.name} ${label}.`,
+                "quest"
+              );
+              await sendQuestWebhook(
+                client.user.username,
+                null,
+                null,
+                reward,
+                shouldPingCategory("Quests")
+              );
+            } else {
+              sendLog(
+                client.user.username,
+                "Detected quest track completion but could not parse the reward.",
+                "warning"
+              );
+            }
           }
         }
       }
