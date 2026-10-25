@@ -26,6 +26,7 @@
     "update": "node scripts/update.js",
     "force-update": "node scripts/update.js --force",
     "build:tfjs": "node scripts/buildTfjs.js",
+    "build:banner": "node scripts/buildBanner.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -37,7 +38,6 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "discord-self-lite": "^0.2.0",
-    "figlet": "^1.8.0",
     "gradient-string": "^3.0.0",
     "pokehint": "^1.4.26",
     "sharp": "^0.35.4"
@@ -48,6 +48,7 @@
     "@types/node": "^22.20.5",
     "esbuild": "0.25.10",
     "eslint": "^10.12.0",
+    "figlet": "^1.8.0",
     "globals": "^17.13.0",
     "prettier": "^3.9.6",
     "typescript": "^5.9.3"

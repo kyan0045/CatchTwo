@@ -38,26 +38,13 @@ async function main() {
     process.exit(CONFIG_EXIT_CODE);
   }
 
-  const figlet = require("figlet");
+  const banner = require("./src/utils/banner.js");
   const gradient = await import("gradient-string").then(
     ({ default: gradient }) => gradient
   );
 
-  figlet.text(
-    "CatchTwo",
-    {
-      font: "Standard",
-      horizontalLayout: "fitted",
-      verticalLayout: "default",
-    },
-    (err, data) => {
-      if (err) return console.log(err);
-      console.log(gradient.atlas.multiline(data));
-      console.log("");
-    }
-  );
-
-  await new Promise((r) => setTimeout(r, 400));
+  console.log(gradient.atlas.multiline(banner));
+  console.log("");
 
   const version = pkg.version;
   const startTime = Date.now();
