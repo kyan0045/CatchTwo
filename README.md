@@ -20,7 +20,7 @@
 
 
 <p align="center">
-<a href="https://github.com/kyan0045/CatchTwo/tree/v1.4-beta">v1.4-beta</a> based on AI catching is currently in development & in public beta. v1.3.8 only receives security updates & fixes, use v1.4-beta for access to the latest features.
+<a href="https://github.com/kyan0045/CatchTwo/releases/tag/v2.0.0-beta.2">v2.0.0-beta.2</a> is the current public beta. v1.3.8 only receives security updates and fixes; use the latest v2 beta for new features.
 </p>
 
   <p align="center">
