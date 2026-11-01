@@ -158,7 +158,7 @@ Alternatively, head over to the <a href="https://github.com/kyan0045/CatchTwo/di
 <!-- Contributing Section -->
 <h2 align="">Contributing</h2>
 <p align="">
-CatchTwo is a community-driven project, and we welcome contributions of all kinds! Whether you're a seasoned developer or a passionate Pokétwo player, you can help make CatchTwo even better. Check out our <a href="[LINK_TO_CONTRIBUTING_GUIDE]">Contributing Guide</a> to get started.
+CatchTwo is a community-driven project, and we welcome contributions of all kinds! Whether you're a seasoned developer or a passionate Pokétwo player, you can help make CatchTwo even better. Check out our <a href="https://github.com/kyan0045/CatchTwo/blob/v1.4-beta/CONTRIBUTING.md">Contributing Guide</a> to get started.
 </p>
 
 <!-- Related -->
