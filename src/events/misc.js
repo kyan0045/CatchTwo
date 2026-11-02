@@ -18,6 +18,10 @@ const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 
 const POKEMON_PATTERN = "pok(?:\\u00e9|e)mon";
 const POKECOINS_PATTERN = "Pok(?:\\u00e9|e)coins";
+const CAPTCHA_RESULT_DELAYS_MS = [
+  15_000, 15_000, 15_000, 15_000, 30_000, 30_000, 30_000, 30_000, 60_000,
+  60_000,
+];
 
 function parseCoinAmount(value) {
   const amount = Number(String(value).replace(/,/g, ""));
@@ -283,9 +287,16 @@ module.exports = {
             "Sent captcha to the solver.",
             "captcha"
           );
-          await new Promise((resolve) => setTimeout(resolve, 15_000));
+          await new Promise((resolve) => setTimeout(resolve, 30_000));
 
-          for (let attempt = 1; attempt <= 9; attempt++) {
+          for (
+            let attempt = 0;
+            attempt < CAPTCHA_RESULT_DELAYS_MS.length;
+            attempt++
+          ) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, CAPTCHA_RESULT_DELAYS_MS[attempt])
+            );
             try {
               const response = await fetch(
                 `https://captchasolver.kyanbosman.com/results/${taskId}`,
@@ -337,19 +348,15 @@ module.exports = {
 
               sendLog(
                 client.user.username,
-                `Captcha solve pending (${attempt}/9).`,
+                `Captcha solve pending (${attempt + 1}/${CAPTCHA_RESULT_DELAYS_MS.length}).`,
                 "debug"
               );
             } catch (error) {
               sendLog(
                 client.user.username,
-                `Error checking captcha result (${attempt}/9): ${error.message}`,
+                `Error checking captcha result (${attempt + 1}/${CAPTCHA_RESULT_DELAYS_MS.length}): ${error.message}`,
                 "error"
               );
-            }
-
-            if (attempt < 9) {
-              await new Promise((resolve) => setTimeout(resolve, 5_000));
             }
           }
 
