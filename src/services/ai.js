@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 
-// Production model: sepconv-1279-real-ft (20260723 run), from https://github.com/kyan0045/poketwo-ai.
+// Production model: sepconv-accuracy-ft (20261102 run), from https://github.com/kyan0045/poketwo-ai.
 
 let LABELS = null;
 function loadLabels() {
@@ -20,7 +20,7 @@ function loadLabels() {
 }
 
 /*
-Measured on the 17,659-image validation set for sepconv-1279-real-ft:
+The 0.5 floor was tuned on the previous 1,279-class model:
 top-1 median 0.927, mean 0.911; correct mean 0.913, wrong median 0.631.
 0.70 gives 98.4% coverage at 99.76% accepted accuracy (baseline 99.45%).
 Live hints share a 30s cooldown, so an abstain often misses the spawn
@@ -28,21 +28,14 @@ outright. On a 1,272-image stratified sample, 0.50 accepts 99.06% of
 images at 99.21% accuracy, versus 96.2% at 99.59% for 0.70. The small
 accuracy cost buys far fewer hint requests. Floors at or above 0.90
 collapse coverage under label smoothing 0.1 (71% at 0.90, 25% at 0.95),
-so do not raise this without new measurements.
+so do not raise this without new measurements. The 1,303-class validation set
+(26,060 images) accepts 99.28% at 99.93% exact and 99.96% mapped catch-name
+accuracy at 0.5, so keep it unless live data says otherwise.
 */
 const CONFIDENCE_FLOOR = 0.5;
 const MARGIN_WARN = 0.25;
-// Classes the model cannot reliably predict.
-const UNRELIABLE_CLASSES = new Set([
-  "Type  Null",
-  "Type",
-  "Galarian Articuno",
-  "Galarian Zapdos",
-  "MissingNo",
-  "Regieleki",
-  "Scolipede",
-  "Xurkitree",
-]);
+// The new model handles the previous weak classes; Finizen and Palafin remain the known unreliable species.
+const UNRELIABLE_CLASSES = new Set(["Finizen", "Palafin", "Hero Palafin"]);
 
 const MODEL_IDLE_UNLOAD_MS = 15 * 60 * 1000;
 

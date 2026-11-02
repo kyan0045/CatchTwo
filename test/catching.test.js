@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { EventEmitter } = require("node:events");
 
 const {
+  catchNameForPrediction,
   isIncenseSpawn,
   shouldCatchSpawn,
   shouldHandleCatchMessage,
@@ -77,6 +78,24 @@ test("global catch accepts guild-less messages", () => {
     true
   );
   assert.equal(shouldHandleCatchMessage(guildless, "local", settings()), false);
+});
+
+test("catch names collapse supported forms to the base species", () => {
+  assert.equal(catchNameForPrediction("Bug Arceus"), "Arceus");
+  assert.equal(catchNameForPrediction("Arceus"), "Arceus");
+  assert.equal(catchNameForPrediction("Fairy Silvally"), "Silvally");
+  assert.equal(catchNameForPrediction("Silvally"), "Silvally");
+  assert.equal(
+    catchNameForPrediction("Vanilla Cream Star Sweet Alcremie"),
+    "Alcremie"
+  );
+  assert.equal(catchNameForPrediction("Alcremie"), "Alcremie");
+
+  assert.equal(catchNameForPrediction("Finizen"), "Finizen");
+  assert.equal(catchNameForPrediction("Palafin"), "Palafin");
+  assert.equal(catchNameForPrediction("Hero Palafin"), "Hero Palafin");
+  assert.equal(catchNameForPrediction("Pikachu"), "Pikachu");
+  assert.equal(catchNameForPrediction(undefined), undefined);
 });
 
 test("IncenseMode controls whether incense spawns are caught", () => {

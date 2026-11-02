@@ -21,6 +21,14 @@ const {
 
 const { predict } = require("../services/ai.js");
 
+// Pokétwo accepts these base species for every form, so collapse the form name before building the catch command; Finizen and Palafin are separate species and must not be folded together.
+const CATCH_NAME_BASES = ["Arceus", "Silvally", "Alcremie"];
+
+function catchNameForPrediction(name) {
+  if (typeof name !== "string") return name;
+  return CATCH_NAME_BASES.find((base) => name.endsWith(base)) ?? name;
+}
+
 function getRandomHint(random = Math.random) {
   return HINT_MESSAGES[Math.floor(random() * HINT_MESSAGES.length)];
 }
@@ -97,6 +105,7 @@ module.exports = {
   isIncenseSpawn,
   shouldCatchSpawn,
   handleCaughtResponse,
+  catchNameForPrediction,
   execute: async (client, guildId, message) => {
     if (getWaiting(client.user.id) === true) return;
 
@@ -148,6 +157,8 @@ module.exports = {
               }
 
               const predictedPokemon = pred.name;
+              const predictedCatchName =
+                catchNameForPrediction(predictedPokemon);
               const isHuntTarget = config.hunting.HuntPokemons.map((huntName) =>
                 huntName.toLowerCase()
               ).includes(predictedPokemon.toLowerCase());
@@ -160,11 +171,11 @@ module.exports = {
                 ));
               if (!hunted) {
                 let pokemonRandom = await getName({
-                  name: predictedPokemon,
+                  name: predictedCatchName,
                   inputLanguage: "English",
                 }).catch(() => null);
                 if (!pokemonRandom) {
-                  pokemonRandom = predictedPokemon;
+                  pokemonRandom = predictedCatchName;
                 }
                 try {
                   /*

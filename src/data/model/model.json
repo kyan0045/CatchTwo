@@ -22,20 +22,14 @@
               "dtype": "float32",
               "sparse": false,
               "ragged": false,
-              "name": "conv2d_input"
+              "name": "input_1"
             }
           },
           {
             "class_name": "Conv2D",
             "config": {
               "name": "conv2d",
-              "trainable": false,
-              "batch_input_shape": [
-                null,
-                64,
-                64,
-                3
-              ],
+              "trainable": true,
               "dtype": "float32",
               "filters": 32,
               "kernel_size": [
@@ -76,7 +70,7 @@
             "class_name": "BatchNormalization",
             "config": {
               "name": "batch_normalization",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "axis": [
                 3
@@ -111,7 +105,7 @@
             "class_name": "Activation",
             "config": {
               "name": "activation",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "activation": "relu"
             }
@@ -120,7 +114,7 @@
             "class_name": "MaxPooling2D",
             "config": {
               "name": "max_pooling2d",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "pool_size": [
                 2,
@@ -138,7 +132,7 @@
             "class_name": "SeparableConv2D",
             "config": {
               "name": "separable_conv2d",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "filters": 64,
               "kernel_size": [
@@ -188,7 +182,7 @@
             "class_name": "BatchNormalization",
             "config": {
               "name": "batch_normalization_1",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "axis": [
                 3
@@ -223,7 +217,7 @@
             "class_name": "Activation",
             "config": {
               "name": "activation_1",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "activation": "relu"
             }
@@ -232,7 +226,7 @@
             "class_name": "MaxPooling2D",
             "config": {
               "name": "max_pooling2d_1",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "pool_size": [
                 2,
@@ -250,7 +244,7 @@
             "class_name": "SeparableConv2D",
             "config": {
               "name": "separable_conv2d_1",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "filters": 128,
               "kernel_size": [
@@ -300,7 +294,7 @@
             "class_name": "BatchNormalization",
             "config": {
               "name": "batch_normalization_2",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "axis": [
                 3
@@ -335,7 +329,7 @@
             "class_name": "Activation",
             "config": {
               "name": "activation_2",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "activation": "relu"
             }
@@ -344,7 +338,7 @@
             "class_name": "MaxPooling2D",
             "config": {
               "name": "max_pooling2d_2",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "pool_size": [
                 2,
@@ -412,7 +406,7 @@
             "class_name": "BatchNormalization",
             "config": {
               "name": "batch_normalization_3",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "axis": [
                 3
@@ -447,7 +441,7 @@
             "class_name": "Activation",
             "config": {
               "name": "activation_3",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "activation": "relu"
             }
@@ -456,7 +450,7 @@
             "class_name": "MaxPooling2D",
             "config": {
               "name": "max_pooling2d_3",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "pool_size": [
                 2,
@@ -474,7 +468,7 @@
             "class_name": "GlobalAveragePooling2D",
             "config": {
               "name": "global_average_pooling2d",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "data_format": "channels_last",
               "keepdims": false
@@ -510,7 +504,7 @@
             "class_name": "Dropout",
             "config": {
               "name": "dropout",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
               "rate": 0.5,
               "noise_shape": null,
@@ -521,9 +515,9 @@
             "class_name": "Dense",
             "config": {
               "name": "dense_1",
-              "trainable": false,
+              "trainable": true,
               "dtype": "float32",
-              "units": 1279,
+              "units": 1303,
               "activation": "softmax",
               "use_bias": true,
               "kernel_initializer": {
@@ -544,52 +538,6 @@
             }
           }
         ]
-      }
-    },
-    "training_config": {
-      "loss": {
-        "class_name": "CategoricalCrossentropy",
-        "config": {
-          "reduction": "auto",
-          "name": "categorical_crossentropy",
-          "from_logits": false,
-          "label_smoothing": 0.1,
-          "axis": -1
-        }
-      },
-      "metrics": [
-        [
-          {
-            "class_name": "MeanMetricWrapper",
-            "config": {
-              "name": "accuracy",
-              "dtype": "float32",
-              "fn": "categorical_accuracy"
-            }
-          },
-          {
-            "class_name": "TopKCategoricalAccuracy",
-            "config": {
-              "name": "top5_accuracy",
-              "dtype": "float32",
-              "k": 5
-            }
-          }
-        ]
-      ],
-      "weighted_metrics": null,
-      "loss_weights": null,
-      "optimizer_config": {
-        "class_name": "Adam",
-        "config": {
-          "name": "Adam",
-          "learning_rate": 8.999999749903509e-07,
-          "decay": 0.0,
-          "beta_1": 0.8999999761581421,
-          "beta_2": 0.9990000128746033,
-          "epsilon": 1e-07,
-          "amsgrad": false
-        }
       }
     }
   },
@@ -798,7 +746,7 @@
           "name": "dense_1/kernel",
           "shape": [
             1024,
-            1279
+            1303
           ],
           "dtype": "float32",
           "quantization": {
@@ -808,7 +756,7 @@
         {
           "name": "dense_1/bias",
           "shape": [
-            1279
+            1303
           ],
           "dtype": "float32",
           "quantization": {

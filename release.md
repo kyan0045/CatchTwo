@@ -2,6 +2,42 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-beta.3] - 2026-11-02
+
+### Highlights
+
+Beta.3 updates the catch model, reduces runtime memory and install size, and removes several runtime dependencies.
+
+### Added
+
+- New 1,303-class model from run `20261102T141243Z-sepconv-accuracy-ft`, with 1,646,551 parameters and 99.8847% top-1 on the cleaned 26,014-image audit split.
+- Catch-name mapping for Arceus, Silvally, and Alcremie forms. The model keeps the form classes, but catch commands use the base species.
+- CI verification for the float16 model bundle, including exact hashes for `model.json`, both shards, and `labels.json`.
+
+### Changed
+
+- Model weights now ship as float16 and load as float32 at runtime. The model directory is about 3.3MB.
+- The vendored TensorFlow.js bundle now includes only `tfjs-core`, `tfjs-layers`, and the CPU backend. It is about 1.14MB, down from 2.07MB.
+- The AI model unloads after 15 minutes without a spawn and reloads on demand.
+- Catchers start concurrently with a 250ms delay instead of one second per account.
+- Runtime dependencies now use native `fetch`, `node:fs`, and a local `HH:mm` formatter. Removed axios, fs-extra, and date-and-time.
+- The start scripts set `--max-old-space-size=256`.
+- Finizen, Palafin, and Hero Palafin now fall back to hints instead of attempting a direct catch.
+- The beta README installs the `dev` branch and links to `main` for the stable release.
+
+### Removed
+
+- Runtime dependency on figlet. The startup banner is now pre-rendered at build time.
+- The `Type` and `Beta Sentret` model classes.
+
+### Fixed
+
+- Quest track completions that reward a background now log the correct reward type instead of an unknown badge.
+
+### Breaking
+
+- The model class set changed. Use the bundled `model.json`, weight shards, and `labels.json` together.
+
 ## [2.0.0-beta.2] - 2026-10-23
 
 2.0.0-beta.2 is a follow-up to beta.1. It lowers installation memory use, which mitigates failures on small VPS hosts, and splits event and regional pings from rares.
