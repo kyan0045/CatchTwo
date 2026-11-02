@@ -49,9 +49,7 @@ CatchTwo is a self-bot. Using it may violate Discord's or Pokétwo's terms of se
 
 ## Installation
 
-Requires Node.js 22.13.0 or newer and Git. `npm install --omit=dev` installs the
-required runtime dependencies only. TensorFlow.js is bundled with the project
-already.
+This README covers the 2.0 beta on the `dev` branch. Requires Node.js 22.13.0 or newer and Git. `npm install --omit=dev` installs the required runtime dependencies only. TensorFlow.js is bundled with the project already.
 
 Windows and Android guides:
 
@@ -64,11 +62,11 @@ Windows and Android guides:
   </a>
 </p>
 
-Quick start on Linux, macOS or Windows (stable `main`):
+Quick start on Linux, macOS or Windows (2.0 beta):
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/kyan0045/CatchTwo.git
+# 1. Clone the beta branch
+git clone --branch dev https://github.com/kyan0045/CatchTwo.git
 
 # 2. Enter the directory
 cd CatchTwo
@@ -86,20 +84,9 @@ Run `npm start` from the repository root. `tokens.txt` is read relative to the w
 
 On Windows, `start.bat` is a launcher that installs portable Git and Node when missing, follows the `dev` beta branch, merges new config keys and restarts after a crash.
 
-## Beta builds
-
-CatchTwo 2.0.0 is currently in beta on the `dev` branch. On Windows, `start.bat` follows `dev` automatically and switches existing checkouts to it. To install the beta manually:
-
-```bash
-git clone --branch dev https://github.com/kyan0045/CatchTwo.git
-cd CatchTwo
-npm install --omit=dev
-
-# Fill in config.js and tokens.txt, then start
-npm start
-```
-
 Use `npm run update` to update the current branch. It preserves `config.js` and `tokens.txt` and merges new config defaults. `npm run force-update` resets the current branch to its remote and also preserves both files.
+
+Looking for the stable release? Use the `main` branch and follow its [installation instructions](https://github.com/kyan0045/CatchTwo/tree/main#installation). It still uses `config.json` and a different start command.
 
 ## Configuration
 
