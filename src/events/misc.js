@@ -14,6 +14,7 @@ const {
   stopAccount,
 } = require("../services/states.js");
 const { addStat } = require("../services/stats.js");
+const { resumeIncense } = require("../services/incense.js");
 const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 
 const POKEMON_PATTERN = "pok(?:\\u00e9|e)mon";
@@ -321,15 +322,11 @@ module.exports = {
                   "Successfully solved the captcha!",
                   "captcha"
                 );
+                await resumeIncense(client, message.channel);
                 await sendWebhook(getMentions(), {
                   title: "Captcha Solved!",
                   color: "#00FF00",
                 });
-                if (config.incense.IncenseMode === true) {
-                  await message.reply(
-                    `${POKETWO_MENTION} incense resume all -y`
-                  );
-                }
                 return;
               }
 

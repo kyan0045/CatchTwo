@@ -1,4 +1,5 @@
 const { setWaiting } = require("../services/states");
+const { resumeIncense } = require("../services/incense.js");
 
 module.exports = {
   name: "resume",
@@ -6,10 +7,11 @@ module.exports = {
   async execute(client, message, args) {
     const { clients } = require("../classes/catcher.js");
     if (!args.length) {
-      clients.forEach((c) => {
-        if (!c?.user?.id || c.stopped || c.suspended) return;
+      for (const c of clients) {
+        if (!c?.user?.id || c.stopped || c.suspended) continue;
         setWaiting(c.user.id, false);
-      });
+        await resumeIncense(c, message.channel);
+      }
       await message.react("✅");
       return;
     }
@@ -33,6 +35,7 @@ module.exports = {
     }
 
     setWaiting(catcher.user.id, false);
+    await resumeIncense(catcher, message.channel);
     await message.react("✅");
   },
 };

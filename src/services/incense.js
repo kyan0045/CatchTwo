@@ -1,3 +1,4 @@
+const config = require("../../config.js");
 const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 const { getMentions, sendLog, sendWebhook } = require("./logging.js");
 
@@ -75,6 +76,46 @@ async function buyIncense(channel, { timeout = 5000 } = {}) {
   }
 }
 
+async function resumeIncense(client, fallbackChannel = null) {
+  if (config.incense?.IncenseMode !== true) return false;
+
+  const channelIds = normalizeIncenseChannels(config.incense.IncenseChannel);
+  for (const channelId of channelIds) {
+    if (typeof client.resolveChannel !== "function") break;
+    const channel = await client.resolveChannel(channelId).catch(() => null);
+    if (!channel) continue;
+    try {
+      const sent = await channel.send(
+        `${POKETWO_MENTION} incense resume all -y`
+      );
+      if (sent) return true;
+    } catch (error) {
+      sendLog(
+        client.user?.username ?? "CatchTwo",
+        `Failed to resume incense: ${error.message || error}`,
+        "error"
+      );
+    }
+  }
+
+  if (fallbackChannel && typeof fallbackChannel.send === "function") {
+    try {
+      const sent = await fallbackChannel.send(
+        `${POKETWO_MENTION} incense resume all -y`
+      );
+      if (sent) return true;
+    } catch (error) {
+      sendLog(
+        client.user?.username ?? "CatchTwo",
+        `Failed to resume incense: ${error.message || error}`,
+        "error"
+      );
+    }
+  }
+
+  return false;
+}
+
 async function logIncenseResult(client, result) {
   const username = client.user?.username ?? "CatchTwo";
   let message;
@@ -138,6 +179,7 @@ module.exports = {
   buyIncense,
   logIncenseResult,
   normalizeIncenseChannels,
+  resumeIncense,
   getIncenseResponseReason,
   isIncenseResponse,
   NO_SHARDS,
