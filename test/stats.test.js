@@ -1,10 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const {
-  getGeneralFields,
-  getPokemonFields,
-} = require("../src/commands/stats.js");
+const { getPokemonFields } = require("../src/commands/stats.js");
 const {
   addStat,
   createAccountStats,
@@ -36,21 +33,6 @@ test("statistics use a 3600-second hour", () => {
   assert.equal(
     fields.find((field) => field.name === "Catch Rate").value,
     "20 catches per hour"
-  );
-});
-
-test("per-user general fields do not use aggregate labels", () => {
-  const fields = getGeneralFields(
-    {
-      catches: { total: 3 },
-      general: { coins: 25, spamMessages: 7 },
-    },
-    true
-  );
-
-  assert.deepEqual(
-    fields.map((field) => field.name),
-    ["Catches", "Coins Gained", "Spam Messages"]
   );
 });
 

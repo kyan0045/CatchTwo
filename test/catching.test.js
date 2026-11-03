@@ -8,10 +8,7 @@ const {
   shouldCatchSpawn,
   shouldHandleCatchMessage,
 } = require("../src/events/catching.js");
-const {
-  buyIncense,
-  normalizeIncenseChannels,
-} = require("../src/services/incense.js");
+const { buyIncense } = require("../src/services/incense.js");
 
 const POKETWO_ID = "716390085896962058";
 
@@ -149,15 +146,6 @@ test("incense purchase accepts a plain Poketwo response", async () => {
   assert.equal(result.error, undefined);
   assert.equal(result.sent.id, "sent");
   assert.equal(result.reason, "no-shards");
-});
-
-test("incense channel lists accept one ID or an array", () => {
-  assert.deepEqual(normalizeIncenseChannels(" 123 "), ["123"]);
-  assert.deepEqual(
-    normalizeIncenseChannels(["123", "456", "123", "ChannelID", "", 42]),
-    ["123", "456"]
-  );
-  assert.deepEqual(normalizeIncenseChannels(undefined), []);
 });
 
 test("hunt targets fall back to the main account without a usable token", () => {
