@@ -7,6 +7,7 @@ module.exports = {
     let msg;
     let buttonId;
     let rowId = null;
+    let targetButton = null;
 
     try {
       if (args[0]?.length > 10) {
@@ -36,11 +37,11 @@ module.exports = {
     }
 
     try {
+      if (msg && !msg.guildId) msg.guildId = message.guildId;
+
       if (!msg?.components || msg?.components?.length === 0) {
         return message.reply("This message doesn't have any buttons to click.");
       }
-
-      let targetButton = null;
 
       if (rowId !== null) {
         const row = msg.components[rowId];
@@ -73,9 +74,10 @@ module.exports = {
       await msg.clickButton(targetButton.customId);
       message.react("✅").catch(() => null);
     } catch (err) {
+      const applicationId = msg?.applicationId || msg?.author?.id || "unknown";
       sendLog(
         client?.user?.username,
-        `Click command failed: ${err.message || err}`,
+        `Click command failed: ${err.message || err} (message ${msg?.id || "unknown"}, guild ${msg?.guildId || message.guildId || "unknown"}, app ${applicationId}, button ${targetButton?.customId || "unknown"})`,
         "error"
       );
       message.react("❌");
