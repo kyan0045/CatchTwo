@@ -1,5 +1,18 @@
 const { sendLog } = require("../services/logging.js");
 
+const MESSAGE_LINK_PATTERN =
+  /^https?:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(\d+|@me)\/(\d+)\/(\d+)\/?$/;
+
+function parseMessageLink(value) {
+  const match = MESSAGE_LINK_PATTERN.exec(value);
+  if (!match) return null;
+  return {
+    guildId: match[1] === "@me" ? null : match[1],
+    channelId: match[2],
+    messageId: match[3],
+  };
+}
+
 module.exports = {
   name: "click",
   aliases: ["buttonclick", "clickbutton"],
@@ -8,9 +21,25 @@ module.exports = {
     let buttonId;
     let rowId = null;
     let targetButton = null;
+    let usedMessageId = false;
 
     try {
-      if (args[0]?.length > 10) {
+      const linked = parseMessageLink(args[0]);
+      if (linked) {
+        const channel =
+          linked.channelId === message.channel.id
+            ? message.channel
+            : await client.resolveChannel(linked.channelId);
+        if (!channel) throw new Error("Could not resolve the linked channel.");
+        msg = await channel.fetchMessage(linked.messageId);
+        msg.guildId =
+          linked.guildId || msg.guildId || channel.guildId || message.guildId;
+        buttonId = parseInt(args[1]) - 1;
+        if (args[2]) {
+          rowId = parseInt(args[2]) - 1;
+        }
+      } else if (args[0]?.length > 10) {
+        usedMessageId = true;
         msg = await message.channel.fetchMessage(args[0]);
         buttonId = parseInt(args[1]) - 1;
         if (args[2]) {
@@ -31,8 +60,13 @@ module.exports = {
         `Click command failed: ${err.message || err}`,
         "error"
       );
+      if (usedMessageId) {
+        return message.reply(
+          "That message ID was not found in this channel. Use the full message link for a message in another channel."
+        );
+      }
       return message.reply(
-        `Please reply to the message that the button is attached to, or specify the message ID.`
+        "Please reply to the message that the button is attached to, specify the message ID, or provide a message link."
       );
     }
 

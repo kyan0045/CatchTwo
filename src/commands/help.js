@@ -30,11 +30,13 @@ const commandHelp = {
     category: "Utility",
   },
   click: {
-    description: "Clicks a button on a replied-to or specified message.",
-    usage: `${config.ownership.CommandPrefix}click [messageID] <button> [row]`,
+    description:
+      "Clicks a button on a replied-to, linked, or specified message.",
+    usage: `${config.ownership.CommandPrefix}click [messageID|messageLink] <button> [row]`,
     examples: [
       `${config.ownership.CommandPrefix}click 1`,
       `${config.ownership.CommandPrefix}click 123456789012345678 1`,
+      `${config.ownership.CommandPrefix}click https://discord.com/channels/123/456/789 1`,
     ],
     category: "Utility",
   },

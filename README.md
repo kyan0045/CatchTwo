@@ -152,7 +152,7 @@ All commands are owner-only and use the configured prefix, `!` by default.
 | :-------- | :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
 | `help`    | `[command]`                          | List commands, or show details for one command.                                                                                       |
 | `say`     | `<message>`                          | Repeat a message.                                                                                                                     |
-| `click`   | `[messageID] <button> [row]`         | Click a button on a message.                                                                                                          |
+| `click`   | `[messageID\|link] <button> [row]`   | Click a button on a message.                                                                                                          |
 | `pause`   | `[@user\|userID]`                    | Pause catching for all accounts, or for one account.                                                                                  |
 | `react`   | `[messageID] [emoji]`                | React to a message with an emoji, or with its first existing reaction.                                                                |
 | `restart` |                                      | Restart CatchTwo.                                                                                                                     |
