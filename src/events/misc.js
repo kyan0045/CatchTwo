@@ -24,6 +24,20 @@ const CAPTCHA_RESULT_DELAYS_MS = [
   60_000,
 ];
 
+function findExistingDM(client, userId) {
+  for (const channel of client.channels.values()) {
+    if (channel.type !== 1) continue;
+    if (
+      channel.recipients?.some(
+        (recipient) => String(recipient.id) === String(userId)
+      )
+    ) {
+      return channel;
+    }
+  }
+  return null;
+}
+
 function parseCoinAmount(value) {
   const amount = Number(String(value).replace(/,/g, ""));
   return Number.isFinite(amount) && amount >= 0 ? amount : 0;
@@ -201,45 +215,39 @@ module.exports = {
               "https://res.cloudinary.com/dppthk8lt/image/upload/v1719331169/catchtwo_bjvlqi.png",
           },
         });
-        config.ownership.OwnerIDs.forEach((id) => {
-          if (id?.length && id.length <= 16) return;
-          client
-            .fetchUser(id)
-            .then(async (user) => {
-              const dmChannel = await user.createDM();
-              let lastMessage = await dmChannel
-                .fetchMessage(dmChannel.lastMessageId)
-                .catch(() => null);
-
-              // Avoid repeating the DM if the previous one is under 24 hours old
-              if (
-                lastMessage?.content?.includes("captcha") &&
-                lastMessage?.author?.id === client.user.id &&
-                lastMessage?.createdTimestamp > Date.now() - 86400000
-              ) {
-                return;
-              } else {
-                return user
-                  .send(
-                    `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.ownership.CommandPrefix}solved\`\` to continue catching.`
-                  )
-                  .catch((error) => {
-                    sendLog(
-                      client.user.username,
-                      `Error sending message to ${user.username}: ${error}`,
-                      "error"
-                    );
-                  });
-              }
-            })
-            .catch((error) => {
-              sendLog(
-                client.user.username,
-                `Error notifying owner about captcha: ${error.message || error}`,
-                "error"
-              );
-            });
-        });
+        for (const id of config.ownership.OwnerIDs) {
+          if (!id || id.length <= 16) continue;
+          const dmChannel = findExistingDM(client, id);
+          if (!dmChannel) {
+            sendLog(
+              client.user.username,
+              `Failed to send captcha DM to owner ${id}: no existing DM channel.`,
+              "warning"
+            );
+            continue;
+          }
+          try {
+            const lastMessage = await dmChannel
+              .fetchMessage(dmChannel.lastMessageId)
+              .catch(() => null);
+            if (
+              lastMessage?.content?.includes("captcha") &&
+              lastMessage?.author?.id === client.user.id &&
+              lastMessage?.createdTimestamp > Date.now() - 86400000
+            ) {
+              continue;
+            }
+            await dmChannel.send(
+              `## DETECTED A CAPTCHA\n> I've detected a captcha. The autocatcher has been paused. To continue, please solve the captcha below.\n* https://verify.poketwo.net/captcha/${client.user.id}\n\n### SOLVED?\n> Once solved, run the command \`\`${config.ownership.CommandPrefix}solved\`\` to continue catching.`
+            );
+          } catch (error) {
+            sendLog(
+              client.user.username,
+              `Error sending captcha DM to owner ${id}: ${error.message || error}`,
+              "error"
+            );
+          }
+        }
 
         if (config.captchaSolving.key) {
           let taskId;
