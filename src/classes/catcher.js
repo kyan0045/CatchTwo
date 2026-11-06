@@ -9,6 +9,7 @@ const { stopAccount } = require("../services/states.js");
 const { CatchTwoRestManager, stoppedError } = require("../services/queue.js");
 
 const clients = [];
+const GATEWAY_WATCHDOG_MS = 30_000;
 
 const preloadedCommands = [];
 try {
@@ -61,6 +62,38 @@ class Catcher {
     }
     this.client = client;
     this.client.guildId = this.guildId;
+
+    client.on("disconnected", (code, reason) => {
+      if (client.stopped) return;
+      sendLog(
+        client.user?.username ?? null,
+        `Gateway disconnected (${code}): ${reason || "no reason"}.`,
+        "warning"
+      );
+    });
+    client.on("error", (error) => {
+      if (client.stopped) return;
+      sendLog(
+        client.user?.username ?? null,
+        `Gateway error: ${error?.message || error}`,
+        "error"
+      );
+    });
+
+    this.gatewayWatchdog = setInterval(() => {
+      if (this.stopped || client.stopped) return;
+      const ws = client.ws;
+      if (!ws?.shouldReconnect) return;
+      if (ws.ready || ws.reconnectTimer || ws.identifyTimer) return;
+      if (ws.ws && ws.ws.readyState !== 3) return;
+      sendLog(
+        client.user?.username ?? null,
+        "Gateway connection is down; reconnecting.",
+        "warning"
+      );
+      ws.reconnect();
+    }, GATEWAY_WATCHDOG_MS);
+    this.gatewayWatchdog.unref?.();
 
     listenEvents(this.client, this.guildId);
   }
@@ -119,6 +152,10 @@ class Catcher {
     if (this.client.spamInterval) {
       clearInterval(this.client.spamInterval);
       this.client.spamInterval = null;
+    }
+    if (this.gatewayWatchdog) {
+      clearInterval(this.gatewayWatchdog);
+      this.gatewayWatchdog = null;
     }
     removeClient(this.client);
     const { catchers } = require("../services/createCatchers.js");
