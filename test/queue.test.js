@@ -468,6 +468,37 @@ test("the lane waits for the global rate limit before sending", async () => {
   assert.ok(sleeps.every((ms) => ms <= 1_000));
 });
 
+test("the lane checks the resolved rate limit bucket", async () => {
+  const { processPoketwoQueue } = require("../src/services/queue.js");
+
+  const sleeps = [];
+  let restManager;
+  restManager = {
+    _poketwoQueue: [queuedItem({ priority: 0 })],
+    _poketwoQueueProcessing: false,
+    destroyed: false,
+    getRouteKey: () => "route",
+    getRateLimitKey: () => "bucket",
+    rateLimits: new Map([
+      ["bucket", { remaining: 0, reset: Date.now() + 2_500 }],
+    ]),
+    globalRateLimit: null,
+    sleep: async (ms) => {
+      sleeps.push(ms);
+      restManager.rateLimits.clear();
+    },
+  };
+
+  let sent = 0;
+  await processPoketwoQueue(restManager, async () => {
+    sent++;
+    return { id: "message" };
+  });
+
+  assert.equal(sent, 1);
+  assert.ok(sleeps.length >= 1);
+});
+
 test("IncenseMode disables spam", () => {
   const { shouldStartSpam } = require("../src/services/spam.js");
 

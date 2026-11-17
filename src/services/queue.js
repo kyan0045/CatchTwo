@@ -94,7 +94,11 @@ function getSendWait(restManager, routeKey, item) {
   if (globalReset > now) wait = globalReset - now;
 
   if (routeKey && restManager.rateLimits) {
-    const bucket = restManager.rateLimits.get(routeKey);
+    const bucketKey =
+      typeof restManager.getRateLimitKey === "function"
+        ? restManager.getRateLimitKey(routeKey)
+        : routeKey;
+    const bucket = restManager.rateLimits.get(bucketKey);
     if (bucket && bucket.remaining <= ROUTE_HEADROOM && bucket.reset > now) {
       wait = Math.max(wait, bucket.reset - now);
     }

@@ -71,9 +71,9 @@ function freshLifecycleModule(t, name) {
 
 function lifecycleFixture(t, id, owners = []) {
   const logging = require("../src/services/logging.js");
-  t.mock.method(console, "log", () => {});
+  const log = t.mock.method(console, "log", () => {});
   t.mock.method(console, "error", () => {});
-  t.mock.method(logging, "sendLog", () => {});
+  const sendLog = t.mock.method(logging, "sendLog", () => {});
   t.mock.method(logging, "getMentions", () => "");
   const webhook = t.mock.method(logging, "sendWebhook", async () => {});
   t.mock.method(global, "fetch", async () => {
@@ -144,6 +144,8 @@ function lifecycleFixture(t, id, owners = []) {
     clients,
     catchers,
     webhook,
+    sendLog,
+    log,
     disconnect,
     fetchUser,
     execute: () => misc.execute(client, "offline-guild", message),
@@ -195,6 +197,50 @@ test("client destroy synchronously clears timers and terminally stops its catche
   catcher.listen();
   assert.equal(catcher.client, client);
   assert.equal(disconnect.mock.callCount(), 1);
+});
+
+test("fatal gateway errors tear down the catcher", (t) => {
+  const fixture = lifecycleFixture(t, "lifecycle-fatal-gateway");
+  const { client } = fixture;
+  const error = Object.assign(new Error("Terminal gateway close code 4014"), {
+    code: 4014,
+    fatal: true,
+  });
+
+  client.emit("error", error);
+
+  assertLifecycleStopped(fixture);
+});
+
+test("fatal errors during login log account context once", async (t) => {
+  const fixture = lifecycleFixture(t, "lifecycle-login-fatal");
+  const { catcher, client, log } = fixture;
+  catcher.accountNumber = 3;
+  catcher.lineNumber = 7;
+  client.login = async () => {
+    const error = Object.assign(new Error("Authentication failed"), {
+      code: 4004,
+      fatal: true,
+    });
+    client.emit("error", error);
+    throw error;
+  };
+
+  await catcher.login();
+
+  const messages = log.mock.calls.map((call) => call.arguments[0]);
+  const failures = messages.filter((message) =>
+    /Failed to login to account 3/.test(message)
+  );
+  assert.equal(failures.length, 1);
+  assert.match(failures[0], /tokens\.txt line 7/);
+  assert.equal(
+    messages.some((message) =>
+      /Gateway error: Authentication failed/.test(message)
+    ),
+    false
+  );
+  assertLifecycleStopped(fixture);
 });
 
 test("suspension tears down with zero owners", async (t) => {

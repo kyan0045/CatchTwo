@@ -9,7 +9,6 @@ const { stopAccount } = require("../services/states.js");
 const { CatchTwoRestManager, stoppedError } = require("../services/queue.js");
 
 const clients = [];
-const GATEWAY_WATCHDOG_MS = 30_000;
 
 const preloadedCommands = [];
 try {
@@ -46,11 +45,15 @@ class Catcher {
     this.accountNumber = accountNumber;
     this.lineNumber = lineNumber;
     this.stopped = false;
+    this.loggingIn = false;
   }
 
   listen() {
     if (this.stopped || this.client) return;
-    const client = new Client({ restClass: CatchTwoRestManager });
+    const client = new Client({
+      restClass: CatchTwoRestManager,
+      maxReconnectAttempts: Infinity,
+    });
     client.catcher = this;
     client.stopped = false;
     this.destroyClient = client.destroy.bind(client);
@@ -73,41 +76,31 @@ class Catcher {
     });
     client.on("error", (error) => {
       if (client.stopped) return;
+      if (this.loggingIn && error?.fatal) return;
       sendLog(
         client.user?.username ?? null,
         `Gateway error: ${error?.message || error}`,
         "error"
       );
+      if (error?.fatal) this.destroy();
     });
-
-    this.gatewayWatchdog = setInterval(() => {
-      if (this.stopped || client.stopped) return;
-      const ws = client.ws;
-      if (!ws?.shouldReconnect) return;
-      if (ws.ready || ws.reconnectTimer || ws.identifyTimer) return;
-      if (ws.ws && ws.ws.readyState !== 3) return;
-      sendLog(
-        client.user?.username ?? null,
-        "Gateway connection is down; reconnecting.",
-        "warning"
-      );
-      ws.reconnect();
-    }, GATEWAY_WATCHDOG_MS);
-    this.gatewayWatchdog.unref?.();
 
     listenEvents(this.client, this.guildId);
   }
 
   login() {
     if (this.stopped || this.loginPromise) return this.loginPromise;
-    clients.push(this.client);
+    if (!clients.includes(this.client)) clients.push(this.client);
+    this.loggingIn = true;
     const login = this.client.login(this.token);
     this.loginPromise = login
       .then(() => {
+        this.loggingIn = false;
         if (this.stopped) return;
         createAccountStats(this.client.user.id);
       })
       .catch((error) => {
+        this.loggingIn = false;
         if (this.stopped) return;
         const token = String(this.token ?? "");
         const tokenHint = token ? `${token.slice(0, 12)}…` : "unknown";
@@ -153,19 +146,11 @@ class Catcher {
       clearInterval(this.client.spamInterval);
       this.client.spamInterval = null;
     }
-    if (this.gatewayWatchdog) {
-      clearInterval(this.gatewayWatchdog);
-      this.gatewayWatchdog = null;
-    }
     removeClient(this.client);
     const { catchers } = require("../services/createCatchers.js");
     const index = catchers.indexOf(this);
     if (index !== -1) catchers.splice(index, 1);
-    try {
-      this.destroyClient?.(stoppedError());
-    } finally {
-      if (this.client.ws) clearInterval(this.client.ws.heartbeatInterval);
-    }
+    this.destroyClient?.(stoppedError());
   }
 }
 
