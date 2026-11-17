@@ -2,6 +2,33 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-beta.4] - 2026-11-17
+
+### Highlights
+
+Beta.4 hardens captcha recovery, gateway reconnects, and button clicking.
+
+### Added
+
+- `!click` accepts Discord message links, including messages in other channels.
+- Help and README examples cover the message link form.
+
+### Changed
+
+- Captcha result polling uses incremental backoff from 45 seconds to 5.5 minutes, with 10 requests instead of 20 fixed polls.
+- Captcha DMs only use an existing cached DM channel. CatchTwo no longer calls `createDM()` for alerts.
+- Updated `discord-self-lite` to 0.2.3.
+- Gateway reconnects without a maximum attempt limit. Fatal gateway errors tear down the catcher.
+- Rate-limit lookup uses the library's resolved bucket key.
+
+### Fixed
+
+- Resume incense after solver success and after `!solved`.
+- Send the resume command through a configured incense channel and fall back to the captcha channel.
+- Use the command guild for fetched messages, fixing `Unknown Integration`.
+- Report fatal login failures once with account and `tokens.txt` line context.
+- Log when a captcha DM is skipped because no existing DM channel is present.
+
 ## [2.0.0-beta.3] - 2026-11-02
 
 ### Highlights
