@@ -229,3 +229,82 @@ test("placeholder values never count as configured", () => {
     2
   );
 });
+
+test("getMentions includes 17-digit snowflakes and excludes invalid entries", (t) => {
+  const config = require("../config.js");
+  const { getMentions } = require("../src/services/logging.js");
+  const previousOwners = config.ownership.OwnerIDs;
+  t.after(() => {
+    config.ownership.OwnerIDs = previousOwners;
+  });
+
+  config.ownership.OwnerIDs = [
+    "12345678901234567",
+    "1101294362505269379",
+    "...",
+    "not-a-snowflake",
+  ];
+
+  assert.equal(getMentions(), "<@12345678901234567>, <@1101294362505269379>");
+});
+
+test("sendCatch counts rarity and respects SpecialCatches when IV thresholds match", async (t) => {
+  const config = require("../config.js");
+  const { sendCatch } = require("../src/services/logging.js");
+  const { getAccountStat } = require("../src/services/stats.js");
+  const previousLogging = config.logging;
+  const previousOwners = config.ownership.OwnerIDs;
+  t.after(() => {
+    config.logging = previousLogging;
+    config.ownership.OwnerIDs = previousOwners;
+  });
+
+  config.ownership.OwnerIDs = ["12345678901234567"];
+  config.logging = {
+    ...previousLogging,
+    HighIV: false,
+    LowIV: false,
+    SpecialCatches: true,
+    HighIVThreshold: 85,
+    LowIVThreshold: 15,
+    LogWebhook: "https://discord.com/api/webhooks/123456789012345678/token",
+    Ping: {
+      Shiny: false,
+      Gigantamax: false,
+      Rares: true,
+      Event: false,
+      Regional: false,
+      HighIV: false,
+      LowIV: false,
+    },
+  };
+
+  const webhookCalls = [];
+  t.mock.method(console, "log", () => {});
+  t.mock.method(global, "fetch", async (_url, options) => {
+    webhookCalls.push(JSON.parse(options.body));
+    return { ok: true, status: 204, json: async () => null };
+  });
+
+  const accountId = "high-iv-legendary-test";
+  await sendCatch(
+    accountId,
+    "tester",
+    "https://discord.com/channels/1/2/3",
+    "Rayquaza",
+    "50",
+    92,
+    "<:genderless:1>",
+    false,
+    false,
+    "https://example.com/rayquaza.png"
+  );
+
+  assert.equal(getAccountStat(accountId, "legendary"), 1);
+  assert.equal(webhookCalls.length, 1);
+  assert.equal(
+    webhookCalls[0].embeds[0].title,
+    "High IV Legendary Pokemon Caught!"
+  );
+  assert.equal(webhookCalls[0].content, "<@12345678901234567>");
+});

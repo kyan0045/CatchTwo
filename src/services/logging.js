@@ -3,12 +3,13 @@ const config = require("../../config");
 const { checkRarity } = require("pokehint");
 const { WebhookClient } = require("discord-self-lite");
 const { addStat } = require("./stats");
+const { isSnowflake } = require("../constants.js");
 
 const WEBHOOK_AVATAR =
   "https://res.cloudinary.com/dppthk8lt/image/upload/ar_1.0,c_lpad/v1719331169/catchtwo_bjvlqi.png";
 
 function getMentions() {
-  return config.ownership.OwnerIDs.filter((ownerID) => ownerID.length >= 18)
+  return config.ownership.OwnerIDs.filter(isSnowflake)
     .map((ownerID) => `<@${ownerID}>`)
     .join(", ");
 }
@@ -104,6 +105,10 @@ function formatTime(now) {
   return `${hours}:${minutes}`;
 }
 
+function logWebhookError(err) {
+  sendLog(null, `Webhook send failed: ${err.message || err}`, "error");
+}
+
 function sendLog(username, message, type = "info") {
   const typeLower = type.toLowerCase();
   if (typeLower === "debug" && !config.debug) return;
@@ -113,9 +118,7 @@ function sendLog(username, message, type = "info") {
   const colorFn = LOG_COLORS[typeLower] || chalk.bold.blue;
   const tag = colorFn(`[${type.toUpperCase()}]`);
 
-  const excludeUser = ["info", "error", "warning"].includes(typeLower);
-  const userPrefix =
-    username && !excludeUser ? `${chalk.bold.red(username)}: ` : "";
+  const userPrefix = username ? `${chalk.bold.red(username)}: ` : "";
 
   console.log(`${tag} - ${timeStr}: ${userPrefix}${message}`);
 }
@@ -126,15 +129,7 @@ async function sendWebhook(content, embed) {
     if (!webhook) return;
     await webhook.send(getWebhookMessage(content, embed));
   } catch (err) {
-    if (err.code === "WEBHOOK_URL_INVALID") {
-      sendLog(
-        null,
-        `Invalid webhook URL: ${config.logging.LogWebhook}`,
-        "error"
-      );
-    } else {
-      sendLog(null, `Webhook send failed: ${err.message || err}`, "error");
-    }
+    logWebhookError(err);
   }
 }
 
@@ -145,11 +140,7 @@ async function sendCommandWebhook(webhookURL, content, embed, files) {
     await webhook.send(getWebhookMessage(content, embed, files));
     return true;
   } catch (err) {
-    if (err.code === "WEBHOOK_URL_INVALID") {
-      sendLog(null, `Invalid webhook URL: ${webhookURL}`, "error");
-    } else {
-      sendLog(null, `Webhook send failed: ${err.message || err}`, "error");
-    }
+    logWebhookError(err);
     return false;
   }
 }
@@ -202,15 +193,7 @@ async function sendCatchWebhook(
       getWebhookMessage(shouldPing ? getMentions() : undefined, embed)
     );
   } catch (err) {
-    if (err.code === "WEBHOOK_URL_INVALID") {
-      sendLog(
-        null,
-        `Invalid webhook URL: ${config.logging.LogWebhook}`,
-        "error"
-      );
-    } else {
-      sendLog(null, `Webhook send failed: ${err.message || err}`, "error");
-    }
+    logWebhookError(err);
   }
 }
 
@@ -250,15 +233,7 @@ async function sendQuestWebhook(
       getWebhookMessage(shouldPing ? getMentions() : undefined, embed)
     );
   } catch (err) {
-    if (err.code === "WEBHOOK_URL_INVALID") {
-      sendLog(
-        null,
-        `Invalid webhook URL: ${config.logging.LogWebhook}`,
-        "error"
-      );
-    } else {
-      sendLog(null, `Webhook send failed: ${err.message || err}`, "error");
-    }
+    logWebhookError(err);
   }
 }
 
@@ -327,70 +302,41 @@ async function sendCatch(
     return;
   }
 
-  if (Number(iv) >= config.logging.HighIVThreshold) {
-    addStat(id, "catches");
-    if (loggingOption("HighIV")) {
-      sendLog(
-        username,
-        `Caught a ${genderEmoji} High IV ${name} (Level ${level}) with ${iv}% IV!`,
-        "special catch"
-      );
-      await sendCatchWebhook(
-        username,
-        messageUrl,
-        name,
-        level,
-        iv,
-        gender,
-        "High IV",
-        url,
-        shouldPingCategory("HighIV")
-      );
-    }
-    return;
-  }
-
-  if (Number(iv) <= config.logging.LowIVThreshold) {
-    addStat(id, "catches");
-    if (loggingOption("LowIV")) {
-      sendLog(
-        username,
-        `Caught a ${genderEmoji} Low IV ${name} (Level ${level}) with ${iv}% IV!`,
-        "special catch"
-      );
-      await sendCatchWebhook(
-        username,
-        messageUrl,
-        name,
-        level,
-        iv,
-        gender,
-        "Low IV",
-        url,
-        shouldPingCategory("LowIV")
-      );
-    }
-    return;
-  }
-
   // A rarity lookup failure shouldn't drop the catch: it's counted as a regular catch instead.
   const rarity = await checkRarity(name).catch(() => null);
   const isRegular = !rarity || rarity === "Regular";
   const statKey = isRegular ? "catches" : rarity.toLowerCase().replace(" ", "");
   addStat(id, statKey);
 
-  if (isRegular && !loggingOption("Pokemon")) {
-    sendLog(
-      username,
-      `Caught ${name} (Level ${level}, ${iv}% IV) but logging.Pokemon is disabled.`,
-      "debug"
-    );
-    return;
-  }
-  if (!isRegular && !loggingOption("SpecialCatches")) return;
+  const numericIv = Number(iv);
+  const isHighIV = numericIv >= config.logging.HighIVThreshold;
+  const isLowIV = !isHighIV && numericIv <= config.logging.LowIVThreshold;
+  const ivOption = isHighIV ? "HighIV" : isLowIV ? "LowIV" : null;
+  const ivLabel = isHighIV ? "High IV" : isLowIV ? "Low IV" : null;
 
-  const logType = isRegular ? "catch" : "special catch";
-  const logPrefix = isRegular ? "" : `${rarity} `;
+  if (isRegular && !ivOption) {
+    if (!loggingOption("Pokemon")) {
+      sendLog(
+        username,
+        `Caught ${name} (Level ${level}, ${iv}% IV) but logging.Pokemon is disabled.`,
+        "debug"
+      );
+      return;
+    }
+  } else {
+    const shouldLog =
+      (!isRegular && loggingOption("SpecialCatches")) ||
+      (Boolean(ivOption) && loggingOption(ivOption));
+    if (!shouldLog) return;
+  }
+
+  const labelParts = [ivLabel, isRegular ? null : rarity].filter(Boolean);
+  const catchLabel = labelParts.length > 0 ? labelParts.join(" ") : undefined;
+  const logType = catchLabel ? "special catch" : "catch";
+  const logPrefix = catchLabel ? `${catchLabel} ` : "";
+  const shouldPing =
+    (!isRegular && shouldPingCategory(pingCategoryForRarity(rarity))) ||
+    (Boolean(ivOption) && shouldPingCategory(ivOption));
 
   sendLog(
     username,
@@ -405,9 +351,9 @@ async function sendCatch(
     level,
     iv,
     gender,
-    isRegular ? undefined : rarity,
+    catchLabel,
     url,
-    !isRegular && shouldPingCategory(pingCategoryForRarity(rarity))
+    shouldPing
   );
 }
 
