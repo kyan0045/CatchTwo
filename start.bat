@@ -116,7 +116,11 @@ if %errorlevel% equ 0 (
     if exist config.js copy /Y config.js config.js.new >nul
     if "!STASHED_CONFIG!"=="1" (
         git stash pop >nul 2>nul
-        if errorlevel 1 goto update_failed
+        if errorlevel 1 (
+            set "STASHED_CONFIG=0"
+            goto update_failed
+        )
+        set "STASHED_CONFIG=0"
     )
     if exist config.js.new if exist config.js (
         node scripts/mergeConfig.js config.js.new config.js

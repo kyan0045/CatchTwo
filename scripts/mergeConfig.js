@@ -105,12 +105,10 @@ function findLineCommentIndex(line) {
 function insertTopLevelBlock(userText, block) {
   if (userText.includes(block.trim())) return userText;
 
-  const debugAnchor = userText.match(/\n {2}\/\/ Debug mode/);
-  if (debugAnchor) {
-    return userText.replace(
-      /\n {2}\/\/ Debug mode/,
-      `${block}\n  // Debug mode`
-    );
+  const debugAnchor = /\r?\n {2}\/\/ Debug(?: mode)?(?=\r?\n)/;
+  const match = userText.match(debugAnchor);
+  if (match) {
+    return userText.replace(debugAnchor, `${block}${match[0]}`);
   }
 
   return userText.replace(
