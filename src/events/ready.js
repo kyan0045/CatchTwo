@@ -1,7 +1,6 @@
 const chalk = require("chalk");
 const config = require("../../config.js");
 const { sendLog, sendWebhook } = require("../services/logging.js");
-const { setWaiting } = require("../services/states.js");
 const {
   buyIncense,
   logIncenseResult,
@@ -64,10 +63,7 @@ module.exports = {
 
           const result = await buyIncense(incenseChannel);
           await logIncenseResult(client, result);
-          if (result.reason) {
-            setWaiting(client.user.id, false);
-            if (result.reason === "no-shards") break;
-          }
+          if (result.reason === "no-shards") break;
         }
       } catch (error) {
         sendLog(
@@ -78,11 +74,6 @@ module.exports = {
       }
     }
 
-    const { catchers } = require("../services/createCatchers.js");
-    const catcher = catchers.find((catcher) => catcher.token === client.token);
-
-    if (!catcher) return;
-
-    catcher.start();
+    client.catcher?.start();
   },
 };

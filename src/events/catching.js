@@ -10,7 +10,7 @@ const {
   logIncenseResult,
   normalizeIncenseChannels,
 } = require("../services/incense.js");
-const { setWaiting, getWaiting } = require("../services/states.js");
+const { getWaiting } = require("../services/states.js");
 const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
 const {
   HINT_MESSAGES,
@@ -21,12 +21,42 @@ const {
 
 const { predict } = require("../services/ai.js");
 
+const CATCH_NAME_OVERRIDES = {
+  "Mime Jr": "Mime Jr.",
+  MissingNo: "MissingNo.",
+  "Type  Null": "Type: Null",
+};
+
 // Pokétwo accepts these base species for every form, so collapse the form name before building the catch command; Finizen and Palafin are separate species and must not be folded together.
-const CATCH_NAME_BASES = ["Arceus", "Silvally", "Alcremie"];
+const CATCH_NAME_BASES = [
+  "Arceus",
+  "Silvally",
+  "Alcremie",
+  "Dudunsparce",
+  "Toxtricity",
+  "Maushold",
+];
 
 function catchNameForPrediction(name) {
   if (typeof name !== "string") return name;
+  if (Object.hasOwn(CATCH_NAME_OVERRIDES, name)) {
+    return CATCH_NAME_OVERRIDES[name];
+  }
+  if (name === "Unown" || name.startsWith("Unown ")) return "Unown";
   return CATCH_NAME_BASES.find((base) => name.endsWith(base)) ?? name;
+}
+
+function matchesHuntTarget(name, huntPokemons = config.hunting.HuntPokemons) {
+  if (typeof name !== "string" || !Array.isArray(huntPokemons)) return false;
+  const huntSet = new Set(
+    huntPokemons
+      .filter((huntName) => typeof huntName === "string")
+      .map((huntName) => huntName.toLowerCase())
+  );
+  return (
+    huntSet.has(name.toLowerCase()) ||
+    huntSet.has(catchNameForPrediction(name).toLowerCase())
+  );
 }
 
 function getRandomHint(random = Math.random) {
@@ -106,6 +136,7 @@ module.exports = {
   shouldCatchSpawn,
   handleCaughtResponse,
   catchNameForPrediction,
+  matchesHuntTarget,
   execute: async (client, guildId, message) => {
     if (getWaiting(client.user.id) === true) return;
 
@@ -159,13 +190,12 @@ module.exports = {
               const predictedPokemon = pred.name;
               const predictedCatchName =
                 catchNameForPrediction(predictedPokemon);
-              const isHuntTarget = config.hunting.HuntPokemons.map((huntName) =>
-                huntName.toLowerCase()
-              ).includes(predictedPokemon.toLowerCase());
+              const isHuntTarget = matchesHuntTarget(predictedPokemon);
               const hunted =
                 isHuntTarget &&
+                Boolean(message.guild?.id) &&
                 (await huntPokemon(
-                  predictedPokemon,
+                  predictedCatchName,
                   message.guild.id,
                   message.channel.id
                 ));
@@ -177,6 +207,7 @@ module.exports = {
                 if (!pokemonRandom) {
                   pokemonRandom = predictedCatchName;
                 }
+                if (!canSend(client)) return;
                 try {
                   /*
                   Register the waiter before sending: awaitMessage only sees messages
@@ -201,7 +232,7 @@ module.exports = {
                   if (response) {
                     if (isWrongPokemonMessage(response.content)) {
                       setTimeout(() => {
-                        sendHint(response.channel, client);
+                        if (canSend(client)) sendHint(response.channel, client);
                       }, 500);
                     } else if (
                       isCaughtMessage(response.content, client.user.id)
@@ -259,9 +290,7 @@ module.exports = {
               );
               const result = await buyIncense(message.channel);
               await logIncenseResult(client, result);
-              if (result.reason) setWaiting(client.user.id, false);
             } else {
-              setWaiting(client.user.id, false);
               sendLog(
                 client.user.username,
                 "Detected the end of the incense.",
@@ -275,16 +304,14 @@ module.exports = {
         if (!canSend(client)) return;
         if (pokemon[0] && typeof pokemon[0] === "string") {
           // Check whether any hint candidate is a hunt target
-          const huntList = config.hunting.HuntPokemons.map((huntName) =>
-            huntName.toLowerCase()
-          );
           const huntMatch = [pokemon[0], pokemon[1], pokemon[2]].find((name) =>
-            huntList.includes(name?.toLowerCase())
+            matchesHuntTarget(name)
           );
           const hunted =
             huntMatch &&
+            Boolean(message.guild?.id) &&
             (await huntPokemon(
-              huntMatch,
+              catchNameForPrediction(huntMatch),
               message.guild.id,
               message.channel.id
             ));
@@ -333,9 +360,11 @@ module.exports = {
               }
 
               if (i === maxAttempts - 1 || !pokemonOptions[i + 1]) {
-                await message.channel.send(
-                  `${POKETWO_MENTION} ${getRandomHint()}`
-                );
+                if (canSend(client)) {
+                  await message.channel.send(
+                    `${POKETWO_MENTION} ${getRandomHint()}`
+                  );
+                }
               }
             }
           }
@@ -382,9 +411,11 @@ module.exports = {
           return;
         }
 
+        if (!canSend(client)) return;
         await message.clickButton();
         if (message?.embeds[0].title.includes("Updated")) return;
         await wait(3000);
+        if (!canSend(client)) return;
         message.channel
           .send(`${POKETWO_MENTION} i`)
           .catch((error) =>
@@ -395,6 +426,7 @@ module.exports = {
             )
           );
         await wait(2000);
+        if (!canSend(client)) return;
         message.channel
           .send(`${POKETWO_MENTION} sh solosis`)
           .catch((error) =>
@@ -405,6 +437,7 @@ module.exports = {
             )
           );
         await wait(2000);
+        if (!canSend(client)) return;
         message.channel
           .send(`${POKETWO_MENTION} order iv`)
           .catch((error) =>

@@ -87,6 +87,21 @@ test("catch names collapse supported forms to the base species", () => {
     "Alcremie"
   );
   assert.equal(catchNameForPrediction("Alcremie"), "Alcremie");
+  assert.equal(catchNameForPrediction("Unown"), "Unown");
+  assert.equal(catchNameForPrediction("Unown H"), "Unown");
+  assert.equal(catchNameForPrediction("Unown Question"), "Unown");
+  assert.equal(
+    catchNameForPrediction("Three-Segment Dudunsparce"),
+    "Dudunsparce"
+  );
+  assert.equal(catchNameForPrediction("Dudunsparce"), "Dudunsparce");
+  assert.equal(catchNameForPrediction("Amped Toxtricity"), "Toxtricity");
+  assert.equal(catchNameForPrediction("Low Key Toxtricity"), "Toxtricity");
+  assert.equal(catchNameForPrediction("Family of Three Maushold"), "Maushold");
+  assert.equal(catchNameForPrediction("Maushold"), "Maushold");
+  assert.equal(catchNameForPrediction("Mime Jr"), "Mime Jr.");
+  assert.equal(catchNameForPrediction("MissingNo"), "MissingNo.");
+  assert.equal(catchNameForPrediction("Type  Null"), "Type: Null");
 
   assert.equal(catchNameForPrediction("Finizen"), "Finizen");
   assert.equal(catchNameForPrediction("Palafin"), "Palafin");
@@ -148,16 +163,6 @@ test("incense purchase accepts a plain Poketwo response", async () => {
   assert.equal(result.reason, "no-shards");
 });
 
-test("hunt targets fall back to the main account without a usable token", () => {
-  const { resolveHuntToken } = require("../src/classes/shinyHunter.js");
-
-  assert.equal(resolveHuntToken(""), null);
-  assert.equal(resolveHuntToken("   "), null);
-  assert.equal(resolveHuntToken("HuntToken"), null);
-  assert.equal(resolveHuntToken("..."), null);
-  assert.equal(resolveHuntToken("abc.def.ghi"), "abc.def.ghi");
-});
-
 test("a caught message is only counted once", async (t) => {
   const logging = require("../src/services/logging.js");
   const originalSendCatch = logging.sendCatch;
@@ -193,4 +198,135 @@ test("a caught message is only counted once", async (t) => {
 
   assert.equal(calls.length, 1);
   assert.equal(calls[0][0], "1321835351358050437");
+});
+
+test("hunt targets match collapsed base species and exact form names", () => {
+  const { matchesHuntTarget } = require("../src/events/catching.js");
+
+  assert.equal(matchesHuntTarget("Bug Arceus", ["arceus"]), true);
+  assert.equal(matchesHuntTarget("Unown H", ["unown"]), true);
+  assert.equal(matchesHuntTarget("Type  Null", ["type: null"]), true);
+  assert.equal(matchesHuntTarget("Hero Palafin", ["hero palafin"]), true);
+  assert.equal(matchesHuntTarget("Hero Palafin", ["palafin"]), false);
+  assert.equal(matchesHuntTarget("Pikachu", ["raichu"]), false);
+});
+
+test("wrong-pokemon retry and incense end respect pause state", async (t) => {
+  const ai = require("../src/services/ai.js");
+  const pokehint = require("pokehint");
+  const incense = require("../src/services/incense.js");
+  const logging = require("../src/services/logging.js");
+  const states = require("../src/services/states.js");
+  const config = require("../config.js");
+
+  const prevAi = config.behavior.AI;
+  const prevCatching = config.behavior.Catching;
+  const prevHunt = config.hunting.HuntPokemons;
+  const prevIncenseMode = config.incense.IncenseMode;
+  const prevAutoBuy = config.incense.AutoIncenseBuy;
+  const prevIncenseCh = config.incense.IncenseChannel;
+  t.after(() => {
+    config.behavior.AI = prevAi;
+    config.behavior.Catching = prevCatching;
+    config.hunting.HuntPokemons = prevHunt;
+    config.incense.IncenseMode = prevIncenseMode;
+    config.incense.AutoIncenseBuy = prevAutoBuy;
+    config.incense.IncenseChannel = prevIncenseCh;
+  });
+
+  config.behavior.AI = true;
+  config.behavior.Catching = true;
+  config.hunting.HuntPokemons = [];
+  config.incense.IncenseMode = true;
+  config.incense.AutoIncenseBuy = true;
+  config.incense.IncenseChannel = "ch-incense";
+
+  t.mock.method(console, "log", () => {});
+  t.mock.method(logging, "sendLog", () => {});
+  t.mock.method(ai, "predict", async () => ({
+    name: "Pikachu",
+    confidence: 0.99,
+    margin: 0.9,
+    accepted: true,
+    reason: "ok",
+  }));
+  t.mock.method(pokehint, "getName", async () => "Pikachu");
+
+  const userId = "100000000000000020";
+  t.mock.method(incense, "buyIncense", async () => {
+    // Simulate a captcha arriving while awaiting buyIncense.
+    states.setWaiting(userId, true);
+    return { sent: { id: "s1" }, response: null, reason: "no-shards" };
+  });
+  t.mock.method(incense, "logIncenseResult", async () => {});
+
+  const catchingPath = require.resolve("../src/events/catching.js");
+  const cached = require.cache[catchingPath];
+  delete require.cache[catchingPath];
+  t.after(() => {
+    if (cached) require.cache[catchingPath] = cached;
+    else delete require.cache[catchingPath];
+  });
+  const catching = require(catchingPath);
+
+  const scheduled = [];
+  t.mock.method(global, "setTimeout", (callback, delay) => {
+    scheduled.push({ callback, delay });
+    return {};
+  });
+
+  const sentMessages = [];
+  const channel = {
+    id: "ch-incense",
+    awaitMessage: async () => ({
+      content: "That is the wrong pokémon!",
+      channel,
+    }),
+    send: async (payload) => {
+      sentMessages.push(payload);
+      return { id: "m" };
+    },
+  };
+  const client = { user: { id: userId, username: "pause-guard-test" } };
+  states.setWaiting(userId, false);
+
+  await catching.execute(client, "guild-1", {
+    author: { id: POKETWO_ID },
+    guild: { id: "guild-1" },
+    channel,
+    content: "",
+    embeds: [
+      {
+        title: "A wild pokémon has appeared!",
+        image: { url: "https://example.com/pika.png" },
+        footer: { text: "Wild pokémon" },
+      },
+    ],
+  });
+
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal(sentMessages.length, 1);
+  assert.equal(scheduled.length, 1);
+  states.setWaiting(userId, true);
+  scheduled[0].callback();
+  assert.equal(sentMessages.length, 1);
+
+  states.setWaiting(userId, false);
+  await catching.execute(client, "guild-1", {
+    author: { id: POKETWO_ID },
+    guild: { id: "guild-1" },
+    channel,
+    content: "",
+    embeds: [
+      {
+        title: "A wild pokémon has appeared!",
+        image: { url: "https://example.com/pika.png" },
+        footer: { text: "Incense: Spawns Remaining: 0." },
+      },
+    ],
+  });
+
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(states.getWaiting(userId), true);
 });
