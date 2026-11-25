@@ -192,4 +192,4 @@ Other projects:
 
 ## License
 
-CatchTwo is released under a [custom license](https://github.com/kyan0045/CatchTwo/blob/main/LICENSE).
+Copyright (C) 2022-2026 Kyan Bosman. CatchTwo is released under [GPL-3.0-or-later](./LICENSE).

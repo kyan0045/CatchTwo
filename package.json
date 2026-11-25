@@ -31,7 +31,7 @@
     "format:check": "prettier --check ."
   },
   "author": "kyan0045",
-  "license": "SEE LICENSE IN ./LICENSE",
+  "license": "GPL-3.0-or-later",
   "engines": {
     "node": ">=22.13.0"
   },
