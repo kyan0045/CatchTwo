@@ -475,32 +475,6 @@
             }
           },
           {
-            "class_name": "Dense",
-            "config": {
-              "name": "dense",
-              "trainable": true,
-              "dtype": "float32",
-              "units": 1024,
-              "activation": "relu",
-              "use_bias": true,
-              "kernel_initializer": {
-                "class_name": "GlorotUniform",
-                "config": {
-                  "seed": null
-                }
-              },
-              "bias_initializer": {
-                "class_name": "Zeros",
-                "config": {}
-              },
-              "kernel_regularizer": null,
-              "bias_regularizer": null,
-              "activity_regularizer": null,
-              "kernel_constraint": null,
-              "bias_constraint": null
-            }
-          },
-          {
             "class_name": "Dropout",
             "config": {
               "name": "dropout",
@@ -514,7 +488,7 @@
           {
             "class_name": "Dense",
             "config": {
-              "name": "dense_1",
+              "name": "dense",
               "trainable": true,
               "dtype": "float32",
               "units": 1303,
@@ -539,13 +513,58 @@
           }
         ]
       }
+    },
+    "training_config": {
+      "loss": {
+        "class_name": "CategoricalCrossentropy",
+        "config": {
+          "reduction": "auto",
+          "name": "categorical_crossentropy",
+          "from_logits": false,
+          "label_smoothing": 0.1,
+          "axis": -1
+        }
+      },
+      "metrics": [
+        [
+          {
+            "class_name": "MeanMetricWrapper",
+            "config": {
+              "name": "accuracy",
+              "dtype": "float32",
+              "fn": "categorical_accuracy"
+            }
+          },
+          {
+            "class_name": "TopKCategoricalAccuracy",
+            "config": {
+              "name": "top5_accuracy",
+              "dtype": "float32",
+              "k": 5
+            }
+          }
+        ]
+      ],
+      "weighted_metrics": null,
+      "loss_weights": null,
+      "optimizer_config": {
+        "class_name": "Adam",
+        "config": {
+          "name": "Adam",
+          "learning_rate": 0.00019999999494757503,
+          "decay": 0.0,
+          "beta_1": 0.8999999761581421,
+          "beta_2": 0.9990000128746033,
+          "epsilon": 1e-07,
+          "amsgrad": false
+        }
+      }
     }
   },
   "weightsManifest": [
     {
       "paths": [
-        "group1-shard1of2.bin",
-        "group1-shard2of2.bin"
+        "group1-shard1of1.bin"
       ],
       "weights": [
         {
@@ -555,7 +574,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -565,7 +585,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -575,7 +596,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -585,7 +607,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -595,7 +618,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -605,7 +629,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -615,7 +640,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -625,7 +651,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -635,7 +662,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -645,7 +673,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -655,7 +684,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -665,7 +695,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -675,7 +706,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -685,7 +717,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -695,7 +728,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -705,7 +739,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -718,49 +753,31 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
           "name": "dense/kernel",
           "shape": [
             256,
-            1024
+            1303
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
           "name": "dense/bias",
           "shape": [
-            1024
-          ],
-          "dtype": "float32",
-          "quantization": {
-            "dtype": "float16"
-          }
-        },
-        {
-          "name": "dense_1/kernel",
-          "shape": [
-            1024,
             1303
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
-          }
-        },
-        {
-          "name": "dense_1/bias",
-          "shape": [
-            1303
-          ],
-          "dtype": "float32",
-          "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -773,7 +790,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -786,7 +804,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -799,7 +818,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -812,7 +832,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -825,7 +846,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         },
         {
@@ -838,7 +860,8 @@
           ],
           "dtype": "float32",
           "quantization": {
-            "dtype": "float16"
+            "dtype": "float16",
+            "original_dtype": "float32"
           }
         }
       ]

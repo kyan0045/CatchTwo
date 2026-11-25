@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 
-// Production model: sepconv-accuracy-ft (20261102 run), from https://github.com/kyan0045/poketwo-ai.
+// Production model: compact 382k GAP-to-1303 head, from https://github.com/kyan0045/poketwo-ai/tree/feat/compact-head-382k.
 
 let LABELS = null;
 function loadLabels() {
@@ -20,19 +20,14 @@ function loadLabels() {
 }
 
 /*
-The 0.5 floor was tuned on the previous 1,279-class model:
-top-1 median 0.927, mean 0.911; correct mean 0.913, wrong median 0.631.
-0.70 gives 98.4% coverage at 99.76% accepted accuracy (baseline 99.45%).
-Live hints share a 30s cooldown, so an abstain often misses the spawn
-outright. On a 1,272-image stratified sample, 0.50 accepts 99.06% of
-images at 99.21% accuracy, versus 96.2% at 99.59% for 0.70. The small
-accuracy cost buys far fewer hint requests. Floors at or above 0.90
-collapse coverage under label smoothing 0.1 (71% at 0.90, 25% at 0.95),
-so do not raise this without new measurements. The 1,303-class validation set
-(26,060 images) accepts 99.28% at 99.93% exact and 99.96% mapped catch-name
-accuracy at 0.5, so keep it unless live data says otherwise.
+Compact 382k head with logit temperature scaling (T = 0.538) and 0.5 floor:
+accepts 99.81% at 99.83% accepted accuracy on the 26,060-image validation
+archive, matching baseline coverage. Without temperature scaling, a 0.5
+floor drops coverage to 97.92%. Do not raise this floor without new
+measurements.
 */
 const CONFIDENCE_FLOOR = 0.5;
+const LOGIT_TEMPERATURE = 0.538;
 const MARGIN_WARN = 0.25;
 // The new model handles the previous weak classes; Finizen and Palafin remain the known unreliable species.
 const UNRELIABLE_CLASSES = new Set(["Finizen", "Palafin", "Hero Palafin"]);
@@ -96,6 +91,20 @@ async function loadAiDependencies() {
   return { tf: tfLib, sharp: sharpLib };
 }
 
+function stripOutputSoftmax(modelTopology) {
+  const layers = modelTopology?.model_config?.config?.layers;
+  if (!Array.isArray(layers) || layers.length === 0) return false;
+  const lastLayer = layers[layers.length - 1];
+  if (
+    lastLayer?.class_name === "Dense" &&
+    lastLayer?.config?.activation === "softmax"
+  ) {
+    lastLayer.config.activation = "linear";
+    return true;
+  }
+  return false;
+}
+
 async function loadLayersModelFromDisk(modelDir) {
   const { tf } = await loadAiDependencies();
   const modelJsonPath = path.join(modelDir, "model.json");
@@ -115,6 +124,12 @@ async function loadLayersModelFromDisk(modelDir) {
     }
   }
   scrubSeparableConv2D(modelJson.modelTopology);
+  const stripped = stripOutputSoftmax(modelJson.modelTopology);
+  if (LOGIT_TEMPERATURE !== 1 && !stripped) {
+    throw new Error(
+      "Expected final Dense layer with softmax activation for logit temperature scaling."
+    );
+  }
 
   const allWeightSpecs = [];
   const shardBuffers = [];
@@ -304,8 +319,12 @@ async function infer(url, { topK = 5 } = {}) {
     let probs;
     try {
       probs = tf.tidy(() => {
-        const prediction = activeModel.predict(imageTensor);
-        return prediction.dataSync();
+        const logits = activeModel.predict(imageTensor);
+        const scaled =
+          LOGIT_TEMPERATURE === 1
+            ? tf.softmax(logits)
+            : tf.softmax(tf.div(logits, tf.scalar(LOGIT_TEMPERATURE)));
+        return scaled.dataSync();
       });
     } finally {
       imageTensor.dispose();

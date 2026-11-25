@@ -35,12 +35,11 @@ jobs:
         run: npm run build:banner
       - name: Verify banner is current
         run: git diff --exit-code -- src/utils/banner.js
-      # The shards are float16 derivatives of the poketwo-ai production checkpoint.
+      # The model shard is a float16 derivative of the poketwo-ai production checkpoint.
       - name: Verify model bundle
         run: |
           echo "b0f2def7bc81c134f429f30a2ad92e8de9ea3c305a3650dde2b445a402f27ffa  src/data/labels.json" | sha256sum -c -
-          echo "75e129e1970428abe4bf835590ca0fe1382bb34cd61786e19cefccfb6344911e  src/data/model/model.json" | sha256sum -c -
-          echo "f2f27d49a5d733b901435403c93af3661f611c943b741633c45d804fa7328265  src/data/model/group1-shard1of2.bin" | sha256sum -c -
-          echo "beca9ee3252ef8a39bb5cf76b8528ec77f256ee802a5f19aae376a2bfbdf8cbf  src/data/model/group1-shard2of2.bin" | sha256sum -c -
+          echo "bd5ddf9f7a18088bb653298ae83733668fb619a9811e601816c09eddd95ed02e  src/data/model/model.json" | sha256sum -c -
+          echo "297da51b9065953acaf935d6b5c69da27b626b9a8dd29fa3b6901dc1b54ebe28  src/data/model/group1-shard1of1.bin" | sha256sum -c -
           node -e "const l = require('./src/data/labels.json'); if (!Array.isArray(l.classes) || l.classes.length !== 1303) { console.error('expected 1303 label classes, got', l.classes?.length); process.exit(1); }"
-          node -e "const m = require('./src/data/model/model.json'); const specs = m.weightsManifest.flatMap((g) => g.weights ?? []); if (specs.length !== 27) { console.error('expected 27 weight specs, got', specs.length); process.exit(1); } for (const spec of specs) { if (spec.dtype !== 'float32' || spec.quantization?.dtype !== 'float16') { console.error('expected float32 dtype with float16 quantization on', spec.name); process.exit(1); } }"
+          node -e "const m = require('./src/data/model/model.json'); const specs = m.weightsManifest.flatMap((g) => g.weights ?? []); if (specs.length !== 25) { console.error('expected 25 weight specs, got', specs.length); process.exit(1); } for (const spec of specs) { if (spec.dtype !== 'float32' || spec.quantization?.dtype !== 'float16') { console.error('expected float32 dtype with float16 quantization on', spec.name); process.exit(1); } }"
