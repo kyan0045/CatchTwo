@@ -75,9 +75,49 @@ function isRouteQueueFull(error) {
   );
 }
 
-function sleepFor(restManager, ms) {
-  if (typeof restManager.sleep === "function") return restManager.sleep(ms);
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleepFor(restManager, ms, signal) {
+  if (typeof restManager.sleep === "function") {
+    return restManager.sleep(ms, signal);
+  }
+  return new Promise((resolve, reject) => {
+    let timer;
+    let settled = false;
+
+    const cleanup = () => {
+      if (signal) signal.removeEventListener("abort", onAbort);
+    };
+
+    const onAbort = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup();
+      reject(signal.reason);
+    };
+
+    if (signal?.aborted) {
+      reject(signal.reason);
+      return;
+    }
+
+    if (signal) {
+      signal.addEventListener("abort", onAbort, { once: true });
+    }
+
+    timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve();
+    }, ms);
+  });
+}
+
+function wakePoketwoQueue(restManager) {
+  const wake = restManager?._wakeQueue;
+  if (typeof wake !== "function") return;
+  restManager._wakeQueue = null;
+  wake();
 }
 
 function routeKeyFor(restManager, channelId) {
@@ -112,11 +152,13 @@ function getSendWait(restManager, routeKey, item) {
   return wait;
 }
 
-// Pick the most urgent item that is still queued, dropping the rest
+// Pick the most urgent ready item, or the soonest-waiting item if none are ready
 function selectNext(restManager) {
   const queue = restManager._poketwoQueue;
   const now = Date.now();
-  let bestIndex = -1;
+  let bestReadyIndex = -1;
+  let bestWaitingIndex = -1;
+  let bestWaitingWait = Infinity;
 
   for (let index = 0; index < queue.length; index++) {
     const item = queue[index];
@@ -136,12 +178,44 @@ function selectNext(restManager) {
       continue;
     }
 
-    if (bestIndex === -1 || item.priority < queue[bestIndex].priority) {
-      bestIndex = index;
+    const routeKey = routeKeyFor(restManager, item.channelId);
+    const wait = getSendWait(restManager, routeKey, item);
+
+    if (wait <= 0) {
+      if (
+        bestReadyIndex === -1 ||
+        item.priority < queue[bestReadyIndex].priority
+      ) {
+        bestReadyIndex = index;
+      }
+    } else if (
+      bestWaitingIndex === -1 ||
+      wait < bestWaitingWait ||
+      (wait === bestWaitingWait &&
+        item.priority < queue[bestWaitingIndex].priority)
+    ) {
+      bestWaitingIndex = index;
+      bestWaitingWait = wait;
     }
   }
 
-  return bestIndex;
+  if (bestReadyIndex !== -1) {
+    return {
+      index: bestReadyIndex,
+      item: queue[bestReadyIndex],
+      wait: 0,
+    };
+  }
+
+  if (bestWaitingIndex !== -1) {
+    return {
+      index: bestWaitingIndex,
+      item: queue[bestWaitingIndex],
+      wait: bestWaitingWait,
+    };
+  }
+
+  return null;
 }
 
 function enqueuePoketwoSend(restManager, item) {
@@ -155,7 +229,7 @@ function enqueuePoketwoSend(restManager, item) {
     }
     const worst = queue[worstIndex];
 
-    // Never evict a catch for something less urgent --> drop the newcomer instead
+    // Never evict a catch for something less urgent, drop the newcomer instead
     if (item.priority >= worst.priority) {
       sendLog(
         "queue",
@@ -176,6 +250,13 @@ function enqueuePoketwoSend(restManager, item) {
   }
 
   queue.push(item);
+  if (
+    restManager._waitingItem &&
+    (item.priority < restManager._waitingItem.priority ||
+      item.channelId !== restManager._waitingItem.channelId)
+  ) {
+    wakePoketwoQueue(restManager);
+  }
   return true;
 }
 
@@ -222,6 +303,8 @@ class CatchTwoRestManager extends RestManager {
     this._poketwoQueueProcessing = false;
     this._lastSentAt = {};
     this._poketwoActive = null;
+    this._wakeQueue = null;
+    this._waitingItem = null;
   }
 
   async sendMessage(channelId, payload) {
@@ -249,6 +332,8 @@ class CatchTwoRestManager extends RestManager {
 
     const error =
       reason instanceof Error ? reason : new RestManagerDestroyedError();
+    this._wakeQueue = null;
+    this._waitingItem = null;
     this._poketwoActive?.reject(error);
     this._poketwoActive = null;
     for (const item of this._poketwoQueue.splice(0)) item.reject(error);
@@ -272,24 +357,32 @@ async function processPoketwoQueue(restManager, sendMessage) {
   try {
     while (!restManager.destroyed && restManager._poketwoQueue.length > 0) {
       // Peek before removing so a more urgent item can win while this one waits.
-      const index = selectNext(restManager);
-      if (index === -1) break;
+      const selected = selectNext(restManager);
+      if (!selected) break;
 
-      const queueItem = restManager._poketwoQueue[index];
-      const routeKey = routeKeyFor(restManager, queueItem.channelId);
-      const wait = getSendWait(restManager, routeKey, queueItem);
-
-      if (wait > 0) {
+      if (selected.wait > 0) {
+        const wakeController = new AbortController();
+        const wakeReason = new Error("QUEUE_WAKE");
+        restManager._waitingItem = selected.item;
+        restManager._wakeQueue = () => wakeController.abort(wakeReason);
         try {
-          await sleepFor(restManager, Math.min(wait, 1_000));
+          await sleepFor(
+            restManager,
+            Math.min(selected.wait, 1_000),
+            wakeController.signal
+          );
         } catch (error) {
           if (restManager.destroyed) break;
-          throw error;
+          if (error !== wakeReason) throw error;
+        } finally {
+          restManager._wakeQueue = null;
+          restManager._waitingItem = null;
         }
         continue;
       }
 
-      restManager._poketwoQueue.splice(index, 1);
+      const queueItem = selected.item;
+      restManager._poketwoQueue.splice(selected.index, 1);
       restManager._poketwoActive = queueItem;
 
       const name = PRIORITY_NAMES[queueItem.priority];
@@ -309,6 +402,13 @@ async function processPoketwoQueue(restManager, sendMessage) {
             break;
           } catch (error) {
             const expired = Date.now() >= queueItem.expiresAt;
+            if (
+              isRouteQueueFull(error) &&
+              queueItem.quietDrop &&
+              attempt >= maxAttempts
+            ) {
+              break;
+            }
             if (!isRouteQueueFull(error) || attempt >= maxAttempts || expired) {
               throw error;
             }
@@ -330,17 +430,13 @@ async function processPoketwoQueue(restManager, sendMessage) {
             queueItem.onSent?.(result);
           } catch {}
           queueItem.resolve(result);
-        } else if (queueItem.quietDrop || Date.now() >= queueItem.expiresAt) {
+        } else {
           sendLog(
             "queue",
             `Dropped ${name} send before it could go out.`,
             "debug"
           );
           queueItem.resolve(null);
-        } else {
-          queueItem.reject(
-            new Error(`Protected message gave up after ${maxAttempts} attempts`)
-          );
         }
       } catch (error) {
         queueItem.reject(error);
@@ -349,6 +445,8 @@ async function processPoketwoQueue(restManager, sendMessage) {
       }
     }
   } finally {
+    restManager._wakeQueue = null;
+    restManager._waitingItem = null;
     restManager._poketwoActive = null;
     restManager._poketwoQueueProcessing = false;
   }

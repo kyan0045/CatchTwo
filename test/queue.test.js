@@ -309,6 +309,8 @@ test("spam is dropped without retrying when the send is refused", async () => {
 
   let attempts = 0;
   let onSent = 0;
+  let resolvedWith = "unset";
+  let rejected = false;
   const restManager = {
     _poketwoQueue: [],
     _poketwoQueueProcessing: false,
@@ -325,6 +327,12 @@ test("spam is dropped without retrying when the send is refused", async () => {
       onSent: () => {
         onSent++;
       },
+      resolve: (value) => {
+        resolvedWith = value;
+      },
+      reject: () => {
+        rejected = true;
+      },
     })
   );
 
@@ -335,6 +343,8 @@ test("spam is dropped without retrying when the send is refused", async () => {
 
   assert.equal(attempts, 1);
   assert.equal(onSent, 0);
+  assert.equal(resolvedWith, null);
+  assert.equal(rejected, false);
 });
 
 test("spam does not delay a catch that arrives while it waits", async () => {
@@ -523,4 +533,77 @@ test("IncenseMode disables spam", () => {
     }),
     false
   );
+});
+
+test("high-priority catch wakes a sleeping queue waiting on spam spacing", async () => {
+  const {
+    CatchTwoRestManager,
+    enqueueSpam,
+    stoppedError,
+  } = require("../src/services/queue.js");
+
+  const sent = [];
+  const rest = new CatchTwoRestManager("offline-test-token");
+  rest.request = async (_endpoint, options) => {
+    const body = JSON.parse(options.body);
+    sent.push(body.content);
+    return { id: `msg-${sent.length}` };
+  };
+  rest._lastSentAt = { 3: Date.now() };
+
+  enqueueSpam(rest, "ch-1", { content: "spam message" }, { spacingMs: 5_000 });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(sent.length, 0);
+  assert.equal(rest._waitingItem?.priority, 3);
+
+  const startedAt = Date.now();
+  await rest.sendMessage("ch-1", { content: `<@${POKETWO_ID}> c pikachu` });
+  const elapsed = Date.now() - startedAt;
+
+  assert.ok(elapsed < 250, `Expected immediate wake, took ${elapsed}ms`);
+  assert.equal(sent[0], `<@${POKETWO_ID}> c pikachu`);
+  rest.destroy(stoppedError());
+});
+
+test("ready catch on another channel is not blocked by a rate-limited channel", async () => {
+  const { processPoketwoQueue } = require("../src/services/queue.js");
+
+  const order = [];
+  let restManager;
+  restManager = {
+    _poketwoQueue: [
+      queuedItem({
+        channelId: "ch-a",
+        priority: 0,
+        payload: { content: "catch-a" },
+      }),
+      queuedItem({
+        channelId: "ch-b",
+        priority: 0,
+        payload: { content: "catch-b" },
+      }),
+    ],
+    _poketwoQueueProcessing: false,
+    destroyed: false,
+    getRouteKey: (endpoint, method) => `${method}:${endpoint}`,
+    getRateLimitKey: (routeKey) => routeKey,
+    rateLimits: new Map([
+      [
+        "POST:/channels/ch-a/messages",
+        { remaining: 0, reset: Date.now() + 5_000 },
+      ],
+    ]),
+    globalRateLimit: null,
+    sleep: async () => {
+      order.push("sleep");
+      restManager.rateLimits.clear();
+    },
+  };
+
+  await processPoketwoQueue(restManager, async (channelId, payload) => {
+    order.push(`${channelId}:${payload.content}`);
+    return { id: channelId };
+  });
+
+  assert.deepEqual(order, ["ch-b:catch-b", "sleep", "ch-a:catch-a"]);
 });
