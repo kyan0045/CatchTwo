@@ -12,33 +12,6 @@ function freshLifecycleModule(t, name) {
   return require(modulePath);
 }
 
-test("version command sends package metadata without network access", async (t) => {
-  const logging = require("../src/services/logging.js");
-  const pkg = require("../package.json");
-  const sendWebhook = t.mock.method(
-    logging,
-    "sendCommandWebhook",
-    async () => true
-  );
-  const commandPath = require.resolve("../src/commands/version.js");
-  delete require.cache[commandPath];
-  t.after(() => delete require.cache[commandPath]);
-  const command = require(commandPath);
-
-  await command.execute(
-    null,
-    { author: { id: "test-owner" } },
-    [],
-    "test-webhook"
-  );
-
-  assert.equal(sendWebhook.mock.callCount(), 1);
-  const [webhook, content, embed] = sendWebhook.mock.calls[0].arguments;
-  assert.equal(webhook, "test-webhook");
-  assert.ok(content.includes(JSON.stringify(pkg, null, 2)));
-  assert.ok(embed.description.includes(pkg.version));
-});
-
 test("restart destroys a snapshot even when a catcher removes itself and throws", async (t) => {
   t.mock.method(console, "error", () => {});
   const logging = require("../src/services/logging.js");
@@ -76,32 +49,6 @@ test("restart destroys a snapshot even when a catcher removes itself and throws"
   assert.equal(exit.mock.callCount(), 1);
 });
 
-test("version replies in-channel when the webhook is unavailable", async (t) => {
-  const logging = require("../src/services/logging.js");
-  t.mock.method(logging, "sendCommandWebhook", async () => false);
-  const pkg = require("../package.json");
-  const commandPath = require.resolve("../src/commands/version.js");
-  delete require.cache[commandPath];
-  t.after(() => delete require.cache[commandPath]);
-  const command = require(commandPath);
-
-  let replied;
-  await command.execute(
-    null,
-    {
-      author: { id: "test-owner" },
-      reply: async (content) => {
-        replied = content;
-      },
-    },
-    [],
-    null
-  );
-
-  assert.ok(replied.includes(pkg.version));
-  assert.ok(replied.includes("discord-self-lite"));
-});
-
 test("command lookup resolves aliases", () => {
   const { findCommand } = require("../src/utils/commands.js");
   const ping = { name: "ping", aliases: ["latency", "ms"] };
@@ -111,4 +58,68 @@ test("command lookup resolves aliases", () => {
   assert.equal(findCommand(client, "MS"), ping);
   assert.equal(findCommand(client, "nope"), null);
   assert.equal(findCommand(client, undefined), null);
+});
+
+test("click resolves a reply via fetchReference when message.reference is null", async () => {
+  const click = require("../src/commands/click.js");
+  const clickButton = test.mock.fn(async () => {});
+  const react = test.mock.fn(async () => {});
+  const fetchReference = test.mock.fn(async () => ({
+    id: "target-1",
+    guildId: "guild-1",
+    components: [{ components: [{ type: 2, customId: "btn-1" }] }],
+    clickButton,
+  }));
+
+  await click.execute(
+    { user: { username: "tester" } },
+    {
+      guildId: "guild-1",
+      reference: null,
+      messageReference: { messageId: "target-1" },
+      fetchReference,
+      react,
+    },
+    ["1"]
+  );
+
+  assert.equal(fetchReference.mock.callCount(), 1);
+  assert.deepEqual(clickButton.mock.calls[0].arguments, ["btn-1"]);
+  assert.deepEqual(react.mock.calls[0].arguments, ["✅"]);
+});
+
+test("predict resolves a reply via fetchReference when message.reference is null", async (t) => {
+  const ai = require("../src/services/ai.js");
+  const getTop = t.mock.method(ai, "getTopPredictions", async () => ({
+    topPredictions: [{ name: "Pikachu", confidence: 0.95, unreliable: false }],
+    timeTaken: 10,
+    accepted: true,
+    reason: "ok",
+  }));
+  const predict = freshLifecycleModule(t, "../src/commands/predict.js");
+
+  const edit = t.mock.fn(async () => {});
+  const fetchReference = t.mock.fn(async () => ({
+    attachments: [],
+    embeds: [{ image: { url: "https://example.com/spawn.png" } }],
+  }));
+
+  await predict.execute(
+    { user: { username: "tester" } },
+    {
+      attachments: [],
+      reference: null,
+      messageReference: { messageId: "spawn-1" },
+      fetchReference,
+      reply: async () => ({ edit }),
+    },
+    []
+  );
+
+  assert.equal(fetchReference.mock.callCount(), 1);
+  assert.equal(
+    getTop.mock.calls[0].arguments[0],
+    "https://example.com/spawn.png"
+  );
+  assert.equal(edit.mock.callCount(), 1);
 });

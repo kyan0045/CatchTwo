@@ -12,17 +12,24 @@ module.exports = {
       if (message.attachments?.length > 0) {
         const attachment = message.attachments[0];
         imageUrl = attachment.url;
-      } else if (message.reference) {
-        const referencedMessage = await message
-          .fetchReference()
-          .catch(() => null);
+      } else if (
+        message.reference ||
+        message.messageReference ||
+        message.data?.message_reference
+      ) {
+        const referencedMessage =
+          message.reference ||
+          (await message.fetchReference().catch(() => null));
 
         if ((referencedMessage?.attachments?.length ?? 0) > 0) {
           imageUrl = referencedMessage.attachments[0].url;
         } else if (referencedMessage?.embeds?.[0]?.image?.url) {
           imageUrl = referencedMessage.embeds[0].image.url;
         }
-      } else if (
+      }
+
+      if (
+        !imageUrl &&
         args[0] &&
         (args[0].startsWith("http://") || args[0].startsWith("https://"))
       ) {

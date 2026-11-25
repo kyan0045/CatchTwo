@@ -45,8 +45,13 @@ module.exports = {
         if (args[2]) {
           rowId = parseInt(args[2]) - 1;
         }
-      } else if (message.reference) {
-        msg = await message.fetchReference();
+      } else if (
+        message.reference ||
+        message.messageReference ||
+        message.data?.message_reference
+      ) {
+        msg = message.reference || (await message.fetchReference());
+        if (!msg) throw new Error("Could not fetch the referenced message.");
         buttonId = parseInt(args[0]) - 1;
         if (args[1]) {
           rowId = parseInt(args[1]) - 1;
