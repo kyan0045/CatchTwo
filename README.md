@@ -102,7 +102,7 @@ All settings live in `config.js`. `tokens.txt` holds one `token guildId` pair pe
 |                     | `IncenseChannel`    | `String or Array` | `"ChannelID"`                    | One channel ID or an array of channel IDs for automatic purchases. Required when `AutoIncenseBuy` is on. Deprecated. |
 | **Spamming**        | `SpamSpeed`         | `Number`          | `2000`                           | Milliseconds between spam messages. Range 1000 to 120000.                                                            |
 |                     | `SpamChannel`       | `String`          | `""`                             | Channel ID to spam in. Empty auto-detects a channel named "spam".                                                    |
-| **Logging**         | `Pokemon`           | `Boolean`         | `false`                          | Log regular catches.                                                                                                 |
+| **Logging**         | `Pokemon`           | `Boolean`         | `true`                           | Log regular catches.                                                                                                 |
 |                     | `Quests`            | `Boolean`         | `true`                           | Log completed quests.                                                                                                |
 |                     | `LowIV`             | `Boolean`         | `true`                           | Log catches at or below `LowIVThreshold`.                                                                            |
 |                     | `HighIV`            | `Boolean`         | `true`                           | Log catches at or above `HighIVThreshold`.                                                                           |
@@ -110,7 +110,7 @@ All settings live in `config.js`. `tokens.txt` holds one `token guildId` pair pe
 |                     | `Ping`              | `Object`          | see example                      | Per-category owner pings for catches. Quests ping with `logging.Quests`.                                             |
 |                     | `LowIVThreshold`    | `Number`          | `15.00`                          | IV percentage at or below this counts as low IV.                                                                     |
 |                     | `HighIVThreshold`   | `Number`          | `85.00`                          | IV percentage at or above this counts as high IV.                                                                    |
-|                     | `LogWebhook`        | `String`          | `""`                             | Discord webhook URL. Empty or `Webhook` disables webhook output.                                                     |
+|                     | `LogWebhook`        | `String`          | `"Webhook"`                      | Discord webhook URL. Empty or `Webhook` disables webhook output.                                                     |
 | **Ownership**       | `OwnerIDs`          | `Array`           | `["1101294362505269379", "..."]` | Discord user IDs allowed to run commands.                                                                            |
 |                     | `CommandPrefix`     | `String`          | `"!"`                            | Command prefix, for example `!help`. Must not clash with another bot in the same server.                             |
 | **Global Settings** | `GlobalCatch`       | `Boolean`         | `false`                          | Catch in every visible channel except blacklisted guilds.                                                            |
@@ -118,19 +118,21 @@ All settings live in `config.js`. `tokens.txt` holds one `token guildId` pair pe
 | **Hunting**         | `HuntPokemons`      | `Array`           | `["rayquaza", "solosis"]`        | Species the hunt account should catch.                                                                               |
 |                     | `HuntToken`         | `String`          | `"HuntToken"`                    | Hunt account token. Empty, `HuntToken` or `...` uses the main account.                                               |
 | **Captcha Solving** | `key`               | `String`          | `""`                             | CatchTwo captcha solver API key. Empty disables solving.                                                             |
-| **Debug**           | `debug`             | `Boolean`         | `true`                           | Print extra diagnostic output.                                                                                       |
+| **Debug**           | `debug`             | `Boolean`         | `false`                          | Print extra diagnostic output.                                                                                       |
+
+When `captchaSolving.key` is set, CatchTwo sends your Discord token and user ID to `captchasolver.kyanbosman.com`.
 
 `logging.Ping` controls owner mentions independently from logging:
 
 ```js
 Ping: {
   Shiny: true,
-  Gigantamax: false,
-  Rares: false,
+  Gigantamax: true,
+  Rares: true,
   Event: false,
   Regional: false,
-  HighIV: false,
-  LowIV: false,
+  HighIV: true,
+  LowIV: true,
 }
 ```
 
