@@ -1,11 +1,5 @@
 // @ts-check
-/**
- * @param {unknown} value
- * @returns {boolean}
- */
-function isSnowflake(value) {
-  return typeof value === "string" && /^\d{16,20}$/.test(value);
-}
+const { isSnowflake } = require("../constants.js");
 
 const PING_CATEGORIES = [
   "Shiny",

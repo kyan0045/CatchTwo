@@ -15,7 +15,7 @@ const {
 } = require("../services/states.js");
 const { addStat } = require("../services/stats.js");
 const { resumeIncense } = require("../services/incense.js");
-const { POKETWO_ID, POKETWO_MENTION } = require("../constants.js");
+const { POKETWO_ID, POKETWO_MENTION, isSnowflake } = require("../constants.js");
 
 const POKEMON_PATTERN = "pok(?:\\u00e9|e)mon";
 const POKECOINS_PATTERN = "Pok(?:\\u00e9|e)coins";
@@ -23,6 +23,36 @@ const CAPTCHA_RESULT_DELAYS_MS = [
   15_000, 15_000, 15_000, 15_000, 30_000, 30_000, 30_000, 30_000, 60_000,
   60_000,
 ];
+
+function getMessageTimestamp(message) {
+  if (typeof message?.createdTimestamp === "number") {
+    return message.createdTimestamp;
+  }
+  if (typeof message?.timestamp === "number") {
+    return message.timestamp;
+  }
+  if (typeof message?.timestamp === "string") {
+    const parsed = Date.parse(message.timestamp);
+    return Number.isFinite(parsed) ? parsed : NaN;
+  }
+  return NaN;
+}
+
+function isCaptchaStillActive(client) {
+  return (
+    !client.stopped && !client.suspended && getWaiting(client.user.id) === true
+  );
+}
+
+async function sleepCaptchaPoll(client, ms) {
+  if (typeof client.rest?.sleep === "function") {
+    try {
+      await client.rest.sleep(ms);
+    } catch {}
+    return;
+  }
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function findExistingDM(client, userId) {
   for (const channel of client.channels.values()) {
@@ -93,18 +123,19 @@ function parseQuestTrackReward(content) {
 
 module.exports = {
   name: "messageCreate",
+  getMessageTimestamp,
   parseCoinAmount,
   parseQuestCompletion,
   parseQuestTrackReward,
   execute: async (client, guildId, message) => {
     if (client.stopped || client.suspended) return;
+    if (message?.author?.id !== POKETWO_ID) return;
 
     if (
-      message?.author.id === POKETWO_ID &&
-      (getWaiting(client.user.id) === false ||
-        message?.embeds[0]?.title?.includes("Account Suspended"))
+      getWaiting(client.user.id) === false ||
+      message?.embeds?.[0]?.title?.includes("Account Suspended")
     ) {
-      if (message?.embeds[0]?.title?.includes("Account Suspended")) {
+      if (message?.embeds?.[0]?.title?.includes("Account Suspended")) {
         const messages = await message.channel
           .fetchMessages({
             limit: 2,
@@ -143,13 +174,18 @@ module.exports = {
                   });
                 }),
                 ...config.ownership.OwnerIDs.map(async (id) => {
-                  if (id.length <= 16 || client.stopped) return;
+                  if (!isSnowflake(id) || client.stopped) return;
 
                   try {
-                    const user = await client.fetchUser(id);
-                    if (client.stopped) return;
-                    const dmChannel = await user.createDM();
-                    if (client.stopped) return;
+                    const dmChannel = findExistingDM(client, id);
+                    if (!dmChannel) {
+                      sendLog(
+                        client.user.username,
+                        `Failed to send suspension DM to owner ${id}: no existing DM channel.`,
+                        "warning"
+                      );
+                      return;
+                    }
 
                     const lastMessage = await dmChannel
                       .fetchMessage(dmChannel?.lastMessageId)
@@ -157,7 +193,7 @@ module.exports = {
                     if (client.stopped) return;
                     if (lastMessage?.content?.includes("suspended")) return;
 
-                    await user.send(
+                    await dmChannel.send(
                       `## ACCOUNT SUSPENDED\n> Your account has been suspended. The autocatcher has been paused. Please check your account for more information.`
                     );
                   } catch (error) {
@@ -182,6 +218,7 @@ module.exports = {
       }
 
       if (
+        typeof message.content === "string" &&
         message.content.includes(
           `https://verify.poketwo.net/captcha/${client.user.id}`
         )
@@ -216,7 +253,7 @@ module.exports = {
           },
         });
         for (const id of config.ownership.OwnerIDs) {
-          if (!id || id.length <= 16) continue;
+          if (!isSnowflake(id)) continue;
           const dmChannel = findExistingDM(client, id);
           if (!dmChannel) {
             sendLog(
@@ -233,7 +270,7 @@ module.exports = {
             if (
               lastMessage?.content?.includes("captcha") &&
               lastMessage?.author?.id === client.user.id &&
-              lastMessage?.createdTimestamp > Date.now() - 86400000
+              getMessageTimestamp(lastMessage) > Date.now() - 86400000
             ) {
               continue;
             }
@@ -250,6 +287,7 @@ module.exports = {
         }
 
         if (config.captchaSolving.key) {
+          if (!isCaptchaStillActive(client)) return;
           let taskId;
 
           try {
@@ -277,6 +315,7 @@ module.exports = {
             taskId = submission?.requestId;
             if (!taskId) throw new Error("Captcha solver returned no task ID.");
           } catch (error) {
+            if (!isCaptchaStillActive(client)) return;
             sendLog(
               client.user.username,
               `Failed to submit captcha to solver: ${error.message}`,
@@ -289,6 +328,7 @@ module.exports = {
             return;
           }
 
+          if (!isCaptchaStillActive(client)) return;
           sendLog(client.user.username, "Solver Task ID: " + taskId, "debug");
 
           sendLog(
@@ -296,16 +336,17 @@ module.exports = {
             "Sent captcha to the solver.",
             "captcha"
           );
-          await new Promise((resolve) => setTimeout(resolve, 30_000));
+          await sleepCaptchaPoll(client, 30_000);
+          if (!isCaptchaStillActive(client)) return;
 
           for (
             let attempt = 0;
             attempt < CAPTCHA_RESULT_DELAYS_MS.length;
             attempt++
           ) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, CAPTCHA_RESULT_DELAYS_MS[attempt])
-            );
+            if (!isCaptchaStillActive(client)) return;
+            await sleepCaptchaPoll(client, CAPTCHA_RESULT_DELAYS_MS[attempt]);
+            if (!isCaptchaStillActive(client)) return;
             try {
               const response = await fetch(
                 `https://captchasolver.kyanbosman.com/results/${taskId}`,
@@ -322,6 +363,7 @@ module.exports = {
                 );
               }
               const result = await response.json();
+              if (!isCaptchaStillActive(client)) return;
 
               if (result.status === "completed") {
                 setWaiting(client.user.id, false);
@@ -357,6 +399,7 @@ module.exports = {
                 "debug"
               );
             } catch (error) {
+              if (!isCaptchaStillActive(client)) return;
               sendLog(
                 client.user.username,
                 `Error checking captcha result (${attempt + 1}/${CAPTCHA_RESULT_DELAYS_MS.length}): ${error.message}`,
@@ -365,6 +408,7 @@ module.exports = {
             }
           }
 
+          if (!isCaptchaStillActive(client)) return;
           sendLog(
             client.user.username,
             "Captcha solver timed out; account remains paused.",
@@ -378,7 +422,10 @@ module.exports = {
       }
     }
 
-    if (message.content.includes(`You have completed`)) {
+    if (
+      typeof message.content === "string" &&
+      message.content.includes(`You have completed`)
+    ) {
       const messages = await message.channel
         .fetchMessages({
           limit: 2,
@@ -445,6 +492,7 @@ module.exports = {
     }
 
     if (
+      typeof message.content === "string" &&
       message.content.includes("You received") &&
       message.content.includes("Pokécoins") &&
       message.content.includes(client.user.id)

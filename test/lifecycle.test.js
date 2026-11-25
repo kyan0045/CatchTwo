@@ -259,68 +259,59 @@ test("suspension tears down despite failed webhook and owner notifications", asy
   const fixture = lifecycleFixture(t, "lifecycle-failed-notifications", [
     "100000000000000001",
   ]);
+  const dmSend = t.mock.fn(async () => {
+    throw new Error("DM failed");
+  });
+  fixture.client.channels.set("dm-1", {
+    type: 1,
+    recipients: [{ id: "100000000000000001" }],
+    lastMessageId: "previous",
+    fetchMessage: async () => null,
+    send: dmSend,
+  });
   fixture.webhook.mock.mockImplementation(async () => {
     throw new Error("Webhook unavailable");
   });
   await fixture.execute();
   assert.equal(fixture.webhook.mock.callCount(), 1);
-  assert.equal(fixture.fetchUser.mock.callCount(), 1);
+  assert.equal(dmSend.mock.callCount(), 1);
   assert.equal(fixture.disconnect.mock.callCount(), 1);
   assertLifecycleStopped(fixture);
 });
 
-for (const stage of ["fetchUser", "createDM", "fetchMessage"]) {
-  test(`suspension deadline stops hanging ${stage} and prevents a late DM`, async (t) => {
-    const fixture = lifecycleFixture(t, `lifecycle-hanging-${stage}`, [
-      "100000000000000002",
-    ]);
-    const timers = lifecycleTimers(t);
-    let resolvePending;
-    const pending = new Promise((resolve) => {
-      resolvePending = resolve;
-    });
-    const channel = {
-      lastMessageId: "previous",
-      fetchMessage: t.mock.fn(async () => null),
-    };
-    const user = {
-      createDM: t.mock.fn(async () => channel),
-      send: t.mock.fn(async () => {}),
-    };
-    fixture.fetchUser.mock.mockImplementation(() =>
-      stage === "fetchUser" ? pending : Promise.resolve(user)
-    );
-    if (stage === "createDM")
-      user.createDM.mock.mockImplementation(() => pending);
-    if (stage === "fetchMessage")
-      channel.fetchMessage.mock.mockImplementation(() => pending);
-    fixture.webhook.mock.mockImplementation(() => pending);
-    const execution = fixture.execute();
-    await flushLifecyclePromises();
-    assert.equal(fixture.client.suspended, true);
-    assert.equal(fixture.client.stopped, false);
-    const deadline = [...timers.values()].find(({ delay }) => delay === 10_000);
-    assert.ok(deadline);
-    const before = [
-      user.createDM.mock.callCount(),
-      channel.fetchMessage.mock.callCount(),
-    ];
-    deadline.callback();
-    await execution;
-    assertLifecycleStopped(fixture);
-    assert.equal(timers.size, 0);
-    resolvePending(
-      stage === "fetchUser" ? user : stage === "createDM" ? channel : null
-    );
-    await flushLifecyclePromises();
-    assert.deepEqual(
-      [user.createDM.mock.callCount(), channel.fetchMessage.mock.callCount()],
-      before
-    );
-    assert.equal(user.send.mock.callCount(), 0);
-    assert.equal(fixture.disconnect.mock.callCount(), 1);
+test("suspension deadline stops hanging fetchMessage and prevents a late DM", async (t) => {
+  const fixture = lifecycleFixture(t, "lifecycle-hanging-fetchMessage", [
+    "100000000000000002",
+  ]);
+  const timers = lifecycleTimers(t);
+  let resolvePending;
+  const pending = new Promise((resolve) => {
+    resolvePending = resolve;
   });
-}
+  const channel = {
+    type: 1,
+    recipients: [{ id: "100000000000000002" }],
+    lastMessageId: "previous",
+    fetchMessage: t.mock.fn(() => pending),
+    send: t.mock.fn(async () => {}),
+  };
+  fixture.client.channels.set("dm-2", channel);
+  fixture.webhook.mock.mockImplementation(() => pending);
+  const execution = fixture.execute();
+  await flushLifecyclePromises();
+  assert.equal(fixture.client.suspended, true);
+  assert.equal(fixture.client.stopped, false);
+  const deadline = [...timers.values()].find(({ delay }) => delay === 10_000);
+  assert.ok(deadline);
+  deadline.callback();
+  await execution;
+  assertLifecycleStopped(fixture);
+  assert.equal(timers.size, 0);
+  resolvePending(null);
+  await flushLifecyclePromises();
+  assert.equal(channel.send.mock.callCount(), 0);
+  assert.equal(fixture.disconnect.mock.callCount(), 1);
+});
 
 test("bulk and targeted resume skip stopped and suspended clients", async (t) => {
   const fixture = lifecycleFixture(t, "100000000000000003");
